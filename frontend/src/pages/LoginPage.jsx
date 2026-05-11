@@ -120,9 +120,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-slate-500 mt-6">
-            Default: <span className="text-slate-600 dark:text-slate-400 font-mono font-semibold">admin</span> / <span className="text-slate-600 dark:text-slate-400 font-mono font-semibold">Admin@123</span>
-          </p>
         </div>
 
         <p className="text-center text-xs text-slate-500 mt-6">
