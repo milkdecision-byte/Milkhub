@@ -6,7 +6,7 @@ from __future__ import annotations
 import uuid
 import logging
 from datetime import date as dt_date
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
@@ -25,6 +25,15 @@ ALLOWED_EXT = {"xlsx", "csv", "xls", "pdf", "txt"}
 
 def _allowed(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
+
+
+@upload_bp.route("", methods=["OPTIONS"])
+def upload_options():
+    response = make_response()
+    response.headers["Access-Control-Allow-Origin"] = "https://milkhub-teal.vercel.app"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response, 200
 
 
 @upload_bp.post("")
@@ -52,7 +61,7 @@ def upload():
     engine = get_engine_with_db_settings(settings)
 
     ml_svc: MLService = current_app.config.get("ML_SERVICE")
-    
+
     # Generate unique batch ID
     today_str = dt_date.today().strftime("%Y%m%d")
     shift_guess = rows[0].get("shift", "morning").upper() if rows else "MORNING"
@@ -64,9 +73,8 @@ def upload():
 
     accepted = rejected = 0
     fraud_alerts = 0
-    saved_records = []
     row_results = []
-    
+
     upload_batch = UploadBatch(
         batch_id=batch_id,
         file_name=secure_filename(file.filename),
@@ -150,7 +158,7 @@ def upload():
             "shift": shift,
             "decision": result.decision,
             "fraud_risk": result.fraud_risk,
-            "reasons": result.reasons[:2],  # trim for response
+            "reasons": result.reasons[:2],
         })
 
     upload_batch.total_records = len(rows)

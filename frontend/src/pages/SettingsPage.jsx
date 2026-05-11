@@ -117,16 +117,16 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 overflow-x-hidden">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white">Settings</h1>
           <p className="text-black dark:text-slate-400 text-sm">Configure quality thresholds and system parameters</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleReset} className="btn-secondary flex items-center gap-2">
+        <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+          <button onClick={handleReset} className="btn-secondary flex items-center justify-center gap-2 flex-1 sm:flex-none whitespace-nowrap">
             <RotateCcw size={15} /> Reset Defaults
           </button>
-          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2">
+          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center justify-center gap-2 flex-1 sm:flex-none whitespace-nowrap">
             {saving
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               : <Save size={15} />
