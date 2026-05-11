@@ -1,0 +1,5 @@
+# Pyrefly configuration for the backend
+# SQLAlchemy models use dynamic __init__ generation that Pyrefly doesn't understand
+
+[tool.pyrefly]
+exclude = ["app.py", "routes/", "models/"]
