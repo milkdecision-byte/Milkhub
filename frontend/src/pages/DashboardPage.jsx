@@ -139,17 +139,17 @@ export default function DashboardPage() {
             {refreshing && <RefreshCcw size={16} className="animate-spin text-milk-500" />}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5 flex items-center gap-2">
-            Live milk quality metrics and analytics 
+            Live milk quality metrics and analytics
             {lastUpdated && <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">Updated: {lastUpdated}</span>}
           </p>
         </div>
-        
+
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
           <div className="relative">
-            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input type="date" className="input pl-9 text-xs py-2 h-9 border-none bg-slate-50 dark:bg-slate-800" value={filters.date}
-              onChange={e => setFilter('date', e.target.value)} disabled={!!filters.batch_id}/>
+              onChange={e => setFilter('date', e.target.value)} disabled={!!filters.batch_id} />
           </div>
           <select className="select text-xs py-2 h-9 border-none bg-slate-50 dark:bg-slate-800" value={filters.shift}
             onChange={e => setFilter('shift', e.target.value)} disabled={!!filters.batch_id}>

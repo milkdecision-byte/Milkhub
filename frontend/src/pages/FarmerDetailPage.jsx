@@ -29,7 +29,7 @@ export default function FarmerDetailPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-2 border-milk-500 border-t-transparent rounded-full animate-spin"/>
+      <div className="w-8 h-8 border-2 border-milk-500 border-t-transparent rounded-full animate-spin" />
     </div>
   )
   if (!data) return <p className="text-slate-500 dark:text-slate-400">Farmer not found</p>
@@ -56,7 +56,7 @@ export default function FarmerDetailPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <button onClick={() => navigate('/farmers')}
         className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium">
-        <ArrowLeft size={16}/> Back to Farmers
+        <ArrowLeft size={16} /> Back to Farmers
       </button>
 
       {/* Header */}
@@ -68,7 +68,7 @@ export default function FarmerDetailPage() {
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{farmer.full_name}</h1>
             {farmer.fraud_flag && (
-              <span className="badge-high flex items-center gap-1"><ShieldAlert size={12}/>FRAUD FLAGGED</span>
+              <span className="badge-high flex items-center gap-1"><ShieldAlert size={12} />FRAUD FLAGGED</span>
             )}
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -116,18 +116,18 @@ export default function FarmerDetailPage() {
       {trendData.length > 1 && (
         <div className="card p-5">
           <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             FAT &amp; SNF Trend
           </h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chartConfig.grid} vertical={false}/>
-              <XAxis dataKey="date" tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <YAxis tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background: chartConfig.tooltip.bg, border: `1px solid ${chartConfig.tooltip.border}`, borderRadius: 10, fontSize: 12, boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}/>
-              <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600, color: chartConfig.text, paddingTop: 16 }}/>
-              <Line type="monotone" dataKey="fat" name="FAT %" stroke="#10b981" strokeWidth={2.5} dot={false}/>
-              <Line type="monotone" dataKey="snf" name="SNF %" stroke="#3aa3f6" strokeWidth={2.5} dot={false}/>
+              <CartesianGrid strokeDasharray="3 3" stroke={chartConfig.grid} vertical={false} />
+              <XAxis dataKey="date" tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: chartConfig.tooltip.bg, border: `1px solid ${chartConfig.tooltip.border}`, borderRadius: 10, fontSize: 12, boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+              <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600, color: chartConfig.text, paddingTop: 16 }} />
+              <Line type="monotone" dataKey="fat" name="FAT %" stroke="#10b981" strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="snf" name="SNF %" stroke="#3aa3f6" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -142,7 +142,7 @@ export default function FarmerDetailPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                {['Date','Shift','FAT','SNF','pH','Temp','MBRT','Decision','Fraud Risk','Reasons'].map(h => (
+                {['Date', 'Shift', 'FAT', 'SNF', 'pH', 'Temp', 'MBRT', 'Decision', 'Fraud Risk', 'Reasons'].map(h => (
                   <th key={h} className="text-left px-4 py-3.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -157,12 +157,11 @@ export default function FarmerDetailPage() {
                   <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.ph?.toFixed(2) ?? '—'}</td>
                   <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.temperature?.toFixed(1) ?? '—'}</td>
                   <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.mbrt?.toFixed(1) ?? '—'}</td>
-                  <td className="px-4 py-2.5"><DecisionBadge d={r.decision}/></td>
+                  <td className="px-4 py-2.5"><DecisionBadge d={r.decision} /></td>
                   <td className="px-4 py-2.5">
-                    <span className={`text-xs font-bold ${
-                      r.fraud_risk === 'high' ? 'text-red-600 dark:text-red-400' :
-                      r.fraud_risk === 'medium' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'
-                    }`}>{r.fraud_risk?.toUpperCase()}</span>
+                    <span className={`text-xs font-bold ${r.fraud_risk === 'high' ? 'text-red-600 dark:text-red-400' :
+                        r.fraud_risk === 'medium' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'
+                      }`}>{r.fraud_risk?.toUpperCase()}</span>
                   </td>
                   <td className="px-4 py-2.5 text-slate-500 dark:text-slate-500 text-xs max-w-[150px] truncate" title={r.reasons?.join(', ')}>
                     {r.reasons && r.reasons.length > 0 ? r.reasons[0] : '—'}

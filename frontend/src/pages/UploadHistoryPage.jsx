@@ -80,7 +80,7 @@ export default function UploadHistoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <History size={24} className="text-milk-600"/> Upload History
+            <History size={24} className="text-milk-600" /> Upload History
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">{total.toLocaleString()} total batches found</p>
         </div>
@@ -88,14 +88,14 @@ export default function UploadHistoryPage() {
 
       <div className="card p-3 sm:p-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input className="input pl-10 text-sm py-2.5 w-full" placeholder="Search by batch ID, session, or file name…"
-            value={search} onChange={e => setSearch(e.target.value)}/>
+            value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2">
-          <input type="date" className="input text-sm py-2.5" 
+          <input type="date" className="input text-sm py-2.5"
             value={dateFilter} onChange={e => setDateFilter(e.target.value)} />
-          <select className="select text-sm py-2.5" 
+          <select className="select text-sm py-2.5"
             value={shiftFilter} onChange={e => setShiftFilter(e.target.value)}>
             <option value="">All Shifts</option>
             <option value="morning">Morning</option>
@@ -117,7 +117,7 @@ export default function UploadHistoryPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
               {loading ? (
                 <tr><td colSpan={11} className="text-center py-20 text-slate-500">
-                  <div className="inline-block w-10 h-10 border-3 border-milk-500 border-t-transparent rounded-full animate-spin"/>
+                  <div className="inline-block w-10 h-10 border-3 border-milk-500 border-t-transparent rounded-full animate-spin" />
                 </td></tr>
               ) : batches.length === 0 ? (
                 <tr><td colSpan={11} className="text-center py-20 text-slate-500 font-bold">No batches found</td></tr>
@@ -137,26 +137,26 @@ export default function UploadHistoryPage() {
                   <td className="px-4 py-3.5 text-emerald-600 font-bold">{b.accepted}</td>
                   <td className="px-4 py-3.5 text-red-600 font-bold">{b.rejected}</td>
                   <td className="px-4 py-3.5 text-slate-600 dark:text-slate-400 text-xs truncate max-w-[100px]">{b.uploaded_by_name}</td>
-                  <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[10px] whitespace-nowrap">{b.created_at ? new Date(b.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '—'}</td>
+                  <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[10px] whitespace-nowrap">{b.created_at ? new Date(b.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
 
                   <td className="px-4 py-3.5 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => navigate(`/records?batch_id=${b.batch_id}`)} title="View Records"
                         className="p-2 rounded-xl text-slate-400 hover:text-milk-600 hover:bg-milk-50 dark:hover:bg-milk-900/30 transition-all">
-                        <Eye size={16}/>
+                        <Eye size={16} />
                       </button>
                       <button onClick={() => setDownloadDropdown(b.batch_id)} title="Export Batch"
                         className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                        <Download size={16}/>
+                        <Download size={16} />
                       </button>
                       <button onClick={() => toast('Original file storage is not implemented yet.')} title="Download Original File"
                         className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                        <FileText size={16}/>
+                        <FileText size={16} />
                       </button>
                       {user?.role === 'admin' && (
                         <button onClick={() => handleDelete(b.id)} title="Delete Batch"
                           className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all">
-                          <Trash2 size={16}/>
+                          <Trash2 size={16} />
                         </button>
                       )}
                     </div>

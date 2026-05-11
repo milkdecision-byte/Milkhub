@@ -22,9 +22,9 @@ export default function RecordsPage() {
   const [page, setPage] = useState(1)
   const [searchParams] = useSearchParams()
   const initialBatchId = searchParams.get('batch_id') || ''
-  
-  const [filters, setFilters] = useState({ 
-    decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: initialBatchId 
+
+  const [filters, setFilters] = useState({
+    decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: initialBatchId
   })
   const [batchesList, setBatchesList] = useState([])
   const navigate = useNavigate()
@@ -37,7 +37,7 @@ export default function RecordsPage() {
   const fetchRecords = async (pg = page) => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({ page: pg, per_page: 30, ...Object.fromEntries(Object.entries(filters).filter(([,v]) => v)) })
+      const params = new URLSearchParams({ page: pg, per_page: 30, ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v)) })
       const r = await api.get(`/records?${params}`)
       setRecords(r.data.records)
       setTotal(r.data.total)
@@ -59,20 +59,20 @@ export default function RecordsPage() {
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">{total.toLocaleString()} total entries found</p>
         </div>
         <div className="flex items-center gap-2">
-           {filters.batch_id && (
-             <span className="badge-high">Batch: {filters.batch_id}</span>
-           )}
-           <button onClick={() => setFilters({ decision:'', fraud_risk:'', shift:'', date_from:'', date_to:'', search:'', batch_id:'' })}
-             className="btn-secondary text-xs py-2 px-4 w-full sm:w-auto">Reset Filters</button>
+          {filters.batch_id && (
+            <span className="badge-high">Batch: {filters.batch_id}</span>
+          )}
+          <button onClick={() => setFilters({ decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: '' })}
+            className="btn-secondary text-xs py-2 px-4 w-full sm:w-auto">Reset Filters</button>
         </div>
       </div>
 
       {/* Filters */}
       <div className="card p-3 sm:p-4 flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input className="input pl-10 text-sm py-2.5" placeholder="Farmer name or code…"
-            value={filters.search} onChange={e => setFilter('search', e.target.value)}/>
+            value={filters.search} onChange={e => setFilter('search', e.target.value)} />
         </div>
         <div className="grid grid-cols-2 sm:flex gap-2">
           <select className="select flex-1 sm:w-40 text-sm py-2.5" value={filters.batch_id}
@@ -104,14 +104,14 @@ export default function RecordsPage() {
         </div>
         <div className="grid grid-cols-2 sm:flex gap-2">
           <div className="relative flex-1 sm:w-40">
-            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input type="date" className="input pl-9 text-xs sm:text-sm py-2.5" value={filters.date_from}
-              onChange={e => setFilter('date_from', e.target.value)}/>
+              onChange={e => setFilter('date_from', e.target.value)} />
           </div>
           <div className="relative flex-1 sm:w-40">
-            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input type="date" className="input pl-9 text-xs sm:text-sm py-2.5" value={filters.date_to}
-              onChange={e => setFilter('date_to', e.target.value)}/>
+              onChange={e => setFilter('date_to', e.target.value)} />
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function RecordsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                {['ID','Farmer','Code','Date','Shift','FAT','SNF','pH','Acidity','Temp','MBRT','COB','Alcohol','Decision','Fraud','Reasons',''].map(h => (
+                {['ID', 'Farmer', 'Code', 'Date', 'Shift', 'FAT', 'SNF', 'pH', 'Acidity', 'Temp', 'MBRT', 'COB', 'Alcohol', 'Decision', 'Fraud', 'Reasons', ''].map(h => (
                   <th key={h} className="text-left px-4 py-4 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -130,7 +130,7 @@ export default function RecordsPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
               {loading ? (
                 <tr><td colSpan={17} className="text-center py-20 text-slate-500">
-                  <div className="inline-block w-10 h-10 border-3 border-milk-500 border-t-transparent rounded-full animate-spin"/>
+                  <div className="inline-block w-10 h-10 border-3 border-milk-500 border-t-transparent rounded-full animate-spin" />
                 </td></tr>
               ) : records.length === 0 ? (
                 <tr><td colSpan={17} className="text-center py-20 text-slate-500 font-bold">No records found matching filters</td></tr>
@@ -162,8 +162,8 @@ export default function RecordsPage() {
                       {r.alcohol_test === 'positive' ? 'POS' : 'NEG'}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5"><DecisionBadge d={r.decision}/></td>
-                  <td className="px-4 py-3.5"><FraudBadge r={r.fraud_risk}/></td>
+                  <td className="px-4 py-3.5"><DecisionBadge d={r.decision} /></td>
+                  <td className="px-4 py-3.5"><FraudBadge r={r.fraud_risk} /></td>
                   <td className="px-4 py-3.5 text-slate-500 dark:text-slate-500 text-[11px] max-w-[200px] truncate font-medium" title={r.reasons?.join(', ')}>
                     {r.reasons && r.reasons.length > 0 ? r.reasons[0] : '—'}
                     {r.reasons && r.reasons.length > 1 && <span className="ml-1.5 text-milk-600 dark:text-milk-400 font-black tracking-tighter">+{r.reasons.length - 1}</span>}
@@ -172,7 +172,7 @@ export default function RecordsPage() {
                     {r.farmer_id && (
                       <button onClick={() => navigate(`/farmers/${r.farmer_id}`)}
                         className="p-2.5 rounded-xl text-slate-400 hover:text-milk-600 dark:hover:text-milk-400 hover:bg-milk-50 dark:hover:bg-milk-900/30 transition-all shadow-sm sm:shadow-none border border-transparent hover:border-milk-100 dark:hover:border-milk-800">
-                        <Eye size={16}/>
+                        <Eye size={16} />
                       </button>
                     )}
                   </td>
@@ -189,9 +189,9 @@ export default function RecordsPage() {
               Page <span className="text-slate-900 dark:text-white">{page}</span> of {pages}
             </p>
             <div className="flex items-center gap-1.5">
-              <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1}
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
                 className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">
-                <ChevronLeft size={18}/>
+                <ChevronLeft size={18} />
               </button>
               <div className="flex items-center gap-1 mx-1">
                 {Array.from({ length: Math.min(window.innerWidth < 640 ? 3 : 5, pages) }, (_, i) => {
@@ -200,23 +200,23 @@ export default function RecordsPage() {
                   else if (page <= 3) pg = i + 1;
                   else if (page >= pages - 2) pg = pages - 4 + i;
                   else pg = page - 2 + i;
-                  
+
                   if (pg < 1 || pg > pages) return null;
-                  
+
                   return (
                     <button key={pg} onClick={() => setPage(pg)}
                       className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-black transition-all shadow-sm border
-                        ${pg === page 
-                          ? 'bg-milk-600 border-milk-600 text-white shadow-milk-600/30 scale-110 z-10' 
+                        ${pg === page
+                          ? 'bg-milk-600 border-milk-600 text-white shadow-milk-600/30 scale-110 z-10'
                           : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                       {pg}
                     </button>
                   )
                 })}
               </div>
-              <button onClick={() => setPage(p => Math.min(pages, p+1))} disabled={page === pages}
+              <button onClick={() => setPage(p => Math.min(pages, p + 1))} disabled={page === pages}
                 className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">
-                <ChevronRight size={18}/>
+                <ChevronRight size={18} />
               </button>
             </div>
           </div>

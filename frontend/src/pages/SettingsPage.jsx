@@ -11,10 +11,10 @@ const GROUPS = [
     color: 'text-emerald-600 dark:text-emerald-400',
     bg: 'bg-emerald-100 dark:bg-emerald-900/30',
     fields: [
-      { key: 'fat_min',  label: 'FAT Minimum (%)',   step: '0.01' },
-      { key: 'fat_max',  label: 'FAT Maximum (%)',   step: '0.01' },
-      { key: 'snf_min',  label: 'SNF Minimum (%)',   step: '0.01' },
-      { key: 'snf_max',  label: 'SNF Maximum (%)',   step: '0.01' },
+      { key: 'fat_min', label: 'FAT Minimum (%)', step: '0.01' },
+      { key: 'fat_max', label: 'FAT Maximum (%)', step: '0.01' },
+      { key: 'snf_min', label: 'SNF Minimum (%)', step: '0.01' },
+      { key: 'snf_max', label: 'SNF Maximum (%)', step: '0.01' },
     ],
   },
   {
@@ -23,10 +23,10 @@ const GROUPS = [
     color: 'text-blue-600 dark:text-blue-400',
     bg: 'bg-blue-100 dark:bg-blue-900/30',
     fields: [
-      { key: 'ph_min',       label: 'pH Minimum',        step: '0.01' },
-      { key: 'ph_max',       label: 'pH Maximum',        step: '0.01' },
-      { key: 'acidity_min',  label: 'Acidity Min (% LA)', step: '0.001' },
-      { key: 'acidity_max',  label: 'Acidity Max (% LA)', step: '0.001' },
+      { key: 'ph_min', label: 'pH Minimum', step: '0.01' },
+      { key: 'ph_max', label: 'pH Maximum', step: '0.01' },
+      { key: 'acidity_min', label: 'Acidity Min (% LA)', step: '0.001' },
+      { key: 'acidity_max', label: 'Acidity Max (% LA)', step: '0.001' },
     ],
   },
   {
@@ -35,10 +35,10 @@ const GROUPS = [
     color: 'text-orange-600 dark:text-orange-400',
     bg: 'bg-orange-100 dark:bg-orange-900/30',
     fields: [
-      { key: 'temp_ideal',       label: 'Ideal Temp Threshold (°C)',      step: '0.1' },
-      { key: 'temp_acceptable',  label: 'Acceptable Temp Threshold (°C)', step: '0.1' },
-      { key: 'raw_milk_temp_min', label: 'Raw Milk Temp Min (°C)',        step: '0.1' },
-      { key: 'raw_milk_temp_max', label: 'Raw Milk Temp Max (°C)',        step: '0.1' },
+      { key: 'temp_ideal', label: 'Ideal Temp Threshold (°C)', step: '0.1' },
+      { key: 'temp_acceptable', label: 'Acceptable Temp Threshold (°C)', step: '0.1' },
+      { key: 'raw_milk_temp_min', label: 'Raw Milk Temp Min (°C)', step: '0.1' },
+      { key: 'raw_milk_temp_max', label: 'Raw Milk Temp Max (°C)', step: '0.1' },
     ],
   },
   {
@@ -47,8 +47,8 @@ const GROUPS = [
     color: 'text-purple-600 dark:text-purple-400',
     bg: 'bg-purple-100 dark:bg-purple-900/30',
     fields: [
-      { key: 'sg_min',    label: 'Specific Gravity Min', step: '0.0001' },
-      { key: 'sg_max',    label: 'Specific Gravity Max', step: '0.0001' },
+      { key: 'sg_min', label: 'Specific Gravity Min', step: '0.0001' },
+      { key: 'sg_max', label: 'Specific Gravity Max', step: '0.0001' },
       { key: 'mbrt_good', label: 'MBRT Good Threshold (h)', step: '0.5' },
       { key: 'mbrt_check', label: 'MBRT Check Threshold (h)', step: '0.5' },
     ],
@@ -59,7 +59,7 @@ const GROUPS = [
     color: 'text-slate-600 dark:text-slate-400',
     bg: 'bg-slate-100 dark:bg-slate-800/60',
     fields: [
-      { key: 'company_name',    label: 'Company Name',           type: 'text' },
+      { key: 'company_name', label: 'Company Name', type: 'text' },
       { key: 'fraud_threshold', label: 'Fraud Flag Threshold (# of rejections)', step: '1' },
     ],
   },
@@ -68,7 +68,7 @@ const GROUPS = [
 const DEFAULTS = {
   fat_min: '3.2', fat_max: '3.5',
   snf_min: '8.3', snf_max: '8.5',
-  ph_min: '6.5',  ph_max: '6.8',
+  ph_min: '6.5', ph_max: '6.8',
   acidity_min: '0.10', acidity_max: '0.15',
   temp_ideal: '10', temp_acceptable: '15',
   raw_milk_temp_min: '25', raw_milk_temp_max: '37',
@@ -111,12 +111,12 @@ export default function SettingsPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-2 border-milk-500 border-t-transparent rounded-full animate-spin"/>
+      <div className="w-8 h-8 border-2 border-milk-500 border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 overflow-x-hidden">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-black dark:text-white">Settings</h1>
@@ -124,12 +124,12 @@ export default function SettingsPage() {
         </div>
         <div className="flex gap-3">
           <button onClick={handleReset} className="btn-secondary flex items-center gap-2">
-            <RotateCcw size={15}/> Reset Defaults
+            <RotateCcw size={15} /> Reset Defaults
           </button>
           <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2">
             {saving
-              ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-              : <Save size={15}/>
+              ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              : <Save size={15} />
             }
             {saving ? 'Saving…' : 'Save Settings'}
           </button>
@@ -148,7 +148,7 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${group.bg}`}>
-                  <Icon size={16} className={group.color}/>
+                  <Icon size={16} className={group.color} />
                 </div>
                 <h3 className="font-semibold text-black dark:text-slate-200">{group.title}</h3>
               </div>

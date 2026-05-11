@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Upload, ClipboardEdit, FileText,
   Users, BarChart3, Settings, LogOut, Menu, X,
-  Droplets, ChevronRight, Bell, Sun, Moon, History
+  Droplets, ChevronRight, Sun, Moon, History
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -205,10 +205,7 @@ export default function Layout() {
             >
               {theme === 'dark' ? <Sun size={18}/> : <Moon size={18}/>}
             </button>
-            <button className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-all relative shadow-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-              <Bell size={18}/>
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 shadow-sm"/>
-            </button>
+
           </div>
         </header>
 
