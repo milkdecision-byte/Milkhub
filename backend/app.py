@@ -12,8 +12,6 @@ from config import get_config
 from models.database import db, User, Setting
 
 
-
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
@@ -28,8 +26,11 @@ def create_app():
     # ── Extensions ─────────────────────────────────────────────────────────
     db.init_app(app)
     JWTManager(app)
-    CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-         supports_credentials=True)
+    CORS(app,
+         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     # ── Ensure upload folder exists ─────────────────────────────────────────
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -99,7 +100,7 @@ def create_app():
 def _seed_defaults():
     """Create default admin user and settings if they don't exist."""
     if not User.query.filter_by(username="admin").first():
-        admin = User(  # type: ignore[call-arg]
+        admin = User(
             username="admin",
             email="admin@milkquality.com",
             password_hash=generate_password_hash("Admin@123"),
@@ -123,7 +124,7 @@ def _seed_defaults():
     ]
     for key, value in defaults:
         if not Setting.query.filter_by(setting_key=key).first():
-            db.session.add(Setting(setting_key=key, setting_value=value))  # type: ignore[call-arg]
+            db.session.add(Setting(setting_key=key, setting_value=value))
 
     db.session.commit()
 
