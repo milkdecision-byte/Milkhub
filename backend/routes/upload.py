@@ -27,13 +27,7 @@ def _allowed(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 
-@upload_bp.route("", methods=["OPTIONS"])
-def upload_options():
-    response = make_response()
-    response.headers["Access-Control-Allow-Origin"] = "https://milkhub-teal.vercel.app"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    return response, 200
+
 
 
 @upload_bp.post("")
