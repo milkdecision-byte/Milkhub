@@ -4,7 +4,7 @@ Smart Milk Decision Tool System — Flask Application Entry Point
 import os
 import logging
 from flask import Flask, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
 from werkzeug.security import generate_password_hash
 
@@ -26,10 +26,7 @@ def create_app():
     # ── Extensions ─────────────────────────────────────────────────────────
     db.init_app(app)
     JWTManager(app)
-    CORS(app,
-         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-         supports_credentials=True,
-         allow_headers=["Content-Type", "Authorization"],
+    CORS(app, origins="*", allow_headers=["Content-Type", "Authorization"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     # ── Ensure upload folder exists ─────────────────────────────────────────

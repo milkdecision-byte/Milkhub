@@ -7,6 +7,7 @@ import uuid
 import logging
 from datetime import date as dt_date
 from flask import Blueprint, request, jsonify, current_app, make_response
+from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 
@@ -31,6 +32,7 @@ def _allowed(filename: str) -> bool:
 
 
 @upload_bp.post("")
+@cross_origin()
 @jwt_required()
 def upload():
     uid = get_jwt_identity()
