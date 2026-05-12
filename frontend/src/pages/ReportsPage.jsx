@@ -1,141 +1,374 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { FileSpreadsheet, FileText, Download, Loader2, Filter } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  FileSpreadsheet, FileText, Download, Loader2, Filter,
+  Search, ShieldAlert, CheckCircle2, LayoutDashboard,
+  Calendar, Clock, Database, ChevronDown, Mail, Activity,
+  ArrowRight, Sparkles, RotateCcw, Microscope, Thermometer, Droplets, FlaskConical, Zap
+} from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 
-function ExportCard({ icon: Icon, title, desc, color, onClick, loading }) {
+// ── Shared Components ─────────────────────────────────────────────────────────
+
+function StatMiniCard({ label, value, icon: Icon, colorClass }) {
+  return (
+    <div className="card-premium p-6 flex items-center gap-6 border-[#C4B5FD]/10 shadow-lg group hover:border-[#7C3AED]/40 transition-all">
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl ${colorClass} group-hover:scale-110 transition-transform`}>
+        <Icon size={24} className="text-white"/>
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-2xl font-bold text-[#1E1B4B] dark:text-white tracking-tighter">{value.toLocaleString()}</p>
+      </div>
+    </div>
+  )
+}
+
+function ExportCard({ icon: Icon, title, desc, colorClass, onClick, loading, variant = 'full' }) {
+  const isCompact = variant === 'compact'
   return (
     <motion.button
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={{ y: -8 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
       disabled={loading}
-      className="card p-5 text-left hover:border-slate-300 dark:hover:border-slate-600 transition-all w-full flex items-center gap-4 disabled:opacity-50"
+      className={`card-premium p-8 text-left transition-all duration-500 flex items-center gap-8 disabled:opacity-50 group border-transparent hover:border-[#C4B5FD]/40 ${isCompact ? 'sm:p-6' : ''}`}
     >
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-        {loading ? <Loader2 size={20} className="animate-spin text-white"/> : <Icon size={20} className="text-white"/>}
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl ${colorClass} group-hover:scale-110 transition-transform`}>
+        {loading ? <Loader2 size={24} className="animate-spin text-white"/> : <Icon size={24} className="text-white"/>}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-slate-800 dark:text-slate-200">{title}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{desc}</p>
+        <h4 className={`font-bold text-[#1E1B4B] dark:text-white tracking-tight group-hover:text-[#7C3AED] transition-colors ${isCompact ? 'text-lg' : 'text-xl'}`}>
+          {title}
+        </h4>
+        <p className="text-[10px] text-purple-900/40 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">
+          {desc}
+        </p>
       </div>
-      <Download size={16} className="text-slate-400 dark:text-slate-500 flex-shrink-0"/>
+      <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] dark:bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-[#7C3AED] group-hover:text-white transition-all">
+        <Download size={18} />
+      </div>
     </motion.button>
   )
 }
 
-export default function ReportsPage() {
-  const [filters, setFilters] = useState({ date_from: '', date_to: '', shift: '' })
-  const [loadingKey, setLoadingKey] = useState(null)
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
-  const download = async (key, path) => {
+export default function ReportsPage() {
+  const [filters, setFilters] = useState({ 
+    date_from: new Date().toISOString().split('T')[0], 
+    date_to: '', 
+    decision: '', 
+    fraud_risk: '', 
+    session: '' 
+  })
+  const [records, setRecords] = useState([])
+  const [summary, setSummary] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [loadingKey, setLoadingKey] = useState(null)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+
+  const fetchReportsData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const activeFilters = Object.fromEntries(Object.entries(filters).filter(([,v]) => v))
+      const [sumRes, recRes] = await Promise.all([
+        api.get('/records/summary', { params: activeFilters }),
+        api.get('/records', { params: { ...activeFilters, page, per_page: 20 } })
+      ])
+      setSummary(sumRes.data)
+      setRecords(recRes.data.records)
+      setTotal(recRes.data.total)
+    } catch (e) {
+      toast.error('Data synchronization failed')
+    } finally {
+      setLoading(false)
+    }
+  }, [filters, page])
+
+  useEffect(() => {
+    fetchReportsData()
+  }, [fetchReportsData])
+
+  const downloadReport = async (key, path) => {
     setLoadingKey(key)
     try {
       const params = new URLSearchParams(Object.fromEntries(Object.entries(filters).filter(([,v]) => v)))
-      const r = await api.get(`${path}?${params}`, { responseType: 'blob' })
+      const queryString = params.toString()
+      const separator = path.includes('?') ? '&' : '?'
+      const finalUrl = queryString ? `${path}${separator}${queryString}` : path
+      const r = await api.get(finalUrl, { responseType: 'blob' })
       const url = URL.createObjectURL(r.data)
       const a = document.createElement('a')
       a.href = url
       const cd = r.headers['content-disposition'] || ''
       const match = cd.match(/filename="?([^"]+)"?/)
-      a.download = match ? match[1] : `milk_export_${Date.now()}`
+      a.download = match ? match[1] : `milkhub_export_${Date.now()}`
       a.click()
       URL.revokeObjectURL(url)
-      toast.success('Download started')
+      toast.success('Extraction protocol successful')
     } catch {
-      toast.error('Export failed')
+      toast.error('Extraction protocol failed')
     } finally {
       setLoadingKey(null)
     }
   }
 
-  const sf = (k, v) => setFilters(p => ({ ...p, [k]: v }))
+  const setFilter = (k, v) => {
+    setFilters(p => ({ ...p, [k]: v }))
+    setPage(1)
+  }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reports &amp; Exports</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Download milk quality data in various formats</p>
+    <div className="max-w-[1600px] mx-auto space-y-12 pb-24">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.3em] flex items-center gap-4">
+          <span className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg shadow-purple-500/20" /> 
+          Extraction Terminal Node
+        </h2>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Stream Sync Active
+          </span>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="card p-5 space-y-4">
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 uppercase tracking-widest">
-          <Filter size={14} className="text-milk-500"/>Filter Options
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className="label">From Date</label>
-            <input type="date" className="input text-sm py-2" value={filters.date_from}
-              onChange={e => sf('date_from', e.target.value)}/>
+      {/* ── Summary Analytics ── */}
+      {summary && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <StatMiniCard label="Total Records" value={summary.total} icon={Database} colorClass="bg-gradient-to-br from-indigo-600 to-blue-700" />
+          <StatMiniCard label="Approved" value={summary.approved} icon={CheckCircle2} colorClass="bg-gradient-to-br from-emerald-500 to-teal-600" />
+          <StatMiniCard label="Rejected" value={summary.rejected} icon={ShieldAlert} colorClass="bg-gradient-to-br from-rose-500 to-red-700" />
+          <StatMiniCard label="Fraud High" value={summary.fraud} icon={Zap} colorClass="bg-gradient-to-br from-slate-700 to-slate-900" />
+          <StatMiniCard label="Morning" value={summary.morning} icon={Calendar} colorClass="bg-gradient-to-br from-purple-500 to-indigo-600" />
+          <StatMiniCard label="Evening" value={summary.evening} icon={Clock} colorClass="bg-gradient-to-br from-orange-500 to-amber-600" />
+        </div>
+      )}
+
+      {/* ── Master Filter Matrix ── */}
+      <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl bg-white/50 dark:bg-black/20 backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-[#C4B5FD]/10 pb-8 mb-8">
+          <h3 className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.3em] flex items-center gap-4">
+            <Filter size={18} /> Temporal Parameter Matrix
+          </h3>
+          <button 
+            onClick={() => setFilters({ date_from:'', date_to:'', decision:'', fraud_risk:'', session:'' })}
+            className="text-[10px] font-bold text-rose-500 hover:text-rose-700 uppercase tracking-widest transition-all flex items-center gap-2 group"
+          >
+            Clear Matrix <RotateCcw size={12} className="group-hover:rotate-180 transition-transform" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* Date Picker */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Archive Horizon</label>
+            <input 
+              type="date" 
+              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
+              value={filters.date_from}
+              onChange={e => setFilter('date_from', e.target.value)}
+            />
           </div>
-          <div>
-            <label className="label">To Date</label>
-            <input type="date" className="input text-sm py-2" value={filters.date_to}
-              onChange={e => sf('date_to', e.target.value)}/>
-          </div>
-          <div>
-            <label className="label">Shift</label>
-            <select className="select text-sm py-2" value={filters.shift}
-              onChange={e => sf('shift', e.target.value)}>
-              <option value="">All Shifts</option>
-              <option value="morning">Morning</option>
-              <option value="evening">Evening</option>
+
+          {/* Decision Filter */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Operational Result</label>
+            <select 
+              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              value={filters.decision}
+              onChange={e => setFilter('decision', e.target.value)}
+            >
+              <option value="">All Results</option>
+              <option value="accept">Approved Only</option>
+              <option value="reject">Rejected Only</option>
             </select>
           </div>
+
+          {/* Fraud Filter */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Risk Profile</label>
+            <select 
+              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              value={filters.fraud_risk}
+              onChange={e => setFilter('fraud_risk', e.target.value)}
+            >
+              <option value="">All Risk Profiles</option>
+              <option value="detected">Fraud Detected (High/Med)</option>
+              <option value="high">Fraud High</option>
+              <option value="medium">Fraud Medium</option>
+              <option value="clean">Clean Samples Only</option>
+            </select>
+          </div>
+
+          {/* Session Filter */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Submission Node</label>
+            <select 
+              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              value={filters.session}
+              onChange={e => setFilter('session', e.target.value)}
+            >
+              <option value="">All Sessions</option>
+              <option value="morning">Morning Shift</option>
+              <option value="evening">Evening Shift</option>
+              <option value="manual">Manual Intelligence Entry</option>
+            </select>
+          </div>
+
+          {/* Download Quick Actions */}
+          <div className="flex items-end gap-3 pb-0.5">
+            <button onClick={() => downloadReport('excel', '/export/excel')} className="flex-1 py-4 rounded-2xl bg-[#059669] text-white flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 text-xs font-bold uppercase tracking-widest">
+              <FileSpreadsheet size={16} /> Excel
+            </button>
+            <button onClick={() => downloadReport('pdf', '/export/pdf')} className="flex-1 py-4 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center gap-2 hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/20 text-xs font-bold uppercase tracking-widest">
+              <FileText size={16} /> PDF
+            </button>
+          </div>
         </div>
-        <button onClick={() => setFilters({ date_from:'', date_to:'', shift:'' })}
-          className="text-xs text-milk-600 dark:text-milk-400 hover:text-milk-700 dark:hover:text-milk-300 font-semibold transition-colors">
-          Clear filters
-        </button>
       </div>
 
-      {/* Export buttons */}
-      <div className="grid gap-3">
+      {/* ── Data Terminal Table ── */}
+      <div className="card-premium overflow-hidden border-[#C4B5FD]/10 shadow-2xl">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1800px]">
+            <thead>
+              <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
+                <th className="px-6 py-6 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest sticky left-0 bg-[#F5F3FF] dark:bg-black/60 z-20">Provider Entity</th>
+                <th className="table-header-enterprise">Registry ID</th>
+                <th className="table-header-enterprise">Date / Time</th>
+                <th className="table-header-enterprise">Fat (%)</th>
+                <th className="table-header-enterprise">SNF (%)</th>
+                <th className="table-header-enterprise">pH</th>
+                <th className="table-header-enterprise">Acidity (% LA)</th>
+                <th className="table-header-enterprise">Temp (°C)</th>
+                <th className="table-header-enterprise">Specific Gravity</th>
+                <th className="table-header-enterprise">COB Test</th>
+                <th className="table-header-enterprise">MBRT (min)</th>
+                <th className="table-header-enterprise">Operational Result</th>
+                <th className="table-header-enterprise text-right pr-10">Security</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan={13} className="py-48 text-center">
+                    <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-[0.4em] animate-pulse">Synchronizing Intelligence Ledger...</p>
+                  </td>
+                </tr>
+              ) : records.length === 0 ? (
+                <tr>
+                  <td colSpan={13} className="py-48 text-center">
+                    <Database size={64} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
+                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No records found for selected date</h3>
+                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Adjust your temporal parameter matrix to view archival datasets.</p>
+                  </td>
+                </tr>
+              ) : records.map((r, i) => (
+                <tr key={r.id} className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-5 sticky left-0 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-lg shadow-purple-500/20">
+                        {r.farmer_name?.[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#1E1B4B] dark:text-white truncate max-w-[150px]">{r.farmer_name}</p>
+                        <p className="text-[9px] font-bold text-purple-400 dark:text-purple-200 uppercase tracking-widest">{r.entry_type === 'manual' ? 'Manual Entry' : 'Bulk Upload'}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5 text-[11px] font-bold text-purple-900/60 dark:text-slate-200 uppercase tracking-widest">{r.farmer_code || '---'}</td>
+                  <td className="px-6 py-5">
+                    <p className="text-xs font-bold text-[#1E1B4B] dark:text-white">{r.date}</p>
+                    <p className="text-[10px] font-bold text-purple-400 dark:text-purple-300 uppercase tracking-widest">{r.shift}</p>
+                  </td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.fat?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.snf?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.ph?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.acidity?.toFixed(3)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.temperature?.toFixed(1)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.specific_gravity?.toFixed(4)}</td>
+                  <td className="px-6 py-5">
+                    <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg border ${r.cob_test === 'positive' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}>
+                      {r.cob_test}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.mbrt || '---'}</td>
+                  <td className="px-6 py-5">
+                    <div className="flex flex-col gap-1">
+                      <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg text-center ${r.decision === 'accept' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                        {r.decision === 'accept' ? 'Approved' : 'Rejected'}
+                      </span>
+                      {r.decision === 'reject' && r.reasons?.slice(0,1).map((res,idx) => (
+                        <span key={idx} className="text-[8px] font-bold text-rose-500 uppercase tracking-tighter text-center">{res}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-5 text-right pr-10">
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${r.fraud_risk === 'high' ? 'text-rose-500' : r.fraud_risk === 'medium' ? 'text-orange-500' : 'text-emerald-500'}`}>
+                      {r.fraud_risk === 'high' ? '!!! SECURITY HIGH' : r.fraud_risk === 'medium' ? '! RISK MEDIUM' : '✓ VERIFIED'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {total > 20 && (
+          <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-black/40 border-t border-[#C4B5FD]/10 flex items-center justify-between">
+            <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
+              Showing <span className="text-[#7C3AED]">{records.length}</span> of <span className="text-[#7C3AED]">{total}</span> Registry Entries
+            </p>
+            <div className="flex items-center gap-4">
+              <button 
+                disabled={page === 1}
+                onClick={() => setPage(p => p - 1)}
+                className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
+              >
+                <ArrowRight className="rotate-180" size={18} />
+              </button>
+              <span className="text-sm font-bold text-[#1E1B4B] dark:text-white">Page {page}</span>
+              <button 
+                disabled={page * 20 >= total}
+                onClick={() => setPage(p => p + 1)}
+                className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
+              >
+                <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Secondary Format Matrix ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         <ExportCard
-          icon={FileSpreadsheet} color="bg-emerald-600"
-          title="Export All Records — Excel"
-          desc="Full quality data with decision, fraud risk, and all parameters"
+          icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-[#059669] to-[#10B981]"
+          title="Total Records Ledger"
+          desc="Exhaustive archival export (Excel)"
           loading={loadingKey === 'excel'}
-          onClick={() => download('excel', '/export/excel')}
+          onClick={() => downloadReport('excel', '/export/excel')}
         />
         <ExportCard
-          icon={FileText} color="bg-red-600"
-          title="Export All Records — PDF"
-          desc="Formatted PDF report for management and compliance"
+          icon={FileText} colorClass="bg-gradient-to-br from-[#7C3AED] to-indigo-700"
+          title="Executive PDF Report"
+          desc="High-fidelity summary for regulatory auditing"
           loading={loadingKey === 'pdf'}
-          onClick={() => download('pdf', '/export/pdf')}
+          onClick={() => downloadReport('pdf', '/export/pdf')}
         />
         <ExportCard
-          icon={FileSpreadsheet} color="bg-red-800"
-          title="Rejected Records Only — Excel"
-          desc="All rejected milk entries with reasons and fraud risk"
-          loading={loadingKey === 'rejected'}
-          onClick={() => download('rejected', '/export/excel?decision=reject')}
+          icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-slate-700 to-slate-900"
+          title="Raw CSV Data Stream"
+          desc="Raw filtered data for external processing"
+          loading={loadingKey === 'csv'}
+          onClick={() => downloadReport('csv', '/export/csv')}
         />
-        <ExportCard
-          icon={FileSpreadsheet} color="bg-amber-600"
-          title="Manual Check Records — Excel"
-          desc="Records requiring manual verification"
-          loading={loadingKey === 'manual'}
-          onClick={() => download('manual', '/export/excel?decision=manual_check')}
-        />
-        <ExportCard
-          icon={FileSpreadsheet} color="bg-orange-600"
-          title="Fraud Risk Report — Excel"
-          desc="High and medium fraud risk records only"
-          loading={loadingKey === 'fraud'}
-          onClick={() => download('fraud', '/export/excel?fraud_risk=high')}
-        />
-      </div>
-
-      {/* Tips */}
-      <div className="card p-5 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700/50">
-        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-          <span className="font-bold text-slate-800 dark:text-slate-300">Tip:</span> Set a date range above before exporting to get period-specific reports.
-          The PDF export includes up to 500 records per page. For larger datasets, use Excel export.
-        </p>
       </div>
     </div>
   )

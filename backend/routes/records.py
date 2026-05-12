@@ -27,10 +27,10 @@ def get_records():
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     decision = request.args.get("decision")
-    fraud_risk = request.args.get("fraud_risk")
+    fr = request.args.get("fraud_risk")
+    session = request.args.get("session")
     date_from = request.args.get("date_from")
     date_to = request.args.get("date_to")
-    shift = request.args.get("shift")
     batch_id = request.args.get("batch_id")
     search = request.args.get("search", "").strip()
 
@@ -38,10 +38,23 @@ def get_records():
 
     if decision:
         q = q.filter(MilkRecord.decision == decision)
-    if fraud_risk:
-        q = q.filter(MilkRecord.fraud_risk == fraud_risk)
-    if shift:
-        q = q.filter(MilkRecord.shift == shift)
+    
+    if fr:
+        if fr == "detected":
+            q = q.filter(MilkRecord.fraud_risk.in_(["high", "medium"]))
+        elif fr == "clean":
+            q = q.filter(MilkRecord.fraud_risk == "low")
+        else:
+            q = q.filter(MilkRecord.fraud_risk == fr)
+
+    if session:
+        if session == "morning":
+            q = q.filter(MilkRecord.shift == "morning")
+        elif session == "evening":
+            q = q.filter(MilkRecord.shift == "evening")
+        elif session == "manual":
+            q = q.filter(MilkRecord.entry_type == "manual")
+
     if batch_id:
         q = q.filter(MilkRecord.batch_id == batch_id)
     if date_from:
@@ -77,6 +90,55 @@ def get_records():
 def get_record(record_id):
     rec = MilkRecord.query.get_or_404(record_id)
     return jsonify({"record": rec.to_dict()}), 200
+
+
+@records_bp.get("/summary")
+@jwt_required()
+def get_reports_summary():
+    decision = request.args.get("decision")
+    fr = request.args.get("fraud_risk")
+    session = request.args.get("session")
+    date_from = request.args.get("date_from")
+    date_to = request.args.get("date_to")
+
+    q = MilkRecord.query
+
+    if decision: q = q.filter(MilkRecord.decision == decision)
+    if fr:
+        if fr == "detected": q = q.filter(MilkRecord.fraud_risk.in_(["high", "medium"]))
+        elif fr == "clean": q = q.filter(MilkRecord.fraud_risk == "low")
+        else: q = q.filter(MilkRecord.fraud_risk == fr)
+    if session:
+        if session == "morning": q = q.filter(MilkRecord.shift == "morning")
+        elif session == "evening": q = q.filter(MilkRecord.shift == "evening")
+        elif session == "manual": q = q.filter(MilkRecord.entry_type == "manual")
+    if date_from:
+        try: q = q.filter(MilkRecord.date >= datetime.strptime(date_from, "%Y-%m-%d").date())
+        except: pass
+    if date_to:
+        try: q = q.filter(MilkRecord.date <= datetime.strptime(date_to, "%Y-%m-%d").date())
+        except: pass
+
+    ids = q.with_entities(MilkRecord.id)
+    agg = db.session.query(
+        func.count(MilkRecord.id).label("total"),
+        func.sum(db.case((MilkRecord.decision == "accept", 1), else_=0)).label("approved"),
+        func.sum(db.case((MilkRecord.decision == "reject", 1), else_=0)).label("rejected"),
+        func.sum(db.case((MilkRecord.fraud_risk.in_(["high", "medium"]), 1), else_=0)).label("fraud"),
+        func.sum(db.case((MilkRecord.shift == "morning", 1), else_=0)).label("morning"),
+        func.sum(db.case((MilkRecord.shift == "evening", 1), else_=0)).label("evening"),
+        func.sum(db.case((MilkRecord.entry_type == "manual", 1), else_=0)).label("manual"),
+    ).filter(MilkRecord.id.in_(ids)).one()
+
+    return jsonify({
+        "total": agg.total or 0,
+        "approved": int(agg.approved or 0),
+        "rejected": int(agg.rejected or 0),
+        "fraud": int(agg.fraud or 0),
+        "morning": int(agg.morning or 0),
+        "evening": int(agg.evening or 0),
+        "manual": int(agg.manual or 0),
+    }), 200
 
 
 # ── Dashboard ──────────────────────────────────────────────────────────────────

@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Search, ShieldAlert, ChevronRight, ShieldCheck, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Search, ShieldAlert, ChevronRight, ShieldCheck, Trash2, 
+  Users, UserPlus, Download, Filter, UserCheck, UserX,
+  Activity, MapPin, TrendingUp, ChevronLeft, Sparkles
+} from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 
@@ -15,7 +19,7 @@ export default function FarmersPage() {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  const fetch = async () => {
+  const fetchFarmers = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ page, per_page: 30, search, fraud_only: fraudOnly })
@@ -23,118 +27,201 @@ export default function FarmersPage() {
       setFarmers(r.data.farmers)
       setTotal(r.data.total)
       setPages(r.data.pages)
-    } catch (e) { console.error(e) }
-    finally { setLoading(false) }
-  }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  }, [page, search, fraudOnly])
 
   const handleDelete = async (e, id, name) => {
     e.stopPropagation()
-    if (!window.confirm(`Are you sure you want to delete ${name}?`)) return
+    if (!window.confirm(`Permanently decommission node ${name} from network?`)) return
     try {
       await api.delete(`/farmers/${id}`)
-      toast.success('Farmer deleted successfully')
-      fetch()
+      toast.success('Node successfully decommissioned')
+      fetchFarmers()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to delete farmer')
+      toast.error(err.response?.data?.error || 'Decommissioning failure')
     }
   }
 
-  useEffect(() => { fetch() }, [page, search, fraudOnly])
+  useEffect(() => { fetchFarmers() }, [fetchFarmers])
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-12 pb-20">
+      {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Farmers</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">{total} registered suppliers</p>
-        </div>
+        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Infrastructure Terminal
+        </h2>
       </div>
 
-      <div className="card p-4 flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-48">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input className="input pl-8 text-sm py-2" placeholder="Search by name or code…"
-            value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} />
+      {/* ── Filters ── */}
+      <div className="card-premium p-8 flex flex-wrap gap-8 items-center border-[#C4B5FD]/20 shadow-xl">
+        <div className="relative flex-1 min-w-[350px] group">
+          <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
+          <input 
+            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+            placeholder="Search Registry by Node Entity or ID Code…"
+            value={search} 
+            onChange={e => { setSearch(e.target.value); setPage(1) }} 
+          />
         </div>
         <button
           onClick={() => { setFraudOnly(p => !p); setPage(1) }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors
+          className={`flex items-center gap-3 px-10 py-5 rounded-2xl border text-[11px] font-bold uppercase tracking-widest transition-all duration-500
             ${fraudOnly
-              ? 'bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-600/50 text-red-600 dark:text-red-400'
-              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600'}`}
+              ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30'
+              : 'bg-[#F5F3FF] dark:bg-white/5 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
         >
-          <ShieldAlert size={15} />
-          Fraud Flagged Only
+          <ShieldAlert size={20} />
+          High Risk Priority
         </button>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="w-full overflow-x-auto -mx-0">
-          <table className="w-full text-sm min-w-[600px] w-full">
+      {/* ── Table Section ── */}
+      <div className="card-premium overflow-hidden border-[#C4B5FD]/20">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-              {['Farmer', 'Code', 'Location', 'Submissions', 'Accepted', 'Rejected', 'Avg FAT', 'Avg SNF', 'Fraud', ''].map(h => (
-                <th key={h} className="text-left px-4 py-3.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-            {loading ? (
-              <tr><td colSpan={10} className="text-center py-12">
-                <div className="inline-block w-6 h-6 border-2 border-milk-500 border-t-transparent rounded-full animate-spin" />
-              </td></tr>
-            ) : farmers.length === 0 ? (
-              <tr><td colSpan={10} className="text-center py-12 text-slate-500 dark:text-slate-400 font-bold">No farmers found</td></tr>
-            ) : farmers.map(f => (
-              <motion.tr key={f.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer group"
-                onClick={() => navigate(`/farmers/${f.id}`)}>
-                <td className="px-4 py-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-milk-500 to-milk-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                      {f.full_name[0]?.toUpperCase()}
+              <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
+                <th className="table-header-enterprise">Node Entity</th>
+                <th className="table-header-enterprise">Registry ID</th>
+                <th className="table-header-enterprise">Geographic Hub</th>
+                <th className="table-header-enterprise">Aggregate Yield</th>
+                <th className="table-header-enterprise text-center">Quality Scorecard</th>
+                <th className="table-header-enterprise">Security</th>
+                <th className="table-header-enterprise text-right">Audit</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
+              {loading ? (
+                <tr><td colSpan={7} className="text-center py-48">
+                  <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Syncing Network Ledger...</p>
+                </td></tr>
+              ) : farmers.length === 0 ? (
+                <tr><td colSpan={7} className="text-center py-48">
+                  <Users size={56} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Supply Nodes Detected</p>
+                </td></tr>
+              ) : farmers.map((f, i) => (
+                <motion.tr 
+                  key={f.id} 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.02 }}
+                  className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-all duration-300 cursor-pointer group"
+                  onClick={() => navigate(`/farmers/${f.id}`)}
+                >
+                  <td className="px-8 py-7">
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-lg shadow-purple-900/20 group-hover:scale-110 transition-transform">
+                        {f.full_name[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-purple-700 transition-colors">{f.full_name}</p>
+                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">Certified Provider</p>
+                      </div>
                     </div>
-                    <span className="text-slate-800 dark:text-slate-200 font-semibold group-hover:text-milk-600 dark:group-hover:text-milk-400 transition-colors">{f.full_name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 font-mono text-xs font-semibold uppercase">{f.farmer_code}</td>
-                <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-xs">{f.village || f.district || '—'}</td>
-                <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-semibold">{f.total_submissions}</td>
-                <td className="px-4 py-3.5 text-emerald-600 dark:text-emerald-400 font-semibold">{f.total_accepted}</td>
-                <td className="px-4 py-3.5 text-red-600 dark:text-red-400 font-semibold">{f.total_rejected}</td>
-                <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{f.avg_fat?.toFixed(2) ?? '—'}</td>
-                <td className="px-4 py-3.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{f.avg_snf?.toFixed(2) ?? '—'}</td>
-                <td className="px-4 py-3.5">
-                  {f.fraud_flag
-                    ? <span className="badge-high flex items-center gap-1"><ShieldAlert size={11} /> FLAGGED</span>
-                    : <span className="badge-low flex items-center gap-1"><ShieldCheck size={11} /> SAFE</span>
-                  }
-                </td>
-                <td className="px-4 py-3.5">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={(e) => handleDelete(e, f.id, f.full_name)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                      title="Delete Farmer"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                    <ChevronRight size={16} className="text-slate-400 dark:text-slate-600" />
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
+                  </td>
+                  <td className="px-8 py-7 text-purple-900/50 dark:text-slate-400 font-mono text-[11px] font-bold tracking-tighter">{f.farmer_code}</td>
+                  <td className="px-8 py-7 text-purple-900/60 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                    <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Remote Sector'}
+                  </td>
+                  <td className="px-8 py-7">
+                    <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{f.total_submissions} <span className="text-[10px] font-bold text-purple-400 uppercase ml-1">Units</span></p>
+                  </td>
+                  <td className="px-8 py-7">
+                    <div className="flex items-center justify-center gap-4">
+                      {/* Accepted Card */}
+                      <div className="flex-1 min-w-[110px] p-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-500 group/stat">
+                        <p className="text-[8px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1.5">Accepted</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-base font-bold text-emerald-700">{f.total_accepted}</span>
+                          <span className="text-[10px] font-bold text-emerald-600/40 uppercase">Recs</span>
+                        </div>
+                        <p className="text-[11px] font-bold text-emerald-600 mt-2">
+                          {f.total_submissions > 0 ? ((f.total_accepted / f.total_submissions) * 100).toFixed(0) : 0}%
+                        </p>
+                      </div>
+
+                      {/* Rejected Card */}
+                      <div className="flex-1 min-w-[110px] p-4 rounded-3xl bg-rose-500/5 border border-rose-500/10 hover:border-rose-500/30 hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-500 group/stat">
+                        <p className="text-[8px] font-bold text-rose-600/60 uppercase tracking-widest mb-1.5">Rejected</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-base font-bold text-rose-700">{f.total_rejected}</span>
+                          <span className="text-[10px] font-bold text-rose-600/40 uppercase">Recs</span>
+                        </div>
+                        <p className="text-[11px] font-bold text-rose-600 mt-2">
+                          {f.total_submissions > 0 ? ((f.total_rejected / f.total_submissions) * 100).toFixed(0) : 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-7">
+                    {f.fraud_flag
+                      ? <span className="flex items-center gap-2 text-rose-600 text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-500/20 shadow-sm animate-pulse"><UserX size={14} /> High Alert</span>
+                      : <span className="flex items-center gap-2 text-emerald-600 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 shadow-sm"><UserCheck size={14} /> Verified</span>
+                    }
+                  </td>
+                  <td className="px-8 py-7 text-right">
+                    <div className="flex items-center justify-end gap-4">
+                      <button
+                        onClick={(e) => handleDelete(e, f.id, f.full_name)}
+                        className="p-3 rounded-xl text-purple-300 hover:text-rose-600 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                        title="Decommission Node"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500">
+                        <ChevronRight size={20} />
+                      </div>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
           </table>
         </div>
+
+        {/* ── Pagination ── */}
         {pages > 1 && (
-          <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Page <span className="text-slate-900 dark:text-white">{page}</span> of {pages}</p>
-            <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-                className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-40 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-semibold">Prev</button>
-              <button disabled={page === pages} onClick={() => setPage(p => p + 1)}
-                className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-40 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-semibold">Next</button>
+          <div className="px-8 py-10 bg-[#F5F3FF] dark:bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-[#C4B5FD]/20">
+            <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
+              Registry Page <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
+            </p>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                disabled={page === 1}
+                className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:-translate-x-1"
+              >
+                <ChevronLeft size={22} className="text-[#7C3AED]" />
+              </button>
+              <div className="flex items-center gap-3">
+                {Array.from({ length: Math.min(5, pages) }, (_, i) => {
+                  let pg = page <= 3 ? i + 1 : (page >= pages - 2 ? pages - 4 + i : page - 2 + i);
+                  if (pg < 1 || pg > pages) return null;
+                  return (
+                    <button 
+                      key={pg} 
+                      onClick={() => setPage(pg)}
+                      className={`w-12 h-12 rounded-2xl text-xs font-bold transition-all duration-500 border ${pg === page ? 'bg-orange-500 border-orange-500 text-white shadow-xl shadow-orange-500/30 scale-110' : 'bg-white dark:bg-white/5 border-[#C4B5FD]/30 text-purple-500 hover:text-orange-500'}`}
+                    >
+                      {pg}
+                    </button>
+                  )
+                })}
+              </div>
+              <button 
+                onClick={() => setPage(p => Math.min(pages, p + 1))} 
+                disabled={page === pages}
+                className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:translate-x-1"
+              >
+                <ChevronRight size={22} className="text-[#7C3AED]" />
+              </button>
             </div>
           </div>
         )}

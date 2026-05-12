@@ -1,15 +1,30 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowLeft, ShieldAlert } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  ArrowLeft, ShieldAlert, Activity, TrendingUp, 
+  MapPin, Phone, Database, FileText, CheckCircle2, 
+  XCircle, AlertTriangle, Microscope, User, Info, 
+  Clock, Thermometer, Droplets, Zap
+} from 'lucide-react'
+import { 
+  LineChart, Line, XAxis, YAxis, CartesianGrid, 
+  Tooltip, ResponsiveContainer, Legend, AreaChart, Area 
+} from 'recharts'
 import api from '../utils/api'
 import { useTheme } from '../context/ThemeContext'
 
-function DecisionBadge({ d }) {
-  const c = { accept: 'badge-accept', reject: 'badge-reject' }[d] || 'badge-low'
-  const l = { accept: 'Accept', reject: 'Reject' }[d] || d
-  return <span className={c}>{l}</span>
+function StatusBadge({ decision }) {
+  const isAccept = decision === 'accept'
+  return (
+    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+      isAccept 
+        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+        : 'bg-red-500/10 text-red-600 border-red-500/20'
+    }`}>
+      {isAccept ? 'Certified' : 'Rejected'}
+    </span>
+  )
 }
 
 export default function FarmerDetailPage() {
@@ -28,143 +43,241 @@ export default function FarmerDetailPage() {
   }, [id])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-2 border-milk-500 border-t-transparent rounded-full animate-spin" />
+    <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
+      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin shadow-xl" />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Intelligence Registry...</p>
     </div>
   )
-  if (!data) return <p className="text-slate-500 dark:text-slate-400">Farmer not found</p>
+  
+  if (!data) return (
+    <div className="card-premium p-12 text-center">
+      <p className="text-sm font-black text-slate-500 uppercase tracking-widest">Entity node not detected in current registry.</p>
+    </div>
+  )
 
   const { farmer, records } = data
   const trendData = records.slice().reverse().map(r => ({
     date: r.date?.slice(5),
     fat: r.fat, snf: r.snf, ph: r.ph
   }))
+  
   const acceptRate = farmer.total_submissions
     ? ((farmer.total_accepted / farmer.total_submissions) * 100).toFixed(1)
     : 0
 
-  const chartConfig = {
-    grid: isDark ? '#1e293b' : '#e2e8f0',
-    text: isDark ? '#64748b' : '#94a3b8',
-    tooltip: {
-      bg: isDark ? '#1e293b' : '#ffffff',
-      border: isDark ? '#334155' : '#e2e8f0',
-    }
+  const chartColors = {
+    fat: '#3b82f6',
+    snf: '#10b981',
+    ph: '#f59e0b',
+    grid: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    text: isDark ? '#64748b' : '#94a3b8'
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <button onClick={() => navigate('/farmers')}
-        className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium">
-        <ArrowLeft size={16} /> Back to Farmers
+    <div className="max-w-7xl mx-auto space-y-10 pb-20">
+      {/* ── Navigation ── */}
+      <button 
+        onClick={() => navigate('/farmers')}
+        className="flex items-center gap-3 text-slate-500 hover:text-blue-600 transition-all text-[10px] font-black uppercase tracking-widest group"
+      >
+        <div className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all shadow-sm">
+          <ArrowLeft size={16} /> 
+        </div>
+        Back to Network Registry
       </button>
 
-      {/* Header */}
-      <div className="card p-6 flex flex-wrap items-center gap-5">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-milk-500 to-milk-700 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+      {/* ── Profile Header ── */}
+      <div className="card-premium p-8 flex flex-col lg:flex-row items-center gap-10">
+        <div className="w-32 h-32 rounded-[2.5rem] bg-blue-600 text-white flex items-center justify-center text-5xl font-black shadow-2xl shadow-blue-600/30 rotate-3 border-4 border-white dark:border-slate-800">
           {farmer.full_name[0]?.toUpperCase()}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{farmer.full_name}</h1>
+        
+        <div className="flex-1 text-center lg:text-left">
+          <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap mb-3">
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{farmer.full_name}</h1>
             {farmer.fraud_flag && (
-              <span className="badge-high flex items-center gap-1"><ShieldAlert size={12} />FRAUD FLAGGED</span>
+              <span className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-widest bg-red-500/10 px-4 py-1.5 rounded-full border border-red-500/20 shadow-sm animate-pulse">
+                <ShieldAlert size={14} /> High Risk Node
+              </span>
             )}
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-            {farmer.farmer_code} {farmer.village && `• ${farmer.village}`} {farmer.district && `• ${farmer.district}`}
-          </p>
-          {farmer.phone && <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{farmer.phone}</p>}
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+              <Database size={14} className="text-blue-600" /> {farmer.farmer_code}
+            </p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+              <MapPin size={14} className="text-blue-600" /> {farmer.village || farmer.district || 'Global Sector'}
+            </p>
+            {farmer.phone && (
+              <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <Phone size={14} className="text-blue-600" /> {farmer.phone}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-6 text-center">
-          <div>
-            <p className="text-2xl font-bold text-milk-600 dark:text-milk-400">{farmer.total_submissions}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold uppercase tracking-wide">Submissions</p>
+
+        <div className="grid grid-cols-3 gap-8 text-center border-l border-slate-100 dark:border-white/10 pl-10 hidden lg:grid">
+          <div className="space-y-1">
+            <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{farmer.total_submissions}</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Yield Count</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{acceptRate}%</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold uppercase tracking-wide">Accept Rate</p>
+          <div className="space-y-1">
+            <p className="text-3xl font-black text-emerald-600 tracking-tighter">{acceptRate}%</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Efficiency</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{farmer.fraud_count || 0}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold uppercase tracking-wide">Fraud Events</p>
+          <div className="space-y-1">
+            <p className="text-3xl font-black text-red-600 tracking-tighter">{farmer.fraud_count || 0}</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Anomalies</p>
           </div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card p-4 text-center">
-          <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{farmer.total_accepted}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wide">Accepted</p>
+      {/* ── Quality Analytics ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 card-premium p-8">
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
+              <TrendingUp size={18} className="text-blue-600"/> Quality Trajectory Analysis
+            </h3>
+            <div className="flex items-center gap-4">
+               {['Fat', 'SNF', 'pH'].map((key, i) => (
+                 <div key={key} className="flex items-center gap-2">
+                   <div className={`w-2 h-2 rounded-full ${['bg-blue-600', 'bg-emerald-500', 'bg-amber-500'][i]}`} />
+                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{key}</span>
+                 </div>
+               ))}
+            </div>
+          </div>
+          
+          <div className="h-[340px] w-full">
+            {trendData.length > 1 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorFat" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={chartColors.fat} stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor={chartColors.fat} stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorSnf" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={chartColors.snf} stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor={chartColors.snf} stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                  <XAxis dataKey="date" tick={{ fill: chartColors.text, fontSize: 9, fontWeight: 900 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: chartColors.text, fontSize: 9, fontWeight: 900 }} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: isDark ? '#0f172a' : '#fff', 
+                      border: 'none', 
+                      borderRadius: '16px',
+                      boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+                      fontSize: '10px',
+                      fontWeight: 'bold'
+                    }}
+                  />
+                  <Area type="monotone" dataKey="fat" stroke={chartColors.fat} strokeWidth={3} fillOpacity={1} fill="url(#colorFat)" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} />
+                  <Area type="monotone" dataKey="snf" stroke={chartColors.snf} strokeWidth={3} fillOpacity={1} fill="url(#colorSnf)" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-white/[0.02] rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10">
+                <Activity size={48} className="text-slate-200" />
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Insufficient Yield Cycles for Modeling</p>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="card p-4 text-center">
-          <p className="text-xl font-bold text-red-600 dark:text-red-400">{farmer.total_rejected}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wide">Rejected</p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-xl font-bold text-slate-800 dark:text-slate-200">{farmer.avg_fat?.toFixed(3) ?? '—'}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wide">Avg FAT %</p>
-        </div>
-        <div className="card p-4 text-center">
-          <p className="text-xl font-bold text-slate-800 dark:text-slate-200">{farmer.avg_snf?.toFixed(3) ?? '—'}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold uppercase tracking-wide">Avg SNF %</p>
+
+        <div className="space-y-6">
+          <div className="card-premium p-8 bg-slate-900 text-white relative overflow-hidden group">
+            <h4 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+              <Microscope size={16} /> Technical Summary
+            </h4>
+            <div className="space-y-5 relative z-10">
+              {[
+                { label: 'Avg Fat Protocol', value: `${farmer.avg_fat?.toFixed(3) ?? '—'}%`, icon: Zap },
+                { label: 'Avg SNF Profile', value: `${farmer.avg_snf?.toFixed(3) ?? '—'}%`, icon: Activity },
+                { label: 'Registry Age', value: records[records.length-1]?.date || '—', icon: Clock },
+                { label: 'Network Zone', value: farmer.village || 'Global Hub', icon: MapPin },
+              ].map((item, i) => (
+                <div key={i} className="flex justify-between items-center group/item pb-4 border-b border-white/5 last:border-none last:pb-0">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <item.icon size={12} className="text-blue-500" /> {item.label}
+                  </span>
+                  <span className="text-xs font-black tracking-tight">{item.value}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
+               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Audit Score</p>
+               <p className="text-xl font-black tracking-tighter">{farmer.fraud_flag ? 'RESTRICTED' : 'A-GRADE PROVIDER'}</p>
+            </div>
+            <TrendingUp size={140} className="absolute -right-10 -bottom-10 opacity-5 text-white rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+          </div>
+
+          <div className="card-premium p-6 flex flex-col items-center justify-center text-center gap-4 bg-emerald-500/5 border-emerald-500/10">
+            <CheckCircle2 size={32} className="text-emerald-500" />
+            <div>
+              <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Compliance Status</p>
+              <p className="text-[10px] font-bold text-slate-500 mt-1">Provider is fully synchronized with current laboratory protocols.</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Trend chart */}
-      {trendData.length > 1 && (
-        <div className="card p-5">
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            FAT &amp; SNF Trend
+      {/* ── Supply Vector Ledger ── */}
+      <div className="card-premium overflow-hidden">
+        <div className="px-8 py-6 bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
+          <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
+            <Database size={18} className="text-blue-600"/> Archival Supply Vectors
           </h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chartConfig.grid} vertical={false} />
-              <XAxis dataKey="date" tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: chartConfig.text, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: chartConfig.tooltip.bg, border: `1px solid ${chartConfig.tooltip.border}`, borderRadius: 10, fontSize: 12, boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-              <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600, color: chartConfig.text, paddingTop: 16 }} />
-              <Line type="monotone" dataKey="fat" name="FAT %" stroke="#10b981" strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="snf" name="SNF %" stroke="#3aa3f6" strokeWidth={2.5} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="flex gap-4">
+             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+               <div className="w-2 h-2 rounded-full bg-emerald-500" /> Certified
+             </div>
+             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+               <div className="w-2 h-2 rounded-full bg-red-500" /> Rejected
+             </div>
+          </div>
         </div>
-      )}
-
-      {/* Records table */}
-      <div className="card overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">Recent Records ({records.length})</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                {['Date', 'Shift', 'FAT', 'SNF', 'pH', 'Temp', 'MBRT', 'Decision', 'Fraud Risk', 'Reasons'].map(h => (
-                  <th key={h} className="text-left px-4 py-3.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
-                ))}
+              <tr className="bg-slate-50/50 dark:bg-black/20">
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Shift</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fat (%)</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">SNF (%)</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">pH</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Temp</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Audit</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-              {records.map(r => (
-                <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="px-4 py-2.5 text-slate-600 dark:text-slate-300 text-xs font-medium">{r.date}</td>
-                  <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400 capitalize text-xs font-bold">{r.shift}</td>
-                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.fat?.toFixed(2) ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.snf?.toFixed(2) ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.ph?.toFixed(2) ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.temperature?.toFixed(1) ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-mono text-xs">{r.mbrt?.toFixed(1) ?? '—'}</td>
-                  <td className="px-4 py-2.5"><DecisionBadge d={r.decision} /></td>
-                  <td className="px-4 py-2.5">
-                    <span className={`text-xs font-bold ${r.fraud_risk === 'high' ? 'text-red-600 dark:text-red-400' :
-                        r.fraud_risk === 'medium' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'
-                      }`}>{r.fraud_risk?.toUpperCase()}</span>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              {records.map((r, i) => (
+                <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-8 py-4 text-[11px] font-black text-slate-900 dark:text-white font-mono">{r.date}</td>
+                  <td className="px-8 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{r.shift}</td>
+                  <td className="px-8 py-4 text-[11px] font-black text-slate-700 dark:text-slate-300 font-mono">{r.fat?.toFixed(2) ?? '—'}%</td>
+                  <td className="px-8 py-4 text-[11px] font-black text-slate-700 dark:text-slate-300 font-mono">{r.snf?.toFixed(2) ?? '—'}%</td>
+                  <td className="px-8 py-4 text-[11px] font-black text-slate-700 dark:text-slate-300 font-mono">{r.ph?.toFixed(2) ?? '—'}</td>
+                  <td className="px-8 py-4 text-[11px] font-black text-slate-700 dark:text-slate-300 font-mono">{r.temperature?.toFixed(1) ?? '—'}°C</td>
+                  <td className="px-8 py-4"><StatusBadge decision={r.decision} /></td>
+                  <td className="px-8 py-4">
+                    <span className={`text-[9px] font-black uppercase tracking-widest ${
+                      r.fraud_risk === 'high' ? 'text-red-600' : 'text-slate-400'
+                    }`}>
+                      {r.fraud_risk || 'Secure'}
+                    </span>
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500 dark:text-slate-500 text-xs max-w-[150px] truncate" title={r.reasons?.join(', ')}>
-                    {r.reasons && r.reasons.length > 0 ? r.reasons[0] : '—'}
+                  <td className="px-8 py-4 text-right">
+                    <div className="max-w-[150px] truncate ml-auto text-[10px] font-bold text-slate-400 uppercase italic" title={r.reasons?.join(', ')}>
+                      {r.reasons && r.reasons.length > 0 ? r.reasons[0] : 'Normal Trace'}
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -18,10 +18,25 @@ def _build_query(args: dict):
     filters = []
     if args.get("decision"):
         filters.append(MilkRecord.decision == args["decision"])
-    if args.get("fraud_risk"):
-        filters.append(MilkRecord.fraud_risk == args["fraud_risk"])
-    if args.get("shift"):
-        filters.append(MilkRecord.shift == args["shift"])
+    
+    fr = args.get("fraud_risk")
+    if fr:
+        if fr == "detected":
+            filters.append(MilkRecord.fraud_risk.in_(["high", "medium"]))
+        elif fr == "clean":
+            filters.append(MilkRecord.fraud_risk == "low")
+        else:
+            filters.append(MilkRecord.fraud_risk == fr)
+            
+    session = args.get("session")
+    if session:
+        if session == "morning":
+            filters.append(MilkRecord.shift == "morning")
+        elif session == "evening":
+            filters.append(MilkRecord.shift == "evening")
+        elif session == "manual":
+            filters.append(MilkRecord.entry_type == "manual")
+
     if args.get("date_from"):
         try:
             filters.append(MilkRecord.date >= datetime.strptime(args["date_from"], "%Y-%m-%d").date())
@@ -34,6 +49,7 @@ def _build_query(args: dict):
             pass
     if args.get("farmer_code"):
         filters.append(MilkRecord.farmer_code == args["farmer_code"])
+    
     q = MilkRecord.query
     if filters:
         q = q.filter(and_(*filters))
@@ -149,15 +165,19 @@ def export_pdf():
                               textColor=colors.HexColor("#64748B"),
                               fontSize=8, spaceAfter=0)
     elements = []
-    elements.append(Paragraph("Smart Milk Decision Tool System — Quality Report", title_s))
+    elements.append(Paragraph("IVRI Milk Intelligence Hub — Operational Quality Report", title_s))
     acc = sum(1 for r in records if r.decision=="accept")
     rej = sum(1 for r in records if r.decision=="reject")
     elements.append(Paragraph(
+        f"Temporal Horizon: {args.get('date_from','All')} to {args.get('date_to','Current')}  |  "
+        f"Filters: {args.get('decision','All Result')} / {args.get('fraud_risk','All Risk')} / {args.get('session','All Session')}",
+        sub_s))
+    elements.append(Paragraph(
         f"Generated: {datetime.now().strftime('%d %b %Y %H:%M')}  |  "
-        f"Total: {len(records)}  |  Accepted: {acc}  |  Rejected: {rej}",
+        f"Dataset: {len(records)} Records  |  Approved: {acc}  |  Rejected: {rej}",
         sub_s))
     elements.append(Spacer(1, 4*mm))
-    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#CBD5E1")))
+    elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#1A3C5E")))
     elements.append(Spacer(1, 4*mm))
 
     header = ["ID","Farmer","Code","Date","Shift","FAT","SNF","pH","Acid.","Temp",
