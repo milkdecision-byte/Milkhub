@@ -3,7 +3,7 @@ import re
 from typing import Tuple, List, Dict
 
 def normalize_string(s: str) -> str:
-    """Removes spaces, symbols, brackets, and lowercases the string."""
+    """Removes spaces, symbols, brackets, underscores and lowercases the string."""
     if not s: return ""
     # Remove everything except alphanumeric
     return re.sub(r'[^a-z0-9]', '', str(s).lower())
@@ -35,13 +35,15 @@ INTELLIGENT_MAP: Dict[str, str] = {
     # Raw Milk Temp
     "rawmilktemperature": "raw_milk_temp", "rawmilktemp": "raw_milk_temp", "rawtemp": "raw_milk_temp", "milktemp": "raw_milk_temp",
     # Quantity
-    "quantity": "quantity", "qty": "quantity", "volume": "quantity", "yield": "quantity",
-    # Identity
-    "farmername": "farmer_name", "name": "farmer_name", "suppliername": "farmer_name", "farmer": "farmer_name",
-    "farmercode": "farmer_code", "code": "farmer_code", "suppliercode": "farmer_code", "registryid": "farmer_code",
+    "quantity": "quantity", "qty": "quantity", "volume": "quantity", "yield": "quantity", "milkquantity": "quantity",
+    # Identity (The focus of this fix)
+    "farmername": "farmer_name", "name": "farmer_name", "suppliername": "farmer_name", "farmer": "farmer_name", 
+    "provider": "farmer_name", "providername": "farmer_name", "vendor": "farmer_name", "vendorname": "farmer_name",
+    "supplier": "farmer_name", "client": "farmer_name", "customer": "farmer_name",
+    "farmercode": "farmer_code", "code": "farmer_code", "suppliercode": "farmer_code", "registryid": "farmer_code", "providerid": "farmer_code", "vendorid": "farmer_code",
     # Context
-    "date": "date", "timestamp": "date",
-    "shift": "shift", "session": "shift", "node": "shift"
+    "date": "date", "timestamp": "date", "datetime": "date", "entrydate": "date",
+    "shift": "shift", "session": "shift", "node": "shift", "temporalnode": "shift", "period": "shift", "sessionname": "shift"
 }
 
 NUMERIC_FIELDS = {
@@ -139,7 +141,12 @@ def validate_and_normalize(df: pd.DataFrame) -> Tuple[List[Dict], List[str], Lis
                 record[field] = None # Missing
 
         # Core Metadata
-        record["farmer_name"] = str(row.get("farmer_name", "Unknown")).strip() or "Unknown"
+        # Use a cascade for farmer name detection if it's still missing
+        f_name = str(row.get("farmer_name", "Unknown")).strip()
+        if f_name == "nan" or f_name == "" or f_name == "None":
+            f_name = "Unknown"
+            
+        record["farmer_name"] = f_name
         record["farmer_code"] = str(row.get("farmer_code", "")).strip()
         record["date"] = str(row.get("date", "")).strip()
         record["shift"] = _parse_shift(row.get("shift", "morning"))
