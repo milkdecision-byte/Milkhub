@@ -304,7 +304,7 @@ export default function DashboardPage() {
                   <div className="w-4 h-4 rounded-full shadow-lg shadow-black/5" style={{ backgroundColor: d.color }} />
                   <span className="text-xs font-bold text-[#1E1B4B]/80 dark:text-slate-300 uppercase tracking-widest">{d.name}</span>
                 </div>
-                <span className="text-sm font-bold text-[#1E1B4B] dark:text-white">{d.value} Units</span>
+                <span className="text-sm font-bold text-[#1E1B4B] dark:text-white">{d.value} Samples</span>
               </div>
             ))}
           </div>
