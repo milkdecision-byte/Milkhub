@@ -405,7 +405,7 @@ export default function UploadPage() {
               Auto-Imputed Laboratory Metadata (Optional)
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Quantity'].map(h => (
+              {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Temp', 'Quantity'].map(h => (
                 <span key={h} className="px-5 py-2.5 bg-[#F5F3FF] dark:bg-white/5 text-purple-500 rounded-xl text-[11px] font-bold font-mono border border-[#C4B5FD]/30 tracking-widest hover:border-purple-400 transition-colors shadow-sm">{h}</span>
               ))}
             </div>

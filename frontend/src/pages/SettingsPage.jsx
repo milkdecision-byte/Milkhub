@@ -77,8 +77,8 @@ const DEFAULTS = {
   temp_ideal: '10', temp_acceptable: '15',
   raw_milk_temp_min: '25', raw_milk_temp_max: '37',
   sg_min: '1.028', sg_max: '1.032',
-  mbrt_good: '3', mbrt_check: '2',
-  company_name: 'Milkhub Global Quality Systems',
+  mbrt_good: '180', mbrt_check: '120',
+  company_name: 'Milkhub Intelligence Hub',
   fraud_threshold: '3',
 }
 

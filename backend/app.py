@@ -114,9 +114,9 @@ def _seed_defaults():
         ("acidity_min", "0.10"), ("acidity_max", "0.15"),
         ("temp_ideal", "10"), ("temp_acceptable", "15"),
         ("sg_min", "1.028"), ("sg_max", "1.032"),
-        ("mbrt_good", "3"), ("mbrt_check", "2"),
+        ("mbrt_good", "180"), ("mbrt_check", "120"),
         ("raw_milk_temp_min", "25"), ("raw_milk_temp_max", "37"),
-        ("company_name", "DairyPure Quality Labs"),
+        ("company_name", "Milkhub Intelligence Hub"),
         ("fraud_threshold", "3"),
     ]
     for key, value in defaults:

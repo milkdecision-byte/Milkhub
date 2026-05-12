@@ -37,60 +37,81 @@ function evaluateLive(data, sys) {
   const mbrt = f(data.mbrt)
   const rawTemp = f(data.raw_milk_temp)
 
-  // Molecular Parameter Analysis
+  // 1. Fat (3.2 - 3.5)
   if (fat !== null) {
-    if (fat < s('fat_min') || fat > s('fat_max')) { flags.fat = 'fail'; reasons.push(`Fat ${fat}% deviant`) }
+    if (fat < s('fat_min') || fat > s('fat_max')) { flags.fat = 'fail'; reasons.push('Possible Adulteration') }
     else flags.fat = 'pass'
   }
+  // 2. SNF (8.3 - 8.5)
   if (snf !== null) {
-    if (snf < s('snf_min') || snf > s('snf_max')) { flags.snf = 'fail'; reasons.push(`SNF ${snf}% deviant`) }
+    if (snf < s('snf_min') || snf > s('snf_max')) { flags.snf = 'fail'; reasons.push('Added water (SNF)') }
     else flags.snf = 'pass'
   }
+  // 3. pH (6.5 - 6.8)
   if (ph !== null) {
-    if (ph < s('ph_min') || ph > s('ph_max')) { flags.ph = 'fail'; reasons.push(`pH ${ph} out of range`) }
+    if (ph < s('ph_min') || ph > s('ph_max')) { flags.ph = 'fail'; reasons.push('Spoilage') }
     else flags.ph = 'pass'
   }
+  // 4. Acidity (0.10 - 0.15)
   if (acidity !== null) {
-    if (acidity < s('acidity_min') || acidity > s('acidity_max')) { flags.acidity = 'fail'; reasons.push(`Acidity ${acidity}% abnormal`) }
+    if (acidity < s('acidity_min') || acidity > s('acidity_max')) { flags.acidity = 'fail'; reasons.push('Souring') }
     else flags.acidity = 'pass'
   }
+  // 5. Temperature (<= 15)
   if (temp !== null) {
-    if (temp > s('temp_acceptable')) { flags.temperature = 'fail'; reasons.push(`Thermal: ${temp}°C exceeds max`) }
+    if (temp > s('temp_acceptable')) { flags.temperature = 'fail'; reasons.push('Bacterial growth risk') }
     else flags.temperature = 'pass'
+  }
+  // 6. Specific Gravity (1.028 - 1.032)
+  if (sg !== null) {
+    if (sg < s('sg_min') || sg > s('sg_max')) { flags.specific_gravity = 'fail'; reasons.push('Added water (SG)') }
+    else flags.specific_gravity = 'pass'
+  }
+  // 7. MBRT (>= 120)
+  if (mbrt !== null) {
+    if (mbrt < s('mbrt_min')) { flags.mbrt = 'fail'; reasons.push('Poor quality') }
+    else flags.mbrt = 'pass'
+  }
+  // 8. Raw Temp (25 - 37)
+  if (rawTemp !== null) {
+    if (rawTemp < s('raw_temp_min') || rawTemp > s('raw_temp_max')) { flags.raw_milk_temp = 'fail'; reasons.push('Reject (Raw Temp)') }
+    else flags.raw_milk_temp = 'pass'
   }
   
   // Laboratory Test Analysis
-  if (data.cob_test === 'positive') { flags.cob_test = 'fail'; reasons.push('COB Positive') }
+  if (data.cob_test === 'positive') { flags.cob_test = 'fail'; reasons.push('Reject (COB)') }
   else if (data.cob_test === 'negative') flags.cob_test = 'pass'
   
-  if (data.alcohol_test === 'positive') { flags.alcohol_test = 'fail'; reasons.push('Alcohol Alert') }
+  if (data.alcohol_test === 'positive') { flags.alcohol_test = 'fail'; reasons.push('unstable milk') }
   else if (data.alcohol_test === 'negative') flags.alcohol_test = 'pass'
   
-  if (data.organoleptic === 'abnormal') { flags.organoleptic = 'fail'; reasons.push('Sensory Deviation') }
+  if (data.organoleptic === 'abnormal') { flags.organoleptic = 'fail'; reasons.push('Reject (Organoleptic)') }
   else if (data.organoleptic === 'normal') flags.organoleptic = 'pass'
   
-  if (data.sediment_test === 'dirty') { flags.sediment_test = 'fail'; reasons.push('Sediment Detected') }
+  if (data.sediment_test === 'dirty') { flags.sediment_test = 'fail'; reasons.push('Reject (Sediment)') }
   else if (data.sediment_test === 'clean') flags.sediment_test = 'pass'
 
   // Determination Logic
   const hasFail = Object.values(flags).some(f => f === 'fail');
-  const enteredRequired = ['fat', 'snf', 'ph', 'acidity', 'temperature', 'cob_test', 'alcohol_test', 'organoleptic', 'sediment_test']
-    .filter(k => data[k] !== '').length;
+  const mandatory = ['fat', 'snf', 'ph', 'acidity', 'cob_test', 'mbrt']
+  const enteredMandatory = mandatory.filter(k => data[k] !== '').length;
+  const isComplete = enteredMandatory === mandatory.length;
   
-  const totalRequired = 9;
-
   let decision = 'pending';
   if (hasFail) decision = 'reject';
-  else if (enteredRequired === totalRequired) decision = 'accept';
-  else if (enteredRequired > 0) decision = 'analyzing';
+  else if (isComplete) decision = 'accept';
+  else if (enteredMandatory > 0) decision = 'analyzing';
+
+  const totalPossible = 12;
+  const enteredAll = Object.keys(flags).length;
 
   return { 
     decision, 
     reasons, 
     parameter_flags: flags, 
     isLive: true, 
-    progress: (enteredRequired / totalRequired) * 100,
-    isComplete: enteredRequired === totalRequired
+    progress: (enteredAll / totalPossible) * 100,
+    isComplete
   }
 }
 

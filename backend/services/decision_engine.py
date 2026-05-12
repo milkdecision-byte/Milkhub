@@ -38,13 +38,19 @@ class DecisionResult:
 
 DEFAULT_THRESHOLDS = {
     "fat_min": 3.2,
+    "fat_max": 3.5,
     "snf_min": 8.3,
+    "snf_max": 8.5,
     "ph_min": 6.5,
     "ph_max": 6.8,
+    "acidity_min": 0.10,
     "acidity_max": 0.15,
     "temp_acceptable": 15.0,
-    "sg_min": 1.026,
-    "mbrt_min": 4.0,
+    "sg_min": 1.028,
+    "sg_max": 1.032,
+    "mbrt_check": 120.0,
+    "raw_milk_temp_min": 25.0,
+    "raw_milk_temp_max": 37.0
 }
 
 
@@ -59,10 +65,10 @@ class DecisionEngine:
         missing_fields = []
         flags = {}
 
-        # 1. FAT
+        # 1. FAT (3.2 - 3.5)
         if sample.fat is not None:
-            if sample.fat < self.t["fat_min"]:
-                critical_failures.append(f"Fat below limit ({sample.fat:.2f}%)")
+            if not (self.t["fat_min"] <= sample.fat <= self.t["fat_max"]):
+                critical_failures.append(f"Possible Adulteration (Fat {sample.fat:.2f}%)")
                 flags["fat"] = "fail"
             else:
                 flags["fat"] = "pass"
@@ -70,10 +76,10 @@ class DecisionEngine:
             missing_fields.append("Fat (%)")
             flags["fat"] = "missing"
 
-        # 2. SNF
+        # 2. SNF (8.3 - 8.5)
         if sample.snf is not None:
-            if sample.snf < self.t["snf_min"]:
-                critical_failures.append(f"SNF below limit ({sample.snf:.2f}%)")
+            if not (self.t["snf_min"] <= sample.snf <= self.t["snf_max"]):
+                critical_failures.append(f"Added water (SNF {sample.snf:.2f}%)")
                 flags["snf"] = "fail"
             else:
                 flags["snf"] = "pass"
@@ -81,10 +87,10 @@ class DecisionEngine:
             missing_fields.append("SNF (%)")
             flags["snf"] = "missing"
 
-        # 3. pH
+        # 3. pH (6.5 - 6.8)
         if sample.ph is not None:
             if not (self.t["ph_min"] <= sample.ph <= self.t["ph_max"]):
-                critical_failures.append(f"Abnormal pH ({sample.ph:.2f})")
+                critical_failures.append(f"Spoilage (pH {sample.ph:.2f})")
                 flags["ph"] = "fail"
             else:
                 flags["ph"] = "pass"
@@ -92,10 +98,10 @@ class DecisionEngine:
             missing_fields.append("pH")
             flags["ph"] = "missing"
 
-        # 4. Acidity
+        # 4. Acidity (0.10 - 0.15)
         if sample.acidity is not None:
-            if sample.acidity > self.t["acidity_max"]:
-                critical_failures.append(f"High Acidity ({sample.acidity:.3f}%)")
+            if not (self.t["acidity_min"] <= sample.acidity <= self.t["acidity_max"]):
+                critical_failures.append(f"Souring (Acidity {sample.acidity:.3f}%)")
                 flags["acidity"] = "fail"
             else:
                 flags["acidity"] = "pass"
@@ -103,10 +109,10 @@ class DecisionEngine:
             missing_fields.append("Acidity")
             flags["acidity"] = "missing"
 
-        # 5. Temperature (Optional/Metadata)
+        # 5. Temperature (<= 15)
         if sample.temperature is not None:
             if sample.temperature > self.t["temp_acceptable"]:
-                critical_failures.append(f"High Temperature ({sample.temperature:.1f}°C)")
+                critical_failures.append(f"Bacterial growth risk ({sample.temperature:.1f}°C)")
                 flags["temperature"] = "fail"
             else:
                 flags["temperature"] = "pass"
@@ -114,10 +120,10 @@ class DecisionEngine:
             minor_warnings.append("Temperature vector missing")
             flags["temperature"] = "missing"
 
-        # 6. Specific Gravity (Optional/Metadata)
+        # 6. Specific Gravity (1.028 - 1.032)
         if sample.specific_gravity is not None:
-            if sample.specific_gravity < self.t["sg_min"]:
-                critical_failures.append(f"Low Density ({sample.specific_gravity:.4f})")
+            if not (self.t["sg_min"] <= sample.specific_gravity <= self.t["sg_max"]):
+                critical_failures.append(f"Added water (Density {sample.specific_gravity:.4f})")
                 flags["specific_gravity"] = "fail"
             else:
                 flags["specific_gravity"] = "pass"
@@ -125,11 +131,12 @@ class DecisionEngine:
             minor_warnings.append("Specific Gravity missing")
             flags["specific_gravity"] = "missing"
 
-        # 7. MBRT
+        # 7. MBRT (> 120 mins)
         if sample.mbrt is not None:
-            if sample.mbrt < self.t["mbrt_min"]:
-                minor_warnings.append(f"Low MBRT ({sample.mbrt:.1f}h)")
-                flags["mbrt"] = "warning"
+            mbrt_limit = self.t.get("mbrt_check", self.t.get("mbrt_min", 120.0))
+            if sample.mbrt < mbrt_limit:
+                critical_failures.append(f"Poor quality (MBRT {sample.mbrt:.0f}m)")
+                flags["mbrt"] = "fail"
             else:
                 flags["mbrt"] = "pass"
         else:
@@ -139,7 +146,7 @@ class DecisionEngine:
         # 8. COB Test
         if sample.cob_test is not None:
             if str(sample.cob_test).lower().strip() == "positive":
-                critical_failures.append("COB Positive")
+                critical_failures.append("Reject (COB Positive)")
                 flags["cob_test"] = "fail"
             else:
                 flags["cob_test"] = "pass"
@@ -147,10 +154,10 @@ class DecisionEngine:
             missing_fields.append("COB Test")
             flags["cob_test"] = "missing"
 
-        # 9. Alcohol Test (Optional)
+        # 9. Alcohol Test
         if sample.alcohol_test is not None:
             if any(x in str(sample.alcohol_test).lower() for x in ("fail", "pos")):
-                critical_failures.append("Alcohol Test FAIL")
+                critical_failures.append("unstable milk (Alcohol Test Fail)")
                 flags["alcohol_test"] = "fail"
             else:
                 flags["alcohol_test"] = "pass"
@@ -158,15 +165,35 @@ class DecisionEngine:
             minor_warnings.append("Alcohol Test missing")
             flags["alcohol_test"] = "missing"
 
-        # 10. Organoleptic (Optional)
+        # 10. Organoleptic
         if sample.organoleptic is not None:
             if str(sample.organoleptic).lower().strip() == "abnormal":
-                minor_warnings.append("Organoleptic Abnormal")
-                flags["organoleptic"] = "warning"
+                critical_failures.append("Reject (Organoleptic Off smell)")
+                flags["organoleptic"] = "fail"
             else:
                 flags["organoleptic"] = "pass"
         else:
             flags["organoleptic"] = "missing"
+
+        # 11. Sediment Test
+        if sample.sediment_test is not None:
+            if str(sample.sediment_test).lower().strip() == "dirty":
+                critical_failures.append("Reject (Sediment Dirt detected)")
+                flags["sediment_test"] = "fail"
+            else:
+                flags["sediment_test"] = "pass"
+        else:
+            flags["sediment_test"] = "missing"
+
+        # 12. Raw Milk Temperature (25 - 37)
+        if sample.raw_milk_temp is not None:
+            if not (self.t["raw_milk_temp_min"] <= sample.raw_milk_temp <= self.t["raw_milk_temp_max"]):
+                critical_failures.append(f"Reject (Raw Temp {sample.raw_milk_temp:.1f}°C)")
+                flags["raw_milk_temp"] = "fail"
+            else:
+                flags["raw_milk_temp"] = "pass"
+        else:
+            flags["raw_milk_temp"] = "missing"
 
         # ── Final Decision Logic ─────────────────────────────────────
         result.parameter_flags = flags

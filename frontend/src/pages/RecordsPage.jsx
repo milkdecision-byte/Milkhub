@@ -254,8 +254,14 @@ export default function RecordsPage() {
                     </div>
                   </td>
                   <td className="px-8 py-7">
-                        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 ${r.cob_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>COB Test: {r.cob_test || 'negative'}</span>
-                        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 ${r.alcohol_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>Alcohol Test: {r.alcohol_test || 'negative'}</span>
+                    <div className="flex flex-col gap-2 min-w-[140px]">
+                      <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 whitespace-nowrap ${r.cob_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>
+                        COB Test: {r.cob_test || 'negative'}
+                      </span>
+                      <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 whitespace-nowrap ${r.alcohol_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>
+                        Alcohol Test: {r.alcohol_test || 'negative'}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-8 py-7 text-right">
                     <div className="flex flex-col items-end gap-2">
