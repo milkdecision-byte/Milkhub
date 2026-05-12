@@ -155,7 +155,7 @@ class DecisionEngine:
         # 8. COB Test
         if sample.cob_test is not None:
             if not self._is_pass(sample.cob_test, "cob_pass"):
-                critical_failures.append(f"Reject (COB {sample.cob_test})")
+                critical_failures.append(f"COB Test: {sample.cob_test}")
                 flags["cob_test"] = "fail"
             else:
                 flags["cob_test"] = "pass"
@@ -166,7 +166,7 @@ class DecisionEngine:
         # 9. Alcohol Test
         if sample.alcohol_test is not None:
             if not self._is_pass(sample.alcohol_test, "alcohol_pass"):
-                critical_failures.append(f"unstable milk (Alcohol {sample.alcohol_test})")
+                critical_failures.append(f"Alcohol Test: {sample.alcohol_test}")
                 flags["alcohol_test"] = "fail"
             else:
                 flags["alcohol_test"] = "pass"
@@ -177,7 +177,7 @@ class DecisionEngine:
         # 10. Organoleptic
         if sample.organoleptic is not None:
             if not self._is_pass(sample.organoleptic, "organoleptic_pass"):
-                critical_failures.append(f"Reject (Organoleptic {sample.organoleptic})")
+                critical_failures.append(f"Organoleptic: {sample.organoleptic}")
                 flags["organoleptic"] = "fail"
             else:
                 flags["organoleptic"] = "pass"
@@ -187,7 +187,7 @@ class DecisionEngine:
         # 11. Sediment Test
         if sample.sediment_test is not None:
             if not self._is_pass(sample.sediment_test, "sediment_pass"):
-                critical_failures.append(f"Reject (Sediment {sample.sediment_test})")
+                critical_failures.append(f"Sediment Test: {sample.sediment_test}")
                 flags["sediment_test"] = "fail"
             else:
                 flags["sediment_test"] = "pass"

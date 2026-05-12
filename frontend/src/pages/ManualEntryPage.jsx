@@ -83,22 +83,22 @@ function evaluateLive(data, sys) {
   // Laboratory Test Analysis
   if (data.cob_test) {
     if (isPass(data.cob_test, 'cob_pass')) flags.cob_test = 'pass'
-    else { flags.cob_test = 'fail'; reasons.push('Reject (COB)') }
+    else { flags.cob_test = 'fail'; reasons.push(`COB Test: ${data.cob_test}`) }
   }
   
   if (data.alcohol_test) {
     if (isPass(data.alcohol_test, 'alcohol_pass')) flags.alcohol_test = 'pass'
-    else { flags.alcohol_test = 'fail'; reasons.push('unstable milk') }
+    else { flags.alcohol_test = 'fail'; reasons.push(`Alcohol Test: ${data.alcohol_test}`) }
   }
   
   if (data.organoleptic) {
     if (isPass(data.organoleptic, 'organoleptic_pass')) flags.organoleptic = 'pass'
-    else { flags.organoleptic = 'fail'; reasons.push('Reject (Organoleptic)') }
+    else { flags.organoleptic = 'fail'; reasons.push(`Organoleptic: ${data.organoleptic}`) }
   }
   
   if (data.sediment_test) {
     if (isPass(data.sediment_test, 'sediment_pass')) flags.sediment_test = 'pass'
-    else { flags.sediment_test = 'fail'; reasons.push('Reject (Sediment)') }
+    else { flags.sediment_test = 'fail'; reasons.push(`Sediment Test: ${data.sediment_test}`) }
   }
 
   // Determination Logic
