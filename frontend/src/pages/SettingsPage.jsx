@@ -67,6 +67,50 @@ const GROUPS = [
       { key: 'fraud_threshold', label: 'Anomaly Trigger Limit', step: '1' },
     ],
   },
+  {
+    title: 'Qualitative Laboratory Protocols',
+    icon: Microscope,
+    color: 'text-rose-600',
+    bg: 'bg-rose-600',
+    fields: [
+      { 
+        key: 'cob_pass', 
+        label: 'COB Test (Accept)', 
+        type: 'select', 
+        options: [
+          { label: 'Negative', value: 'negative' },
+          { label: 'Positive', value: 'positive' }
+        ] 
+      },
+      { 
+        key: 'alcohol_pass', 
+        label: 'Alcohol Test (Accept)', 
+        type: 'select', 
+        options: [
+          { label: 'Negative', value: 'negative' },
+          { label: 'Positive', value: 'positive' }
+        ] 
+      },
+      { 
+        key: 'organoleptic_pass', 
+        label: 'Organoleptic (Accept)', 
+        type: 'select', 
+        options: [
+          { label: 'Normal', value: 'normal' },
+          { label: 'Off smell', value: 'abnormal' }
+        ] 
+      },
+      { 
+        key: 'sediment_pass', 
+        label: 'Sediment Test (Accept)', 
+        type: 'select', 
+        options: [
+          { label: 'Clean', value: 'clean' },
+          { label: 'Dirt', value: 'dirty' }
+        ] 
+      },
+    ],
+  },
 ]
 
 const DEFAULTS = {
@@ -80,6 +124,10 @@ const DEFAULTS = {
   mbrt_good: '180', mbrt_check: '120',
   company_name: 'Milkhub Intelligence Hub',
   fraud_threshold: '3',
+  cob_pass: 'negative',
+  alcohol_pass: 'negative',
+  organoleptic_pass: 'normal',
+  sediment_pass: 'clean',
 }
 
 export default function SettingsPage() {
@@ -183,13 +231,25 @@ export default function SettingsPage() {
                 {group.fields.map(field => (
                   <div key={field.key} className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 tracking-widest ml-1">{field.label}</label>
-                    <input
-                      className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono"
-                      type={field.type || 'number'}
-                      step={field.step || '0.01'}
-                      value={settings[field.key] ?? ''}
-                      onChange={e => updateField(field.key, e.target.value)}
-                    />
+                    {field.type === 'select' ? (
+                      <select
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono appearance-none"
+                        value={settings[field.key] ?? ''}
+                        onChange={e => updateField(field.key, e.target.value)}
+                      >
+                        {field.options.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono"
+                        type={field.type || 'number'}
+                        step={field.step || '0.01'}
+                        value={settings[field.key] ?? ''}
+                        onChange={e => updateField(field.key, e.target.value)}
+                      />
+                    )}
                   </div>
                 ))}
               </div>

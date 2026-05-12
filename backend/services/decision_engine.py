@@ -50,13 +50,22 @@ DEFAULT_THRESHOLDS = {
     "sg_max": 1.032,
     "mbrt_check": 120.0,
     "raw_milk_temp_min": 25.0,
-    "raw_milk_temp_max": 37.0
+    "raw_milk_temp_max": 37.0,
+    "cob_pass": "negative",
+    "alcohol_pass": "negative",
+    "organoleptic_pass": "normal",
+    "sediment_pass": "clean"
 }
 
 
 class DecisionEngine:
     def __init__(self, thresholds: Optional[dict] = None):
         self.t = {**DEFAULT_THRESHOLDS, **(thresholds or {})}
+
+    def _is_pass(self, value: any, key: str) -> bool:
+        """Dynamically check if a qualitative value matches the accept keyword."""
+        if value is None: return False
+        return str(value).lower().strip() == str(self.t.get(key, "")).lower().strip()
 
     def evaluate(self, sample: MilkSample) -> DecisionResult:
         result = DecisionResult()
@@ -145,8 +154,8 @@ class DecisionEngine:
 
         # 8. COB Test
         if sample.cob_test is not None:
-            if str(sample.cob_test).lower().strip() == "positive":
-                critical_failures.append("Reject (COB Positive)")
+            if not self._is_pass(sample.cob_test, "cob_pass"):
+                critical_failures.append(f"Reject (COB {sample.cob_test})")
                 flags["cob_test"] = "fail"
             else:
                 flags["cob_test"] = "pass"
@@ -156,8 +165,8 @@ class DecisionEngine:
 
         # 9. Alcohol Test
         if sample.alcohol_test is not None:
-            if any(x in str(sample.alcohol_test).lower() for x in ("fail", "pos")):
-                critical_failures.append("unstable milk (Alcohol Test Fail)")
+            if not self._is_pass(sample.alcohol_test, "alcohol_pass"):
+                critical_failures.append(f"unstable milk (Alcohol {sample.alcohol_test})")
                 flags["alcohol_test"] = "fail"
             else:
                 flags["alcohol_test"] = "pass"
@@ -167,8 +176,8 @@ class DecisionEngine:
 
         # 10. Organoleptic
         if sample.organoleptic is not None:
-            if str(sample.organoleptic).lower().strip() == "abnormal":
-                critical_failures.append("Reject (Organoleptic Off smell)")
+            if not self._is_pass(sample.organoleptic, "organoleptic_pass"):
+                critical_failures.append(f"Reject (Organoleptic {sample.organoleptic})")
                 flags["organoleptic"] = "fail"
             else:
                 flags["organoleptic"] = "pass"
@@ -177,8 +186,8 @@ class DecisionEngine:
 
         # 11. Sediment Test
         if sample.sediment_test is not None:
-            if str(sample.sediment_test).lower().strip() == "dirty":
-                critical_failures.append("Reject (Sediment Dirt detected)")
+            if not self._is_pass(sample.sediment_test, "sediment_pass"):
+                critical_failures.append(f"Reject (Sediment {sample.sediment_test})")
                 flags["sediment_test"] = "fail"
             else:
                 flags["sediment_test"] = "pass"

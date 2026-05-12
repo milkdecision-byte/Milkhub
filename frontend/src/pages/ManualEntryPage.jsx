@@ -78,18 +78,28 @@ function evaluateLive(data, sys) {
     else flags.raw_milk_temp = 'pass'
   }
   
+  const isPass = (val, key) => val && val.toLowerCase() === (sys[key] || '').toLowerCase()
+
   // Laboratory Test Analysis
-  if (data.cob_test === 'positive') { flags.cob_test = 'fail'; reasons.push('Reject (COB)') }
-  else if (data.cob_test === 'negative') flags.cob_test = 'pass'
+  if (data.cob_test) {
+    if (isPass(data.cob_test, 'cob_pass')) flags.cob_test = 'pass'
+    else { flags.cob_test = 'fail'; reasons.push('Reject (COB)') }
+  }
   
-  if (data.alcohol_test === 'positive') { flags.alcohol_test = 'fail'; reasons.push('unstable milk') }
-  else if (data.alcohol_test === 'negative') flags.alcohol_test = 'pass'
+  if (data.alcohol_test) {
+    if (isPass(data.alcohol_test, 'alcohol_pass')) flags.alcohol_test = 'pass'
+    else { flags.alcohol_test = 'fail'; reasons.push('unstable milk') }
+  }
   
-  if (data.organoleptic === 'abnormal') { flags.organoleptic = 'fail'; reasons.push('Reject (Organoleptic)') }
-  else if (data.organoleptic === 'normal') flags.organoleptic = 'pass'
+  if (data.organoleptic) {
+    if (isPass(data.organoleptic, 'organoleptic_pass')) flags.organoleptic = 'pass'
+    else { flags.organoleptic = 'fail'; reasons.push('Reject (Organoleptic)') }
+  }
   
-  if (data.sediment_test === 'dirty') { flags.sediment_test = 'fail'; reasons.push('Reject (Sediment)') }
-  else if (data.sediment_test === 'clean') flags.sediment_test = 'pass'
+  if (data.sediment_test) {
+    if (isPass(data.sediment_test, 'sediment_pass')) flags.sediment_test = 'pass'
+    else { flags.sediment_test = 'fail'; reasons.push('Reject (Sediment)') }
+  }
 
   // Determination Logic
   const hasFail = Object.values(flags).some(f => f === 'fail');

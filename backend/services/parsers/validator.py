@@ -133,7 +133,7 @@ def validate_and_normalize(df: pd.DataFrame) -> Tuple[List[Dict], List[str], Lis
             if field in df.columns:
                 raw = str(row.get(field) or "").strip().lower()
                 # If it's Pass/Fail or Positive/Negative etc
-                if any(x in raw for x in ("pos", "fail", "dirty", "abnormal")):
+                if any(x in raw for x in ("pos", "fail", "dirty", "dirt", "abnormal", "off")):
                     record[field] = alt2
                 else:
                     record[field] = alt1
