@@ -12,9 +12,9 @@ import toast from 'react-hot-toast'
 
 function FeaturePill({ icon: Icon, label }) {
   return (
-    <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 shadow-sm">
-      <Icon size={14} className="text-purple-400" />
-      <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">{label}</span>
+    <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-purple-600/10 dark:bg-white/5 border border-purple-600/20 dark:border-white/10 shadow-sm transition-all hover:scale-105">
+      <Icon size={14} className="text-purple-600 dark:text-purple-400" />
+      <span className="text-[10px] font-black text-purple-900 dark:text-white uppercase tracking-widest">{label}</span>
     </div>
   )
 }
@@ -75,25 +75,19 @@ export default function LoginPage() {
           animate={{ opacity: 1, x: 0 }}
           className="lg:w-1/2 space-y-8 text-center lg:text-left"
         >
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-600/5 dark:bg-purple-600/10 border border-purple-600/20 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-[0.3em] text-[9px] mb-2">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-purple-600/10 border border-purple-600/30 text-purple-700 dark:text-purple-400 font-black uppercase tracking-[0.3em] text-[10px] mb-2 shadow-sm">
             <Sparkles size={12} /> AI-Powered Dairy Intelligence
           </div>
           
-          <h1 className={`text-6xl lg:text-7xl font-bold tracking-tighter leading-none ${textHeading}`}>
+          <h1 className={`text-7xl lg:text-8xl font-black tracking-tighter leading-none ${textHeading}`}>
             IVRI Milk <br />
-            <span className="bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent italic">Intelligence</span> <br />
-            <span className="bg-gradient-to-r from-orange-500 to-orange-400 bg-clip-text text-transparent">Hub</span>
+            <span className="bg-gradient-to-r from-purple-700 to-purple-500 dark:from-purple-500 dark:to-purple-400 bg-clip-text text-transparent italic">Intelligence</span> <br />
+            <span className="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-400 bg-clip-text text-transparent">Hub</span>
           </h1>
 
-          <p className={`text-lg lg:text-xl ${textSub} max-w-md font-normal leading-relaxed`}>
+          <p className={`text-xl lg:text-2xl ${theme === 'dark' ? 'text-white/70' : 'text-[#1E1B4B]'} max-w-md font-bold leading-relaxed`}>
             Real-time milk quality analysis and intelligent dairy monitoring platform.
           </p>
-
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-            <FeaturePill icon={Zap} label="Fat Analysis" />
-            <FeaturePill icon={Activity} label="SNF Monitoring" />
-            <FeaturePill icon={Droplets} label="pH Detection" />
-          </div>
         </motion.div>
 
         {/* ── RIGHT SIDE: LOGIN CARD ── */}
@@ -105,18 +99,18 @@ export default function LoginPage() {
           <div className="bg-white/40 dark:bg-white/[0.03] backdrop-blur-[40px] p-10 lg:p-12 rounded-[3rem] border border-white/40 dark:border-white/10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] dark:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-orange-500 opacity-30" />
             
-            <div className="mb-10">
-              <h2 className={`text-3xl font-bold ${textHeading} mb-1 tracking-tight italic`}>Operator Login</h2>
-              <p className={`text-[11px] font-bold ${theme === 'dark' ? 'text-white/30' : 'text-[#1E1B4B]/40'} uppercase tracking-widest`}>Access the dairy intelligence platform.</p>
-            </div>
+              <div className="mb-10">
+                <h2 className={`text-4xl font-black ${textHeading} mb-2 tracking-tight italic`}>Operator Login</h2>
+                <p className={`text-[11px] font-black ${theme === 'dark' ? 'text-white/40' : 'text-[#1E1B4B]'} uppercase tracking-widest`}>Access the dairy intelligence platform.</p>
+              </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className={`text-[10px] font-bold ${theme === 'dark' ? 'text-purple-300' : 'text-purple-600'} uppercase tracking-[0.3em] ml-4 flex items-center gap-2`}>
+                <label className={`text-[11px] font-black ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
                   <User size={12} /> Operator ID
                 </label>
                 <input
-                  className={`w-full bg-white/40 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-purple-600/10'} px-8 py-5 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-bold placeholder:text-slate-400 dark:placeholder:text-white/10 focus:ring-4 focus:ring-purple-600/5 outline-none transition-all text-sm`}
+                  className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-purple-600/20'} px-8 py-6 rounded-[1.8rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-purple-600/10 outline-none transition-all text-base shadow-sm`}
                   placeholder="Enter Operator ID"
                   value={form.username}
                   onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
@@ -124,12 +118,12 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label className={`text-[10px] font-bold ${theme === 'dark' ? 'text-orange-300' : 'text-orange-600'} uppercase tracking-[0.3em] ml-4 flex items-center gap-2`}>
+                <label className={`text-[11px] font-black ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
                   <Lock size={12} /> Password
                 </label>
                 <div className="relative group">
                   <input
-                    className={`w-full bg-white/40 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-purple-600/10'} px-8 py-5 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-bold placeholder:text-slate-400 dark:placeholder:text-white/10 focus:ring-4 focus:ring-orange-600/5 outline-none transition-all text-sm tracking-widest`}
+                    className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-orange-600/20'} px-8 py-6 rounded-[1.8rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-orange-600/10 outline-none transition-all text-base tracking-widest shadow-sm`}
                     type={showPass ? 'text' : 'password'}
                     placeholder="Enter Secure Password"
                     value={form.password}
