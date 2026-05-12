@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Save, RotateCcw, Settings2, ShieldCheck, Thermometer, 
   FlaskConical, Loader2, Database, Activity, ShieldAlert,
-  Droplets, Zap, CheckCircle2, LayoutDashboard, Cog
+  Droplets, Zap, CheckCircle2, LayoutDashboard, Cog, Microscope
 } from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'

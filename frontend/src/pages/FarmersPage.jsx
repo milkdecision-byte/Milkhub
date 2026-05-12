@@ -58,11 +58,11 @@ export default function FarmersPage() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="card-premium p-8 flex flex-wrap gap-8 items-center border-[#C4B5FD]/20 shadow-xl">
-        <div className="relative flex-1 min-w-[350px] group">
-          <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
+      <div className="card-premium p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center border-[#C4B5FD]/20 shadow-xl">
+        <div className="relative flex-1 group">
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
           <input 
-            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+            className="w-full pl-14 sm:pl-16 pr-8 py-4 sm:py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-sm sm:text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
             placeholder="Search Registry by Node Entity or ID Code…"
             value={search} 
             onChange={e => { setSearch(e.target.value); setPage(1) }} 
@@ -70,12 +70,12 @@ export default function FarmersPage() {
         </div>
         <button
           onClick={() => { setFraudOnly(p => !p); setPage(1) }}
-          className={`flex items-center gap-3 px-10 py-5 rounded-2xl border text-[11px] font-bold uppercase tracking-widest transition-all duration-500
+          className={`flex items-center justify-center gap-3 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border text-[10px] sm:text-[11px] font-bold uppercase tracking-widest transition-all duration-500 whitespace-nowrap
             ${fraudOnly
               ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30'
               : 'bg-[#F5F3FF] dark:bg-white/5 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
         >
-          <ShieldAlert size={20} />
+          <ShieldAlert size={18} />
           High Risk Priority
         </button>
       </div>
