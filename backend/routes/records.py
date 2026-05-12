@@ -81,50 +81,14 @@ def get_record(record_id):
 
 # ── Dashboard ──────────────────────────────────────────────────────────────────
 
-@dashboard_bp.get("")
-@jwt_required()
-def get_dashboard():
-    req_date = request.args.get("date")
-    shift = request.args.get("shift", "").lower()
-    batch_id = request.args.get("batch_id")
-
-    if req_date:
-        try:
-            target_date = datetime.strptime(req_date, "%Y-%m-%d").date()
-        except ValueError:
-            target_date = date.today()
-    else:
-        target_date = date.today()
-
-    # ── Auto-fallback: if no batch is selected and the requested date has 0 records,
-    # resolve to the most recent date that actually has data.
-    # This handles the common case where bulk-uploaded CSVs contain a different date
-    # (e.g. 2026-06-05) from the server's current date (e.g. 2026-05-11).
-    if not batch_id:
-        count_for_target = MilkRecord.query.filter(MilkRecord.date == target_date).count()
-        if count_for_target == 0:
-            latest = db.session.query(func.max(MilkRecord.date)).scalar()
-            if latest:
-                target_date = latest
-
+def _build_dashboard_response(base_q, target_date, shift, batch_id, data_source="date"):
+    """
+    Shared helper: given a pre-filtered base query (MilkRecord rows),
+    compute all KPIs, trend, top-farmers, and shift comparison.
+    """
     thirty_ago = target_date - timedelta(days=30)
-
-    # Base Query for Dashboard Data — build once, snapshot as subquery immediately.
-    # Using a subquery of IDs (base_ids) ensures all subsequent queries use the
-    # exact same filter conditions without any risk of mutation.
-    base_q = MilkRecord.query
-
-    if batch_id:
-        base_q = base_q.filter(MilkRecord.batch_id == batch_id)
-    else:
-        base_q = base_q.filter(MilkRecord.date == target_date)
-        if shift and shift not in ("fullday", "full day", "all", ""):
-            base_q = base_q.filter(MilkRecord.shift == shift)
-
-    # Capture filtered IDs as a query — passed directly to .in_() below
     base_ids_q = base_q.with_entities(MilkRecord.id)
 
-    # KPI aggregates — all computed via fresh queries scoped to base_ids_subq
     agg = db.session.query(
         func.count(MilkRecord.id).label("total"),
         func.sum(db.case((MilkRecord.decision == "accept", 1), else_=0)).label("accepted"),
@@ -143,38 +107,35 @@ def get_dashboard():
     morning_qty  = float(agg.morning_qty or 0)
     evening_qty  = float(agg.evening_qty or 0)
 
-    # Daily trend (last 30 days) - this should probably NOT be filtered by current date/batch
-    # otherwise it will only show 1 day.
-    # The trend should show the last 30 days up to the target_date
+    # 30-day trend — always based on created_at date for accuracy
     trend_q = db.session.query(
-        MilkRecord.date,
+        func.cast(MilkRecord.created_at, db.Date).label("rec_date"),
         MilkRecord.decision,
         func.count(MilkRecord.id).label("cnt"),
     ).filter(
-        MilkRecord.date >= thirty_ago,
-        MilkRecord.date <= target_date
+        func.cast(MilkRecord.created_at, db.Date) >= thirty_ago,
+        func.cast(MilkRecord.created_at, db.Date) <= target_date
     )
     if shift and shift not in ("fullday", "full day", "all", "") and not batch_id:
         trend_q = trend_q.filter(MilkRecord.shift == shift)
-        
-    daily_rows = trend_q.group_by(MilkRecord.date, MilkRecord.decision).all()
+    daily_rows = trend_q.group_by(
+        func.cast(MilkRecord.created_at, db.Date), MilkRecord.decision
+    ).all()
 
     daily_map: dict = {}
     for row in daily_rows:
-        key = str(row.date)
+        key = str(row.rec_date)
         if key not in daily_map:
             daily_map[key] = {"date": key, "accept": 0, "reject": 0}
         daily_map[key][row.decision] = row.cnt
     daily_trend = sorted(daily_map.values(), key=lambda x: x["date"])
 
-    # Top farmers (by accepted count) for the selected session/date
+    # Top farmers
     top_farmers = db.session.query(
         MilkRecord.farmer_name,
         MilkRecord.farmer_code,
         func.count(MilkRecord.id).label("total"),
-        func.sum(
-            db.case((MilkRecord.decision == "accept", 1), else_=0)
-        ).label("accepted"),
+        func.sum(db.case((MilkRecord.decision == "accept", 1), else_=0)).label("accepted"),
         func.sum(MilkRecord.quantity).label("total_qty"),
     ).filter(
         MilkRecord.id.in_(base_ids_q)
@@ -203,31 +164,95 @@ def get_dashboard():
     ).filter(
         MilkRecord.id.in_(base_ids_q)
     ).group_by(MilkRecord.shift).all()
-
     shift_map = {r.shift: {"count": r.cnt, "quantity": float(r.qty or 0)} for r in shift_data}
 
-    return jsonify({
+    return {
         "session_info": {
             "date": str(target_date),
-            "shift": shift if shift else "Full Day",
+            "shift": shift if shift else "full day",
             "batch_id": batch_id,
-            "resolved_date": str(target_date)
+            "data_source": data_source,
         },
+        "has_data": total > 0,
         "kpis": {
             "total": total,
             "accepted": accepted,
             "rejected": rejected,
             "fraud_high": fraud_high,
             "fraud_medium": fraud_medium,
-            "morning_qty": float(morning_qty),
-            "evening_qty": float(evening_qty),
+            "morning_qty": morning_qty,
+            "evening_qty": evening_qty,
         },
         "daily_trend": daily_trend,
         "top_farmers": top_farmers_list,
         "shift_comparison": shift_map,
         "accept_rate": round(accepted / total * 100, 1) if total else 0,
         "reject_rate": round(rejected / total * 100, 1) if total else 0,
-    }), 200
+    }
+
+
+@dashboard_bp.get("/today")
+@jwt_required()
+def get_dashboard_today():
+    """
+    Strictly returns TODAY's data based on the server's current date,
+    filtering by DATE(created_at) = CURDATE().
+    Never falls back to historical batches.
+    Supports optional ?shift=morning|evening|full_day query param.
+    Refreshes every 30 seconds from the frontend.
+    """
+    shift = request.args.get("shift", "").strip().lower()
+    today = date.today()
+
+    base_q = MilkRecord.query.filter(
+        func.cast(MilkRecord.created_at, db.Date) == today
+    )
+    if shift and shift not in ("full_day", "fullday", "full day", "all", ""):
+        base_q = base_q.filter(MilkRecord.shift == shift)
+
+    result = _build_dashboard_response(base_q, today, shift, None, data_source="today")
+    return jsonify(result), 200
+
+
+@dashboard_bp.get("")
+@jwt_required()
+def get_dashboard():
+    """
+    General dashboard endpoint supporting:
+    - ?date=YYYY-MM-DD  → filter by the record's `created_at` date (not CSV date)
+    - ?shift=morning|evening
+    - ?batch_id=...     → historical batch view
+    Defaults to today when no date is provided.
+    No auto-fallback to latest batch — returns empty data with has_data=false.
+    """
+    req_date  = request.args.get("date")
+    shift     = request.args.get("shift", "").strip().lower()
+    batch_id  = request.args.get("batch_id")
+
+    if req_date:
+        try:
+            target_date = datetime.strptime(req_date, "%Y-%m-%d").date()
+        except ValueError:
+            target_date = date.today()
+    else:
+        target_date = date.today()
+
+    base_q = MilkRecord.query
+    if batch_id:
+        base_q = base_q.filter(MilkRecord.batch_id == batch_id)
+    else:
+        # Filter by actual insert date (created_at), not the CSV-provided date field
+        base_q = base_q.filter(
+            func.cast(MilkRecord.created_at, db.Date) == target_date
+        )
+        if shift and shift not in ("full_day", "fullday", "full day", "all", ""):
+            base_q = base_q.filter(MilkRecord.shift == shift)
+
+    result = _build_dashboard_response(
+        base_q, target_date, shift, batch_id,
+        data_source="batch" if batch_id else "date"
+    )
+    return jsonify(result), 200
 
 
 # ── Farmers ────────────────────────────────────────────────────────────────────
