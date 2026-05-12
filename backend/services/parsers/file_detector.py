@@ -9,7 +9,10 @@ from .txt_parser import parse_txt
 from .pdf_parser import parse_pdf
 from .validator import validate_and_normalize
 
-def process_file(file_bytes: bytes, filename: str) -> Tuple[List[Dict], List[str]]:
+def process_file(file_bytes: bytes, filename: str) -> Tuple[List[Dict], List[str], List[str], List[str]]:
+    """
+    Parses various file types and returns (rows, errors, detected_fields, missing_fields)
+    """
     ext = filename.rsplit(".", 1)[-1].lower()
     
     try:
@@ -22,12 +25,12 @@ def process_file(file_bytes: bytes, filename: str) -> Tuple[List[Dict], List[str
         elif ext == "pdf":
             df = parse_pdf(file_bytes)
         else:
-            return [], [f"Unsupported file type: .{ext}"]
+            return [], [f"Unsupported file type: .{ext}"], [], []
             
         if df.empty:
-            return [], ["The uploaded file contains no data."]
+            return [], ["The uploaded file contains no data."], [], []
             
         return validate_and_normalize(df)
     except Exception as e:
         logger.error(f"Error parsing file {filename}: {e}", exc_info=True)
-        return [], [f"Could not read or parse file: {e}"]
+        return [], [f"Could not read or parse file: {e}"], [], []

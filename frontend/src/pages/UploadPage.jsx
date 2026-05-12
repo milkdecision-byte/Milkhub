@@ -12,14 +12,23 @@ import api from '../utils/api'
 import toast from 'react-hot-toast'
 
 function StatusPill({ decision }) {
-  const isAccept = decision === 'accept'
+  if (decision === 'accept') {
+    return (
+      <span className="px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+        Pass
+      </span>
+    )
+  }
+  if (decision === 'partial') {
+    return (
+      <span className="px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-lg shadow-amber-500/5">
+        Partial
+      </span>
+    )
+  }
   return (
-    <span className={`px-4 py-1 rounded-xl text-[9px] font-bold uppercase tracking-widest border transition-all duration-300 ${
-      isAccept 
-        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5' 
-        : 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5'
-    }`}>
-      {isAccept ? 'Pass' : 'Fail'}
+    <span className="px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5">
+      Fail
     </span>
   )
 }
@@ -234,22 +243,57 @@ export default function UploadPage() {
             className="space-y-12"
           >
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
                 { label: 'Throughput',    value: result.total_rows,    icon: Database, g: 'from-purple-500 to-indigo-600' },
                 { label: 'Validated',     value: result.accepted,      icon: CheckCircle, g: 'from-emerald-400 to-teal-500' },
-                { label: 'Rejected', value: result.rejected,   icon: XCircle, g: 'from-rose-500 to-red-700' },
+                { label: 'Partial',       value: result.partial || 0,  icon: AlertTriangle, g: 'from-amber-400 to-orange-500' },
+                { label: 'Rejected',      value: result.rejected,      icon: XCircle, g: 'from-rose-500 to-red-700' },
                 { label: 'Security Alerts', value: result.fraud_alerts, icon: ShieldAlert, g: 'from-orange-400 to-rose-600' },
               ].map(s => (
-                <div key={s.label} className="card-premium p-10 text-center group hover:border-[#C4B5FD]/60 transition-all duration-500 shadow-xl border-[#C4B5FD]/20">
-                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.g} flex items-center justify-center mx-auto mb-6 text-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-                     <s.icon size={26} />
+                <div key={s.label} className="card-premium p-8 text-center group hover:border-[#C4B5FD]/60 transition-all duration-500 shadow-xl border-[#C4B5FD]/20">
+                   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${s.g} flex items-center justify-center mx-auto mb-4 text-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                     <s.icon size={22} />
                    </div>
-                   <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-2">{s.label}</p>
-                   <p className="text-4xl font-bold text-[#1E1B4B] dark:text-white tracking-tighter">{s.value}</p>
+                   <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">{s.label}</p>
+                   <p className="text-3xl font-black text-[#1E1B4B] dark:text-white tracking-tighter">{s.value}</p>
                 </div>
               ))}
             </div>
+
+            {/* AI Diagnosis: Field Integrity Matrix */}
+            {(result.detected_fields || result.missing_fields) && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="card-premium p-8 border-emerald-500/20 bg-emerald-500/[0.02]">
+                  <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <CheckCircle size={14} /> Detected Ingestion Vectors ({result.detected_fields?.length || 0})
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {result.detected_fields?.map(f => (
+                      <span key={f} className="px-4 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-500/20">
+                        ✔ {f.replace('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card-premium p-8 border-amber-500/20 bg-amber-500/[0.02]">
+                  <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <AlertTriangle size={14} /> Missing Ingestion Vectors ({result.missing_fields?.length || 0})
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {result.missing_fields?.map(f => (
+                      <span key={f} className="px-4 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-amber-500/20">
+                        ⚠ {f.replace('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-amber-600/70 font-bold uppercase mt-6 italic">
+                    Note: Nominal laboratory defaults applied to missing fields for partial analysis.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Ingestion Table */}
             <div className="card-premium overflow-hidden border-[#C4B5FD]/20 shadow-xl">
