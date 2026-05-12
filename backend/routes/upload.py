@@ -50,7 +50,8 @@ def upload():
 
     rows, parse_errors = parse_file(file_bytes, secure_filename(file.filename))
     if not rows:
-        return jsonify({"error": "Empty or unreadable file", "details": parse_errors}), 400
+        primary_err = parse_errors[0] if parse_errors else "Empty or unreadable file"
+        return jsonify({"error": primary_err, "details": parse_errors}), 400
 
     # Load settings & engine
     settings = {s.setting_key: s.setting_value for s in Setting.query.all()}

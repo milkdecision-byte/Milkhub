@@ -33,8 +33,21 @@ CATEGORICAL_FIELDS = {
 }
 
 REQUIRED_COLUMNS = {
-    "fat", "snf", "ph", "acidity", "temperature",
-    "specific_gravity", "mbrt", "cob_test"
+    "fat", "snf", "ph"
+}
+
+# Fields that will get nominal defaults if missing
+DEFAULT_VALUES = {
+    "acidity": 0.14,
+    "temperature": 4.0,
+    "specific_gravity": 1.028,
+    "mbrt": 300,
+    "cob_test": "negative",
+    "alcohol_test": "negative",
+    "organoleptic": "normal",
+    "sediment_test": "clean",
+    "raw_milk_temp": 4.0,
+    "quantity": 1.0,
 }
 
 def _parse_shift(value) -> str:
@@ -68,17 +81,18 @@ def validate_and_normalize(df: pd.DataFrame) -> Tuple[List[Dict], List[str]]:
         for field in NUMERIC_FIELDS:
             raw = row.get(field)
             if pd.isna(raw) or raw is None or str(raw).strip() == "":
-                record[field] = None
+                record[field] = DEFAULT_VALUES.get(field)
             else:
                 try:
                     record[field] = float(str(raw).strip())
                 except ValueError:
-                    errors.append(f"Row {row_num}: '{field}' value '{raw}' is not numeric.")
-                    record[field] = None
+                    errors.append(f"Row {row_num}: '{field}' value '{raw}' is not numeric. Using default.")
+                    record[field] = DEFAULT_VALUES.get(field)
 
-        for field, (default, alt) in CATEGORICAL_FIELDS.items():
+        for field, (alt1, alt2) in CATEGORICAL_FIELDS.items():
+            default = DEFAULT_VALUES.get(field)
             raw = str(row.get(field, default) or default).strip().lower()
-            record[field] = alt if raw == alt else default
+            record[field] = alt2 if raw == alt2 else alt1
 
         record["farmer_name"] = str(row.get("farmer_name", "Unknown")).strip() or "Unknown"
         record["farmer_code"] = str(row.get("farmer_code", "")).strip()

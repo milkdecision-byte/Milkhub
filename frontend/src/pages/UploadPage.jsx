@@ -79,7 +79,17 @@ export default function UploadPage() {
         toast.success(`Validation successful: Array ready for integration.`)
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Pipeline execution failure.')
+      const errMsg = err.response?.data?.error || 'Pipeline execution failure.'
+      const details = err.response?.data?.details
+      
+      if (details && Array.isArray(details) && details.length > 0) {
+        toast.error(`${errMsg}\n\n${details.slice(0, 3).join('\n')}`, {
+          duration: 6000,
+          style: { minWidth: '350px', whiteSpace: 'pre-line' }
+        })
+      } else {
+        toast.error(errMsg)
+      }
     } finally {
       setUploading(false)
     }
@@ -88,10 +98,25 @@ export default function UploadPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-24">
       {/* ── Minimal Header ── */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
           <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Data Ingestion Terminal
         </h2>
+        
+        <button 
+          onClick={() => {
+            const csv = "farmer_name,farmer_code,date,shift,fat,snf,ph,quantity\nJohn Doe,F-101,2026-05-12,morning,4.2,8.5,6.7,15.5\nJane Smith,F-102,2026-05-12,evening,3.8,8.2,6.6,12.0"
+            const blob = new Blob([csv], { type: 'text/csv' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'milkhub_template.csv'
+            a.click()
+          }}
+          className="flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 transition-all shadow-sm"
+        >
+          <FileText size={14} /> Download Sample Template
+        </button>
       </div>
 
       {!result && (
@@ -324,7 +349,7 @@ export default function UploadPage() {
               Mandatory Diagnostic Vectors
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Fat (%)', 'SNF (%)', 'pH', 'Acidity (% LA)', 'Temperature (°C)', 'Specific Gravity', 'MBRT (min)', 'COB Test'].map(h => (
+              {['Fat (%)', 'SNF (%)', 'pH'].map(h => (
                 <span key={h} className="px-5 py-2.5 bg-rose-500/5 text-rose-600 rounded-xl text-[11px] font-bold font-mono border border-rose-500/20 tracking-widest hover:bg-rose-500/10 transition-colors shadow-sm">{h}</span>
               ))}
             </div>
@@ -333,10 +358,10 @@ export default function UploadPage() {
           <div className="space-y-6">
             <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.5)]"></span>
-              Extended Analytical Metadata
+              Auto-Imputed Laboratory Metadata (Optional)
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Milk Temperature', 'Yield', 'Node ID'].map(h => (
+              {['Acidity', 'Temperature', 'Specific Gravity', 'MBRT', 'COB Test', 'Alcohol Test', 'Organoleptic', 'Quantity'].map(h => (
                 <span key={h} className="px-5 py-2.5 bg-[#F5F3FF] dark:bg-white/5 text-purple-500 rounded-xl text-[11px] font-bold font-mono border border-[#C4B5FD]/30 tracking-widest hover:border-purple-400 transition-colors shadow-sm">{h}</span>
               ))}
             </div>
