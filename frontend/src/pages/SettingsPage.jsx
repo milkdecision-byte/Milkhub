@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 
 const GROUPS = [
   {
-    title: 'Lipid & Solid Profiles',
+    title: 'Fat & SNF Standards',
     icon: FlaskConical,
     color: 'text-blue-600',
     bg: 'bg-blue-600',
@@ -22,7 +22,7 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Chemical Stability & pH',
+    title: 'Acidity & pH Standards',
     icon: Droplets,
     color: 'text-emerald-600',
     bg: 'bg-emerald-600',
@@ -34,7 +34,7 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Thermal Regulatory Thresholds',
+    title: 'Temperature Standards',
     icon: Thermometer,
     color: 'text-amber-600',
     bg: 'bg-amber-600',
@@ -46,7 +46,7 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Microbial & Density Metrics',
+    title: 'Density & Quality Tests',
     icon: Activity,
     color: 'text-indigo-600',
     bg: 'bg-indigo-600',
@@ -58,7 +58,7 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Corporate Identity & Security',
+    title: 'Organization & Security',
     icon: ShieldCheck,
     color: 'text-slate-900',
     bg: 'bg-slate-900',
@@ -68,7 +68,7 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Qualitative Laboratory Protocols',
+    title: 'Manual Quality Checks',
     icon: Microscope,
     color: 'text-rose-600',
     bg: 'bg-rose-600',
@@ -122,7 +122,7 @@ const DEFAULTS = {
   raw_milk_temp_min: '25', raw_milk_temp_max: '37',
   sg_min: '1.028', sg_max: '1.032',
   mbrt_good: '180', mbrt_check: '120',
-  company_name: 'Milkhub Intelligence Hub',
+  company_name: 'IVRI Milk Quality Hub',
   fraud_threshold: '3',
   cob_pass: 'negative',
   alcohol_pass: 'negative',
@@ -146,9 +146,9 @@ export default function SettingsPage() {
     setSaving(true)
     try {
       await api.post('/settings', settings)
-      toast.success('Configuration synchronized successfully')
+      toast.success('Settings saved successfully')
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Synchronization failure')
+      toast.error(err.response?.data?.error || 'Save failed')
     } finally {
       setSaving(false)
     }
@@ -156,7 +156,7 @@ export default function SettingsPage() {
 
   const handleReset = () => {
     setSettings(DEFAULTS)
-    toast('Protocols reset to baseline defaults', { icon: '↩️' })
+    toast('Settings reset to standard values', { icon: '↩️' })
   }
 
   const updateField = (k, v) => setSettings(p => ({ ...p, [k]: v }))
@@ -164,7 +164,7 @@ export default function SettingsPage() {
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
       <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin shadow-xl" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Accessing Security Protocols...</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Settings...</p>
     </div>
   )
 
@@ -174,16 +174,16 @@ export default function SettingsPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <span className="badge-enterprise bg-blue-600/10 text-blue-600 border-blue-600/20">System Control</span>
+            <span className="badge-enterprise bg-blue-600/10 text-blue-600 border-blue-600/20">Admin Control</span>
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Terminal</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Settings Panel</span>
           </div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
             System <span className="text-blue-600">Configuration</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium mt-2 flex items-center gap-2">
             <Cog size={16} className="text-blue-500" /> 
-            Defining global laboratory benchmarks and neural validation criteria.
+            Set the quality standards for milk testing and analysis.
           </p>
         </div>
         
@@ -192,7 +192,7 @@ export default function SettingsPage() {
             onClick={handleReset} 
             className="btn-commercial bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-red-600 flex items-center gap-2"
           >
-            <RotateCcw size={16} /> Reset Baseline
+            <RotateCcw size={16} /> Reset to Default
           </button>
           <button 
             onClick={handleSave} 
@@ -200,7 +200,7 @@ export default function SettingsPage() {
             className="btn-commercial bg-blue-600 text-white shadow-lg shadow-blue-600/20 flex items-center gap-3 border-transparent"
           >
             {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-            {saving ? 'Synchronizing…' : 'Apply Protocols'}
+            {saving ? 'Synchronizing…' : 'Save Settings'}
           </button>
         </div>
       </div>
@@ -222,9 +222,9 @@ export default function SettingsPage() {
                   <Icon size={24} />
                 </div>
                 <div>
-                   <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-widest">{group.title}</h3>
-                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Regulatory Threshold Group</p>
-                </div>
+                    <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-widest">{group.title}</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Quality Standards Group</p>
+                 </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -264,40 +264,40 @@ export default function SettingsPage() {
            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-2xl shadow-blue-600/40">
              <LayoutDashboard size={24} />
            </div>
-           <h3 className="text-xl font-black uppercase tracking-widest">Protocol Baseline Logic</h3>
+           <h3 className="text-xl font-black uppercase tracking-widest">How Decisions are Made</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
           <div className="bg-white/[0.03] backdrop-blur-3xl rounded-3xl p-8 border border-white/5 hover:border-emerald-500/30 transition-all group/card">
             <div className="flex items-center gap-3 mb-6">
               <CheckCircle2 size={20} className="text-emerald-500" />
-              <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Action: ACCEPTED</p>
+              <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Result: ACCEPTED</p>
             </div>
             <p className="text-[11px] font-bold leading-relaxed text-slate-400 uppercase tracking-widest">
-              Automated ledger entry. Zero critical protocol deviations detected across the spectrum.
+              Record saved. All quality parameters meet the required standards.
             </p>
           </div>
           
           <div className="bg-white/[0.03] backdrop-blur-3xl rounded-3xl p-8 border border-white/5 hover:border-red-500/30 transition-all group/card">
             <div className="flex items-center gap-3 mb-6">
               <ShieldAlert size={20} className="text-red-500" />
-              <p className="text-xs font-black text-red-500 uppercase tracking-widest">Action: Rejected</p>
+              <p className="text-xs font-black text-red-500 uppercase tracking-widest">Result: Rejected</p>
             </div>
             <ul className="text-[10px] font-black text-slate-400 space-y-3 uppercase tracking-widest">
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> COB Positive Detected</li>
-              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> Microbial MBRT Failure</li>
-              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> 3+ Molecular Deviations</li>
+              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> Low MBRT Result</li>
+              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> Multiple Quality Issues</li>
             </ul>
           </div>
           
           <div className="bg-white/[0.03] backdrop-blur-3xl rounded-3xl p-8 border border-white/5 hover:border-amber-500/30 transition-all group/card">
             <div className="flex items-center gap-3 mb-6">
               <Settings2 size={20} className="text-amber-500" />
-              <p className="text-xs font-black text-amber-500 uppercase tracking-widest">Action: Observation</p>
+              <p className="text-xs font-black text-amber-500 uppercase tracking-widest">Result: Observation</p>
             </div>
             <ul className="text-[10px] font-black text-slate-400 space-y-3 uppercase tracking-widest">
-              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Marginal Thermal Drift</li>
-              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Intermediate MBRT Risk</li>
+              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Slight Temperature Variation</li>
+              <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Borderline MBRT Result</li>
             </ul>
           </div>
         </div>

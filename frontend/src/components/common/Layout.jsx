@@ -104,7 +104,7 @@ export default function Layout() {
                 className="overflow-hidden whitespace-nowrap"
               >
                 <p className="text-2xl font-bold text-white tracking-tight font-heading">Milkhub</p>
-                <p className="text-[9px] text-orange-300 font-bold tracking-[0.4em] uppercase opacity-90">SaaS Intelligence</p>
+                <p className="text-[9px] text-orange-300 font-bold tracking-[0.4em] uppercase opacity-90">Milk Monitoring</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -172,7 +172,7 @@ export default function Layout() {
                   <p className="text-sm font-bold text-white truncate">{user?.username || 'Operator'}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                    <p className="text-[10px] text-purple-200/60 font-bold uppercase tracking-widest">Active Node</p>
+                    <p className="text-[10px] text-purple-200/60 font-bold uppercase tracking-widest">System Active</p>
                   </div>
                 </motion.div>
               )}
@@ -219,7 +219,7 @@ export default function Layout() {
           <div className="flex-1 flex items-center justify-between min-w-0">
             <div className="min-w-0">
               <h2 className="text-2xl font-bold text-[#1E1B4B] dark:text-white truncate tracking-tight">
-                Quality <span className="text-[#7C3AED]">Intelligence Terminal</span>
+                Milk Quality <span className="text-[#7C3AED]">Monitor</span>
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <Sparkles size={12} className="text-orange-400" />
@@ -244,7 +244,7 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* Intelligence Portal Content */}
+        {/* Monitoring Area */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 lg:p-10 custom-scrollbar bg-[#F5F3FF] dark:bg-[#030712] relative">
           {/* Background Ambient Glow */}
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/10 blur-[120px] rounded-full -mr-40 -mt-40 pointer-events-none" />

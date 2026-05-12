@@ -102,7 +102,7 @@ export default function DashboardPage() {
       <div className="w-20 h-20 rounded-3xl border-4 border-[#7C3AED] border-t-transparent animate-spin relative">
         <div className="absolute inset-0 border-4 border-orange-400 border-b-transparent rounded-3xl animate-spin-slow" />
       </div>
-      <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest animate-pulse">Synchronizing Intelligence Cloud</p>
+      <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest animate-pulse">Loading Data</p>
     </div>
   )
 
@@ -131,26 +131,12 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 space-y-2">
           <div className="flex items-center gap-3 mb-4">
-            <AnimatePresence>
-              {refreshing && (
-                <motion.span 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="flex items-center gap-2 text-[10px] font-bold text-orange-500 uppercase animate-pulse"
-                >
-                  <RefreshCcw size={10} className="animate-spin" /> Stream Sync Active
-                </motion.span>
-              )}
-            </AnimatePresence>
+            {/* Stream Sync UI removed */}
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#1E1B4B] dark:text-white tracking-tight leading-[1.05] py-2" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#1E1B4B] dark:text-white tracking-tight leading-[1.05] py-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>
             IVRI Milk <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#F97316]">Intelligence Hub</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#F97316]">Management Hub</span>
           </h1>
-          <p className="text-purple-900/50 dark:text-slate-400 font-semibold text-lg max-w-2xl">
-            Real-time molecular diagnostics and supply chain intelligence for enterprise quality control.
-          </p>
         </div>
 
         <div className="lg:col-span-5">
@@ -161,12 +147,12 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between mb-6 relative z-10">
               <div className="flex items-center gap-3">
-                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 flex items-center gap-2 ${viewMode === 'realtime' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-purple-500/10 text-purple-600 border-purple-500/20'}`}>
-                  <span className={`w-2 h-2 rounded-full ${viewMode === 'realtime' ? 'bg-orange-500 animate-pulse' : 'bg-purple-500'}`} />
-                  {viewMode === 'realtime' ? 'LIVE MONITOR' : 'TEMPORAL AUDIT'}
+                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 flex items-center gap-2 ${viewMode === 'realtime' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-purple-500/10 text-purple-600 border-purple-500/20'}`}>
+                  <span className={`w-2 h-2 rounded-full ${viewMode === 'realtime' ? 'bg-emerald-500' : 'bg-purple-500'}`} />
+                  {viewMode === 'realtime' ? 'Real-time Records' : 'Batch History'}
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F5F3FF] dark:bg-white/5 border border-[#C4B5FD]/30 text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest">
-                  <Activity size={10} /> Active Node
+                  <Activity size={10} /> System Connected
                 </div>
               </div>
               <div className="text-[10px] font-bold text-[#7C3AED]/40 uppercase tracking-widest">
@@ -177,16 +163,16 @@ export default function DashboardPage() {
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">
-                  {viewMode === 'realtime' ? 'Real-Time Surveillance' : 'Historical Data Audit'}
+                  {viewMode === 'realtime' ? 'Live Quality Check' : 'Daily Record Review'}
                 </h2>
                 <p className="text-[11px] text-purple-900/40 dark:text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
                   {viewMode === 'realtime' 
-                    ? 'Monitoring continuous molecular streams from active supply clusters.' 
-                    : `Auditing quality vectors for the temporal window: ${historyDate}`}
+                    ? 'Tracking milk quality samples from active collection centers.' 
+                    : `Reviewing quality records for the selected date: ${historyDate}`}
                 </p>
                 <div className="flex items-center gap-4 mt-6">
-                  <div className="px-4 py-2 rounded-2xl bg-[#7C3AED]/5 border border-[#7C3AED]/10 text-[#7C3AED] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                    <FlaskConical size={14} className="text-orange-500" /> Molecular Stream Active
+                  <div className="px-4 py-2 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                    <FlaskConical size={14} className="text-emerald-500" /> Laboratory System Connected
                   </div>
                 </div>
               </div>
@@ -228,12 +214,12 @@ export default function DashboardPage() {
 
       {/* ── KPI Grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 lg:gap-8">
-        <StatCard label="Network Throughput" value={stats.total || 0} icon={Activity} gradient="from-[#7C3AED] to-[#8B5CF6]" chartColor="#7C3AED" />
-        <StatCard label="Quality Assurance" value={stats.accepted || 0} icon={ShieldCheck} gradient="from-[#10B981] to-[#34D399]" chartColor="#10B981" />
-        <StatCard label="Failure Rate" value={stats.rejected || 0} icon={XCircle} gradient="from-[#F43F5E] to-[#FB7185]" chartColor="#F43F5E" />
-        <StatCard label="Morning Yield" value={`${stats.morning_qty || 0}L`} icon={Sparkles} gradient="from-[#F97316] to-[#FDBA74]" chartColor="#F97316" />
-        <StatCard label="Evening Yield" value={`${stats.evening_qty || 0}L`} icon={Droplets} gradient="from-[#8B5CF6] to-[#C4B5FD]" chartColor="#8B5CF6" />
-        <StatCard label="Supply Nodes" value={data?.farmer_count || 0} icon={Users} gradient="from-[#4F46E5] to-[#6366F1]" chartColor="#4F46E5" />
+        <StatCard label="Total Samples" value={stats.total || 0} icon={Activity} gradient="from-[#7C3AED] to-[#8B5CF6]" chartColor="#7C3AED" />
+        <StatCard label="Accepted Samples" value={stats.accepted || 0} icon={ShieldCheck} gradient="from-[#10B981] to-[#34D399]" chartColor="#10B981" />
+        <StatCard label="Rejected Samples" value={stats.rejected || 0} icon={XCircle} gradient="from-[#F43F5E] to-[#FB7185]" chartColor="#F43F5E" />
+        <StatCard label="Morning Collection" value={`${stats.morning_qty || 0}L`} icon={Sparkles} gradient="from-[#F97316] to-[#FDBA74]" chartColor="#F97316" />
+        <StatCard label="Evening Collection" value={`${stats.evening_qty || 0}L`} icon={Droplets} gradient="from-[#8B5CF6] to-[#C4B5FD]" chartColor="#8B5CF6" />
+        <StatCard label="Active Farmers" value={data?.farmer_count || 0} icon={Users} gradient="from-[#4F46E5] to-[#6366F1]" chartColor="#4F46E5" />
       </div>
 
       {/* ── Main Analytics ── */}
@@ -332,11 +318,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* System Diagnostics (Summary) */}
+        {/* Quality Overview (Summary) */}
         <div className="card-premium p-10 lg:col-span-1 overflow-hidden">
           <div className="flex items-center justify-between mb-10">
             <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-[#8B5CF6] shadow-[0_0_15px_rgba(139,92,246,0.5)]" /> System Diagnostics
+              <span className="w-3 h-3 rounded-full bg-[#8B5CF6] shadow-[0_0_15px_rgba(139,92,246,0.5)]" /> Quality Overview
             </h3>
             <Zap size={20} className="text-purple-400/40" />
           </div>
@@ -370,10 +356,10 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between px-4">
           <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-4">
-            <span className="w-4 h-4 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Operational Archive
+            <span className="w-4 h-4 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Milk Collection Records
           </h3>
           <NavLink to="/records" className="group flex items-center gap-3 text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest hover:text-orange-500 transition-all">
-            Full Registry <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            Full Records <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </NavLink>
         </div>
 
@@ -382,11 +368,11 @@ export default function DashboardPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                  <th className="table-header-enterprise">Node Identity</th>
-                  <th className="table-header-enterprise">Temporal Hub</th>
-                  <th className="table-header-enterprise text-center">Scientific Parameters</th>
-                  <th className="table-header-enterprise text-right">Yield (L)</th>
-                  <th className="table-header-enterprise text-right">System Result</th>
+                  <th className="table-header-enterprise">Farmer Details</th>
+                  <th className="table-header-enterprise">Shift Details</th>
+                  <th className="table-header-enterprise text-center">Milk Parameters</th>
+                  <th className="table-header-enterprise text-right">Quantity (L)</th>
+                  <th className="table-header-enterprise text-right">Quality Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
@@ -438,10 +424,10 @@ export default function DashboardPage() {
       {/* ── Footer Analytics Strip ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { l: 'Network Nodes', v: '124 Validated', icon: Users, g: 'from-purple-500 to-indigo-600' },
-          { l: 'Stability Index', v: '99.98%', icon: Activity, g: 'from-emerald-400 to-teal-500' },
-          { l: 'Cloud Processing', v: '140ms Latency', icon: Zap, g: 'from-orange-400 to-rose-500' },
-          { l: 'Node Integrity', v: 'Verified', icon: ShieldCheck, g: 'from-blue-400 to-indigo-500' },
+          { l: 'Farmer Registry', v: '124 Validated', icon: Users, g: 'from-purple-500 to-indigo-600' },
+          { l: 'Accuracy Level', v: '100% Validated', icon: Activity, g: 'from-emerald-400 to-teal-500' },
+          { l: 'System Status', v: 'Online', icon: Zap, g: 'from-blue-400 to-indigo-500' },
+          { l: 'Data Verification', v: 'Verified', icon: ShieldCheck, g: 'from-indigo-400 to-purple-500' },
         ].map((item, i) => (
           <div key={i} className="card-premium p-8 flex items-center gap-6 border-dashed hover:border-purple-600/20 group transition-all duration-500">
             <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.g} flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500 shadow-xl`}>

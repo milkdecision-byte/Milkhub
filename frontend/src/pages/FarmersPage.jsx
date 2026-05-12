@@ -36,13 +36,13 @@ export default function FarmersPage() {
 
   const handleDelete = async (e, id, name) => {
     e.stopPropagation()
-    if (!window.confirm(`Permanently decommission node ${name} from network?`)) return
+    if (!window.confirm(`Permanently remove farmer ${name} from records?`)) return
     try {
       await api.delete(`/farmers/${id}`)
-      toast.success('Node successfully decommissioned')
+      toast.success('Farmer record successfully removed')
       fetchFarmers()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Decommissioning failure')
+      toast.error(err.response?.data?.error || 'Removal failed')
     }
   }
 
@@ -53,7 +53,7 @@ export default function FarmersPage() {
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
-          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Infrastructure Terminal
+          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Farmer Records
         </h2>
       </div>
 
@@ -62,8 +62,8 @@ export default function FarmersPage() {
         <div className="relative flex-1 group">
           <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
           <input 
-            className="w-full pl-14 sm:pl-16 pr-8 py-4 sm:py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-sm sm:text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
-            placeholder="Search Registry by Node Entity or ID Code…"
+            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+            placeholder="Search Farmer Registry by Name or ID…"
             value={search} 
             onChange={e => { setSearch(e.target.value); setPage(1) }} 
           />
@@ -76,7 +76,7 @@ export default function FarmersPage() {
               : 'bg-[#F5F3FF] dark:bg-white/5 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
         >
           <ShieldAlert size={18} />
-          High Risk Priority
+          High Quality Risk Farmers
         </button>
       </div>
 
@@ -86,25 +86,25 @@ export default function FarmersPage() {
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                <th className="table-header-enterprise">Node Entity</th>
-                <th className="table-header-enterprise">Registry ID</th>
-                <th className="table-header-enterprise">Geographic Hub</th>
-                <th className="table-header-enterprise">Aggregate Yield</th>
-                <th className="table-header-enterprise text-center">Quality Scorecard</th>
-                <th className="table-header-enterprise">Security</th>
-                <th className="table-header-enterprise text-right">Audit</th>
+                <th className="table-header-enterprise">Farmer Name</th>
+                <th className="table-header-enterprise">Farmer ID</th>
+                <th className="table-header-enterprise">Village/Area</th>
+                <th className="table-header-enterprise">Total Collections</th>
+                <th className="table-header-enterprise text-center">Quality History</th>
+                <th className="table-header-enterprise">Risk Status</th>
+                <th className="table-header-enterprise text-right">View</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
               {loading ? (
                 <tr><td colSpan={7} className="text-center py-48">
                   <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Syncing Network Ledger...</p>
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Loading Farmer Records...</p>
                 </td></tr>
               ) : farmers.length === 0 ? (
                 <tr><td colSpan={7} className="text-center py-48">
                   <Users size={56} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Supply Nodes Detected</p>
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Farmers Registered</p>
                 </td></tr>
               ) : farmers.map((f, i) => (
                 <motion.tr 
@@ -122,13 +122,13 @@ export default function FarmersPage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-purple-700 transition-colors">{f.full_name}</p>
-                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">ACCEPTED Provider</p>
+                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">Verified Farmer</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-8 py-7 text-purple-900/50 dark:text-slate-400 font-mono text-[11px] font-bold tracking-tighter">{f.farmer_code}</td>
                   <td className="px-8 py-7 text-purple-900/60 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
-                    <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Remote Sector'}
+                    <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Other Area'}
                   </td>
                   <td className="px-8 py-7">
                     <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{f.total_submissions} <span className="text-[10px] font-bold text-purple-400 uppercase ml-1">Units</span></p>
@@ -171,7 +171,7 @@ export default function FarmersPage() {
                       <button
                         onClick={(e) => handleDelete(e, f.id, f.full_name)}
                         className="p-3 rounded-xl text-purple-300 hover:text-rose-600 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
-                        title="Decommission Node"
+                        title="Remove Farmer"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -190,7 +190,7 @@ export default function FarmersPage() {
         {pages > 1 && (
           <div className="px-8 py-10 bg-[#F5F3FF] dark:bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-[#C4B5FD]/20">
             <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
-              Registry Page <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
+              Page <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
             </p>
             <div className="flex items-center gap-4">
               <button 

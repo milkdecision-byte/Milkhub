@@ -83,14 +83,14 @@ export default function RecordsPage() {
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
-          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Archival Terminal
+          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Milk Records Monitor
         </h2>
         <div className="flex items-center gap-4">
           <button 
             className="btn-commercial btn-commercial-secondary border-[#C4B5FD]/30"
             onClick={() => setFilters({ decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: '' })}
           >
-            <RefreshCcw size={18} /> Reset Node
+            <RefreshCcw size={18} /> Reset Filters
           </button>
         </div>
       </div>
@@ -102,7 +102,7 @@ export default function RecordsPage() {
             <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
             <input 
               className="w-full pl-14 pr-6 py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-sm font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
-              placeholder="Search Provider or Node ID…"
+              placeholder="Search Farmer Name or ID…"
               value={filters.search} 
               onChange={e => setFilter('search', e.target.value)} 
             />
@@ -114,7 +114,7 @@ export default function RecordsPage() {
               value={filters.batch_id}
               onChange={e => setFilter('batch_id', e.target.value)}
             >
-              <option value="">Operational Sessions</option>
+              <option value="">Collection Batches</option>
               {batchesList.map(b => (
                 <option key={b.batch_id} value={b.batch_id}>
                   {b.session_name || b.batch_id.split('_').slice(1).join('_')} ({b.total_records} Records)
@@ -143,10 +143,10 @@ export default function RecordsPage() {
               value={filters.fraud_risk}
               onChange={e => setFilter('fraud_risk', e.target.value)}
             >
-              <option value="">Risk: All Profiles</option>
-              <option value="low">Low Risk Level</option>
-              <option value="medium">Medium Risk Level</option>
-              <option value="high">High Alert Profile</option>
+              <option value="">All Quality Risks</option>
+              <option value="low">Low Risk</option>
+              <option value="medium">Medium Risk</option>
+              <option value="high">High Quality Risk</option>
             </select>
             <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
           </div>
@@ -173,7 +173,7 @@ export default function RecordsPage() {
           </div>
           <div className="h-8 w-px bg-[#C4B5FD]/30 hidden xl:block" />
           <div className="flex items-center gap-5">
-             <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Shift Node</span>
+             <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Shift</span>
              <div className="flex bg-[#F5F3FF] dark:bg-white/5 p-1.5 rounded-2xl border border-[#C4B5FD]/20">
                {['all', 'morning', 'evening'].map(s => (
                  <button 
@@ -207,12 +207,12 @@ export default function RecordsPage() {
               {loading ? (
                 <tr><td colSpan={6} className="text-center py-48">
                   <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Retrieving Central Intelligence...</p>
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Loading Records...</p>
                 </td></tr>
               ) : records.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-48">
                   <Search size={56} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Intelligence Records Detected</p>
+                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Records Found</p>
                 </td></tr>
               ) : records.map((r, i) => (
                 <motion.tr
@@ -233,7 +233,7 @@ export default function RecordsPage() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{r.date}</p>
-                        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mt-0.5">{r.shift} Node</p>
+                        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mt-0.5">{r.shift} Shift</p>
                       </div>
                     </div>
                   </td>
@@ -268,11 +268,24 @@ export default function RecordsPage() {
                       <StatusBadge status={r.decision} />
                       {r.decision === 'reject' && r.reasons && r.reasons.length > 0 && (
                         <div className="flex flex-col items-end gap-1 mt-1">
-                          {r.reasons.map((reason, idx) => (
-                            <span key={idx} className="text-[9px] font-bold text-rose-500/70 uppercase tracking-tighter italic bg-rose-500/5 px-2 py-0.5 rounded-md border border-rose-500/10">
-                              {reason}
-                            </span>
-                          ))}
+                          {r.reasons.map((reason, idx) => {
+                            let displayReason = reason;
+                            // Dynamic fix for legacy strings to ensure "Original Value" display
+                            if (reason.toUpperCase().includes('ALCOHOL TEST FAIL')) displayReason = `Alcohol Test: ${r.alcohol_test || 'positive'}`;
+                            if (reason.toUpperCase().includes('COB POSITIVE')) displayReason = `COB Test: ${r.cob_test || 'positive'}`;
+                            if (reason.toUpperCase().includes('PH')) displayReason = `pH: ${r.ph?.toFixed(2)}`;
+                            if (reason.toUpperCase().includes('FAT')) displayReason = `Fat: ${r.fat?.toFixed(2)}%`;
+                            if (reason.toUpperCase().includes('SNF')) displayReason = `SNF: ${r.snf?.toFixed(2)}%`;
+                            if (reason.toUpperCase().includes('TEMPERATURE')) displayReason = `Temp: ${r.temperature?.toFixed(1)}°C`;
+                            if (reason.toUpperCase().includes('ACIDITY')) displayReason = `Acidity: ${r.acidity?.toFixed(3)}%`;
+                            if (reason.toUpperCase().includes('DENSITY')) displayReason = `Density: ${r.specific_gravity?.toFixed(4)}`;
+                            
+                            return (
+                              <span key={idx} className="text-[9px] font-bold text-rose-500/70 uppercase tracking-tighter italic bg-rose-500/5 px-2 py-0.5 rounded-md border border-rose-500/10">
+                                {displayReason}
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
                       <RiskBadge risk={r.fraud_risk} />
@@ -282,7 +295,7 @@ export default function RecordsPage() {
                     <button 
                       onClick={() => navigate(`/farmers/${r.farmer_id}`)}
                       className="w-12 h-12 flex items-center justify-center rounded-2xl bg-purple-50 dark:bg-white/5 text-purple-400 hover:bg-purple-600 hover:text-white transition-all duration-500 border border-transparent hover:border-purple-200/50 group/eye shadow-sm"
-                      title="Deep Node Audit"
+                      title="View Farmer Details"
                     >
                       <Eye size={20} className="group-hover/eye:scale-110 transition-transform" />
                     </button>
@@ -297,7 +310,7 @@ export default function RecordsPage() {
         {pages > 1 && (
           <div className="px-8 py-10 bg-[#F5F3FF] dark:bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-[#C4B5FD]/20">
             <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
-              Segment Index <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
+              Page <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
             </p>
             <div className="flex items-center gap-4">
               <button 

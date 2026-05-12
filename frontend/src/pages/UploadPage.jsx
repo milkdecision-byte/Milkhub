@@ -47,7 +47,7 @@ export default function UploadPage() {
     if (!f) return
     const ext = f.name.split('.').pop().toLowerCase()
     if (!['xlsx', 'xls', 'csv', 'pdf', 'txt'].includes(ext)) {
-      toast.error('Protocol mismatch: Only Excel, CSV, PDF, or TXT arrays accepted.')
+      toast.error('File type error: Only Excel, CSV, PDF, or TXT arrays accepted.')
       return
     }
     setFile(f)
@@ -83,12 +83,12 @@ export default function UploadPage() {
       setResult(r.data)
       if (!isPreview) {
         setIsConfirmed(true)
-        toast.success(`Pipeline Synchronized: ${r.data.total_rows} vectors committed.`)
+        toast.success(`Records Saved: ${r.data.total_rows} records added.`)
       } else {
-        toast.success(`Validation successful: Array ready for integration.`)
+        toast.success(`Validation successful: Data ready for upload.`)
       }
     } catch (err) {
-      const errMsg = err.response?.data?.error || 'Pipeline execution failure.'
+      const errMsg = err.response?.data?.error || 'Upload failed.'
       const details = err.response?.data?.details
       
       if (details && Array.isArray(details) && details.length > 0) {
@@ -109,7 +109,7 @@ export default function UploadPage() {
       {/* ── Minimal Header ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
-          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Data Ingestion Terminal
+          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Sample Upload Center
         </h2>
         
         <button 
@@ -153,12 +153,12 @@ export default function UploadPage() {
                 <div>
                   <h3 className="text-3xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">{file.name}</h3>
                   <p className="text-[11px] text-orange-600 font-bold uppercase tracking-[0.25em] mt-4 flex items-center justify-center gap-2">
-                    <Sparkles size={14} /> {(file.size / 1024).toFixed(1)} KB — Molecular Array Detected
+                    <Sparkles size={14} /> {(file.size / 1024).toFixed(1)} KB — Milk Records Found
                   </p>
                 </div>
               ) : (
                 <div className="max-w-md">
-                  <h3 className="text-3xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">Ingest Quality Data</h3>
+                  <h3 className="text-3xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">Upload Quality Data</h3>
                   <p className="text-[11px] text-purple-400 mt-5 font-bold uppercase tracking-[0.25em] leading-relaxed">
                     Drag and Drop or Click to Upload
                   </p>
@@ -179,12 +179,12 @@ export default function UploadPage() {
             >
               <div className="card-premium p-10 shadow-xl border-[#C4B5FD]/20">
                 <label className="text-[11px] font-bold text-purple-400 uppercase tracking-widest ml-1 mb-4 block flex items-center gap-3">
-                  <Share2 size={16} className="text-[#7C3AED]" /> Ingestion Hub Metadata (Session Name)
+                  <Share2 size={16} className="text-[#7C3AED]" /> Collection Details (Session Name)
                 </label>
                 <input 
                   type="text" 
                   className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-8 py-5 rounded-[2rem] text-[#1E1B4B] dark:text-white font-bold outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all shadow-inner" 
-                  placeholder="e.g. Q3 Strategic Laboratory Audit - Northern Distribution Cluster" 
+                  placeholder="e.g. Milk Collection - Morning Batch" 
                   value={sessionName} 
                   onChange={e => setSessionName(e.target.value)}
                 />
@@ -197,13 +197,13 @@ export default function UploadPage() {
                   className="flex-1 btn-commercial btn-commercial-primary py-6 rounded-[2.5rem] shadow-2xl shadow-purple-600/30"
                 >
                   {uploading ? <Loader2 size={24} className="animate-spin"/> : <Zap size={24}/>}
-                  {uploading ? 'Executing Protocol…' : 'Execute Validation Protocol'}
+                  {uploading ? 'Processing Data…' : 'Verify Quality Data'}
                 </button>
                 <button 
                   onClick={() => { setFile(null); setResult(null); setProgress(0); setIsConfirmed(false) }}
                   className="px-12 rounded-[2.5rem] bg-white dark:bg-white/5 border border-[#C4B5FD]/40 text-purple-500 hover:text-rose-600 hover:bg-rose-500/5 transition-all shadow-lg font-bold uppercase text-[10px] tracking-widest"
                 >
-                  Reset Ingestion Node
+                  Clear Selection
                 </button>
               </div>
             </motion.div>
@@ -217,8 +217,8 @@ export default function UploadPage() {
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="card-premium p-12 bg-gradient-to-r from-[#1E1B4B] to-[#4C1D95] text-white overflow-hidden relative shadow-2xl border-none">
             <div className="flex justify-between items-end mb-8 relative z-10">
               <div>
-                <p className="text-[11px] font-bold text-orange-400 uppercase tracking-[0.3em] mb-3">Core Ingestion Pipeline Active</p>
-                <h3 className="text-2xl font-bold tracking-tight">Synchronizing Molecular Vectors…</h3>
+                <p className="text-[11px] font-bold text-orange-400 uppercase tracking-[0.3em] mb-3">Data Processing in Progress</p>
+                <h3 className="text-2xl font-bold tracking-tight">Analyzing Milk Quality...</h3>
               </div>
               <span className="text-5xl font-bold text-white tracking-tighter">{progress}%</span>
             </div>
@@ -245,11 +245,11 @@ export default function UploadPage() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
-                { label: 'Throughput',    value: result.total_rows,    icon: Database, g: 'from-purple-500 to-indigo-600' },
-                { label: 'Validated',     value: result.accepted,      icon: CheckCircle, g: 'from-emerald-400 to-teal-500' },
-                { label: 'Partial',       value: result.partial || 0,  icon: AlertTriangle, g: 'from-amber-400 to-orange-500' },
-                { label: 'Rejected',      value: result.rejected,      icon: XCircle, g: 'from-rose-500 to-red-700' },
-                { label: 'Security Alerts', value: result.fraud_alerts, icon: ShieldAlert, g: 'from-orange-400 to-rose-600' },
+                { label: 'Total Records',  value: result.total_rows,    icon: Database, g: 'from-purple-500 to-indigo-600' },
+                { label: 'Passed',         value: result.accepted,      icon: CheckCircle, g: 'from-emerald-400 to-teal-500' },
+                { label: 'Partial',        value: result.partial || 0,  icon: AlertTriangle, g: 'from-amber-400 to-orange-500' },
+                { label: 'Rejected',       value: result.rejected,      icon: XCircle, g: 'from-rose-500 to-red-700' },
+                { label: 'Quality Alerts', value: result.fraud_alerts, icon: ShieldAlert, g: 'from-orange-400 to-rose-600' },
               ].map(s => (
                 <div key={s.label} className="card-premium p-8 text-center group hover:border-[#C4B5FD]/60 transition-all duration-500 shadow-xl border-[#C4B5FD]/20">
                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${s.g} flex items-center justify-center mx-auto mb-4 text-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
@@ -266,7 +266,7 @@ export default function UploadPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="card-premium p-8 border-emerald-500/20 bg-emerald-500/[0.02]">
                   <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <CheckCircle size={14} /> Detected Ingestion Vectors ({result.detected_fields?.length || 0})
+                    <CheckCircle size={14} /> Available Parameters ({result.detected_fields?.length || 0})
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {result.detected_fields?.map(f => (
@@ -279,7 +279,7 @@ export default function UploadPage() {
 
                 <div className="card-premium p-8 border-amber-500/20 bg-amber-500/[0.02]">
                   <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <AlertTriangle size={14} /> Missing Ingestion Vectors ({result.missing_fields?.length || 0})
+                    <AlertTriangle size={14} /> Missing Parameters ({result.missing_fields?.length || 0})
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {result.missing_fields?.map(f => (
@@ -289,7 +289,7 @@ export default function UploadPage() {
                     ))}
                   </div>
                   <p className="text-[10px] text-amber-600/70 font-bold uppercase mt-6 italic">
-                    Note: Nominal laboratory defaults applied to missing fields for partial analysis.
+                    Note: Missing values will be estimated based on standards.
                   </p>
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function UploadPage() {
               <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-white/5 border-b border-[#C4B5FD]/20 flex items-center justify-between">
                 <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-4">
                   <Activity size={20} className="text-[#7C3AED]"/> 
-                  {isConfirmed ? `Vault Session Index: ${result.batch_id.slice(0,12)}…` : 'Protocol Preview Matrix'}
+                  {isConfirmed ? `Batch ID: ${result.batch_id.slice(0,12)}…` : 'Quality Data Preview'}
                 </h3>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-600 uppercase tracking-widest">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
@@ -330,7 +330,7 @@ export default function UploadPage() {
                           }`}>{row.fraud_risk || 'Verified'}</span>
                         </td>
                         <td className="px-8 py-6 text-[10px] font-bold text-purple-900/60 uppercase italic truncate max-w-[250px]">
-                          {row.reasons?.[0] || 'Nominal Range Diagnostics'}
+                          {row.reasons?.[0] || 'Meets Quality Standards'}
                         </td>
                       </tr>
                     ))}
@@ -346,7 +346,7 @@ export default function UploadPage() {
                     onClick={() => { setFile(null); setResult(null); setProgress(0); setIsConfirmed(false) }}
                     className="px-12 rounded-[2rem] bg-white dark:bg-white/5 border border-[#C4B5FD]/40 text-purple-500 hover:text-rose-600 hover:bg-rose-500/5 transition-all shadow-lg font-bold uppercase text-[10px] tracking-widest"
                   >
-                    Abort Protocol
+                    Cancel Upload
                   </button>
                   <button 
                     onClick={() => executePipeline(false)} 
@@ -354,7 +354,7 @@ export default function UploadPage() {
                     className="btn-commercial btn-commercial-primary px-14 py-5 shadow-2xl"
                   >
                     {uploading ? <Loader2 size={20} className="animate-spin"/> : <ShieldCheck size={20}/>}
-                    {uploading ? 'Synchronizing…' : 'Execute Vault Integration'}
+                    {uploading ? 'Saving Data…' : 'Save to Records'}
                   </button>
                 </>
               ) : (
@@ -390,7 +390,7 @@ export default function UploadPage() {
           <div className="space-y-6">
             <p className="text-[11px] font-bold text-rose-600 uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_10px_rgba(225,29,72,0.5)] animate-pulse"></span>
-              Mandatory Diagnostic Vectors
+              Required Quality Fields
             </p>
             <div className="flex flex-wrap gap-3">
               {['Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'COB Test', 'MBRT'].map(h => (
@@ -402,7 +402,7 @@ export default function UploadPage() {
           <div className="space-y-6">
             <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.5)]"></span>
-              Auto-Imputed Laboratory Metadata (Optional)
+              Optional Quality Fields
             </p>
             <div className="flex flex-wrap gap-3">
               {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Temp', 'Quantity'].map(h => (
@@ -414,8 +414,8 @@ export default function UploadPage() {
 
         <div className="pt-10 border-t border-[#C4B5FD]/20 relative z-10">
           <p className="text-[12px] text-purple-900/60 dark:text-slate-400 font-semibold uppercase tracking-widest leading-relaxed">
-            <b className="text-[#1E1B4B] dark:text-white">Neural Parsing Node:</b> Global ingestion engine automatically normalizes non-standard nomenclature. 
-            Missing vectors are statistically imputed using verified laboratory protocols.
+            <b className="text-[#1E1B4B] dark:text-white">Automatic Data Matching:</b> The system automatically matches your column names. 
+            Missing values are checked against standard dairy quality rules.
           </p>
         </div>
         <Search size={300} className="absolute -right-24 -top-24 text-purple-400 opacity-[0.03] rotate-12 group-hover:rotate-6 transition-transform duration-1000" />

@@ -165,11 +165,11 @@ def export_pdf():
                               textColor=colors.HexColor("#64748B"),
                               fontSize=8, spaceAfter=0)
     elements = []
-    elements.append(Paragraph("IVRI Milk Intelligence Hub — Operational Quality Report", title_s))
+    elements.append(Paragraph("IVRI Milk Quality Hub — Operational Quality Report", title_s))
     acc = sum(1 for r in records if r.decision=="accept")
     rej = sum(1 for r in records if r.decision=="reject")
     elements.append(Paragraph(
-        f"Temporal Horizon: {args.get('date_from','All')} to {args.get('date_to','Current')}  |  "
+        f"Time Period: {args.get('date_from','All')} to {args.get('date_to','Current')}  |  "
         f"Filters: {args.get('decision','All Result')} / {args.get('fraud_risk','All Risk')} / {args.get('session','All Session')}",
         sub_s))
     elements.append(Paragraph(

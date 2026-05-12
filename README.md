@@ -1,6 +1,6 @@
-# 🥛 Smart Milk Decision Tool System
+# 🥛 IVRI Milk Quality Hub
 
-A production-grade full-stack platform for dairy companies to automate milk quality analysis, detect fraud, and generate management reports.
+A professional dairy management platform for automating milk quality analysis, quality control, and digital record keeping.
 
 ---
 

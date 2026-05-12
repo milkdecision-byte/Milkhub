@@ -108,9 +108,9 @@ export default function ReportsPage() {
       a.download = match ? match[1] : `milkhub_export_${Date.now()}`
       a.click()
       URL.revokeObjectURL(url)
-      toast.success('Extraction protocol successful')
+      toast.success('Report downloaded successfully')
     } catch {
-      toast.error('Extraction protocol failed')
+      toast.error('Report download failed')
     } finally {
       setLoadingKey(null)
     }
@@ -127,11 +127,11 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.3em] flex items-center gap-4">
           <span className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg shadow-purple-500/20" /> 
-          Extraction Terminal Node
+          Download Quality Reports
         </h2>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/5 px-4 py-2 rounded-full border border-emerald-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Stream Sync Active
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Reports Ready
           </span>
         </div>
       </div>
@@ -152,20 +152,20 @@ export default function ReportsPage() {
       <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl bg-white/50 dark:bg-black/20 backdrop-blur-md">
         <div className="flex items-center justify-between border-b border-[#C4B5FD]/10 pb-8 mb-8">
           <h3 className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.3em] flex items-center gap-4">
-            <Filter size={18} /> Temporal Parameter Matrix
+            <Filter size={18} /> Filter by Date and Shift
           </h3>
           <button 
             onClick={() => setFilters({ date_from:'', date_to:'', decision:'', fraud_risk:'', session:'' })}
             className="text-[10px] font-bold text-rose-500 hover:text-rose-700 uppercase tracking-widest transition-all flex items-center gap-2 group"
           >
-            Clear Matrix <RotateCcw size={12} className="group-hover:rotate-180 transition-transform" />
+            Clear Filters <RotateCcw size={12} className="group-hover:rotate-180 transition-transform" />
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Date Picker */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Archive Horizon</label>
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Date Selection</label>
             <input 
               type="date" 
               className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
@@ -176,7 +176,7 @@ export default function ReportsPage() {
 
           {/* Decision Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Operational Result</label>
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Quality Result</label>
             <select 
               className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.decision}
@@ -190,7 +190,7 @@ export default function ReportsPage() {
 
           {/* Fraud Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Risk Profile</label>
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Risk Level</label>
             <select 
               className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.fraud_risk}
@@ -206,7 +206,7 @@ export default function ReportsPage() {
 
           {/* Session Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Submission Node</label>
+            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Entry Source</label>
             <select 
               className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.session}
@@ -248,8 +248,8 @@ export default function ReportsPage() {
                 <th className="table-header-enterprise">Specific Gravity</th>
                 <th className="table-header-enterprise">COB Test</th>
                 <th className="table-header-enterprise">MBRT (min)</th>
-                <th className="table-header-enterprise">Operational Result</th>
-                <th className="table-header-enterprise text-right pr-10">Security</th>
+                <th className="table-header-enterprise">Quality Result</th>
+                <th className="table-header-enterprise text-right pr-10">Risk Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
@@ -257,15 +257,15 @@ export default function ReportsPage() {
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
                     <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-[0.4em] animate-pulse">Synchronizing Intelligence Ledger...</p>
+                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
                   </td>
                 </tr>
               ) : records.length === 0 ? (
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
                     <Database size={64} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
-                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No records found for selected date</h3>
-                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Adjust your temporal parameter matrix to view archival datasets.</p>
+                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records found for selected date</h3>
+                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
                   </td>
                 </tr>
               ) : records.map((r, i) => (
@@ -303,14 +303,23 @@ export default function ReportsPage() {
                         <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg text-center ${r.decision === 'accept' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                           {r.decision === 'accept' ? 'ACCEPTED' : 'REJECTED'}
                         </span>
-                      {r.decision === 'reject' && r.reasons?.slice(0,1).map((res,idx) => (
-                        <span key={idx} className="text-[8px] font-bold text-rose-500 uppercase tracking-tighter text-center">{res}</span>
-                      ))}
+                      {r.decision === 'reject' && r.reasons?.slice(0,1).map((res,idx) => {
+                        let displayReason = res;
+                        if (res.toUpperCase().includes('ALCOHOL TEST FAIL')) displayReason = `Alcohol Test: ${r.alcohol_test || 'positive'}`;
+                        if (res.toUpperCase().includes('COB POSITIVE')) displayReason = `COB Test: ${r.cob_test || 'positive'}`;
+                        if (res.toUpperCase().includes('PH')) displayReason = `pH: ${r.ph?.toFixed(2)}`;
+                        if (res.toUpperCase().includes('FAT')) displayReason = `Fat: ${r.fat?.toFixed(2)}%`;
+                        if (res.toUpperCase().includes('SNF')) displayReason = `SNF: ${r.snf?.toFixed(2)}%`;
+                        
+                        return (
+                          <span key={idx} className="text-[8px] font-bold text-rose-500 uppercase tracking-tighter text-center">{displayReason}</span>
+                        );
+                      })}
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right pr-10">
                     <span className={`text-[10px] font-bold uppercase tracking-widest ${r.fraud_risk === 'high' ? 'text-rose-500' : r.fraud_risk === 'medium' ? 'text-orange-500' : 'text-emerald-500'}`}>
-                      {r.fraud_risk === 'high' ? '!!! SECURITY HIGH' : r.fraud_risk === 'medium' ? '! RISK MEDIUM' : '✓ VERIFIED'}
+                      {r.fraud_risk === 'high' ? '!!! HIGH QUALITY RISK' : r.fraud_risk === 'medium' ? '! MEDIUM QUALITY RISK' : '✓ QUALITY VERIFIED'}
                     </span>
                   </td>
                 </tr>
@@ -323,7 +332,7 @@ export default function ReportsPage() {
         {total > 20 && (
           <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-black/40 border-t border-[#C4B5FD]/10 flex items-center justify-between">
             <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
-              Showing <span className="text-[#7C3AED]">{records.length}</span> of <span className="text-[#7C3AED]">{total}</span> Registry Entries
+              Showing <span className="text-[#7C3AED]">{records.length}</span> of <span className="text-[#7C3AED]">{total}</span> Milk Records
             </p>
             <div className="flex items-center gap-4">
               <button 
@@ -346,26 +355,26 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {/* ── Secondary Format Matrix ── */}
+      {/* ── Export Options ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         <ExportCard
           icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-[#059669] to-[#10B981]"
-          title="Total Records Ledger"
-          desc="Exhaustive archival export (Excel)"
+          title="Full Excel Report"
+          desc="Download all filtered records in Excel"
           loading={loadingKey === 'excel'}
           onClick={() => downloadReport('excel', '/export/excel')}
         />
         <ExportCard
           icon={FileText} colorClass="bg-gradient-to-br from-[#7C3AED] to-indigo-700"
-          title="Executive PDF Report"
-          desc="High-fidelity summary for regulatory auditing"
+          title="Summary PDF Report"
+          desc="Professional summary for quality review"
           loading={loadingKey === 'pdf'}
           onClick={() => downloadReport('pdf', '/export/pdf')}
         />
         <ExportCard
           icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-slate-700 to-slate-900"
-          title="Raw CSV Data Stream"
-          desc="Raw filtered data for external processing"
+          title="Filtered CSV Data"
+          desc="Download records in simple CSV format"
           loading={loadingKey === 'csv'}
           onClick={() => downloadReport('csv', '/export/csv')}
         />

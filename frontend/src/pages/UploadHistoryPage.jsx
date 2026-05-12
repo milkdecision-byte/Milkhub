@@ -50,31 +50,31 @@ export default function UploadHistoryPage() {
   }, [page, search, dateFilter, shiftFilter])
 
   const handleDelete = async (batchId) => {
-    if (!window.confirm('PROTOCOL WARNING: This action will permanently decommission the selected batch and all associated supply vectors. Proceed?')) return
+    if (!window.confirm('WARNING: This action will permanently delete the selected upload batch and all its records. Proceed?')) return
     try {
       await api.delete(`/batches/${batchId}`)
-      toast.success('Batch decommissioned successfully')
+      toast.success('Batch deleted successfully')
       fetchBatches()
     } catch (err) {
-      toast.error('Failed to decommission batch archive')
+      toast.error('Failed to delete batch')
     }
   }
 
   const handleDownload = async (batchId, format) => {
     try {
-      toast.loading(`Synchronizing ${format.toUpperCase()} Protocol...`, { id: 'download' })
+      toast.loading(`Preparing ${format.toUpperCase()} file...`, { id: 'download' })
       const res = await api.get(`/export/${format}?batch_id=${batchId}`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `milkhub_archive_${batchId}.${format === 'excel' ? 'xlsx' : format}`)
+      link.setAttribute('download', `milkhub_records_${batchId}.${format === 'excel' ? 'xlsx' : format}`)
       document.body.appendChild(link)
       link.click()
       link.parentNode.removeChild(link)
-      toast.success('Archive package exported successfully', { id: 'download' })
+      toast.success('Report exported successfully', { id: 'download' })
       setDownloadDropdown(null)
     } catch (err) {
-      toast.error('Export protocol failed', { id: 'download' })
+      toast.error('Export failed', { id: 'download' })
       setDownloadDropdown(null)
     }
   }
@@ -84,7 +84,7 @@ export default function UploadHistoryPage() {
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
-          <span className="w-4 h-4 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20" /> Historical Ledger
+          <span className="w-4 h-4 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20" /> Upload History
         </h2>
       </div>
 
@@ -94,7 +94,7 @@ export default function UploadHistoryPage() {
           <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
           <input 
             className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 pl-16 pr-8 py-5 rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none shadow-inner" 
-            placeholder="Search by Archive ID, Analytical Session, or Source Descriptor…"
+            placeholder="Search by Upload ID or File Name…"
             value={search} 
             onChange={e => setSearch(e.target.value)} 
           />
@@ -117,9 +117,9 @@ export default function UploadHistoryPage() {
               value={shiftFilter} 
               onChange={e => setShiftFilter(e.target.value)}
             >
-              <option value="">Global Network Shifts</option>
-              <option value="morning">Morning Operations</option>
-              <option value="evening">Evening Operations</option>
+              <option value="">All Shifts</option>
+              <option value="morning">Morning Shift</option>
+              <option value="evening">Evening Shift</option>
             </select>
             <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
@@ -132,14 +132,14 @@ export default function UploadHistoryPage() {
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-slate-900 text-white">
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Archive ID</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Analytical Session</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Source Descriptor</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Horizon</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Segment</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Vectors</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Validation Metrics</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Operator</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Upload ID</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Session Name</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">File Name</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Date</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Shift</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Records</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Quality Status</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Uploaded By</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap text-right">Actions</th>
               </tr>
             </thead>
@@ -148,13 +148,13 @@ export default function UploadHistoryPage() {
                 <tr>
                   <td colSpan={10} className="text-center py-40">
                     <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin shadow-xl" />
-                    <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Accessing Historical Shards...</p>
+                    <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading History...</p>
                   </td>
                 </tr>
               ) : batches.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="text-center py-40">
-                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No matching ingestion cycles detected in registry archive.</p>
+                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No matching uploads found in records.</p>
                   </td>
                 </tr>
               ) : batches.map((b, i) => (
@@ -199,7 +199,7 @@ export default function UploadHistoryPage() {
                         <button 
                           onClick={() => handleDelete(b.id)}
                           className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-500/5 transition-all"
-                          title="Decommission Batch"
+                          title="Delete Batch"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -226,14 +226,14 @@ export default function UploadHistoryPage() {
               <div className="w-16 h-16 rounded-[1.5rem] bg-blue-600 text-white flex items-center justify-center shadow-2xl shadow-blue-600/30 mb-8 mx-auto">
                 <Box size={32} />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 text-center tracking-tight">Intelligence Pack</h3>
-              <p className="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest mb-10 italic">Batch Reference: {downloadDropdown.slice(0,16)}…</p>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 text-center tracking-tight">Download Records</h3>
+              <p className="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest mb-10 italic">Upload ID: {downloadDropdown.slice(0,16)}…</p>
               
               <div className="space-y-4">
                 {[
-                  { f: 'pdf', l: 'Analytical Package', x: '.PDF', icon: FileText, c: 'hover:border-red-500' },
-                  { f: 'excel', l: 'Master Ledger', x: '.XLSX', icon: Database, c: 'hover:border-emerald-500' },
-                  { f: 'csv', l: 'Raw Supply Vectors', x: '.CSV', icon: Activity, c: 'hover:border-blue-500' },
+                  { f: 'pdf', l: 'PDF Report', x: '.PDF', icon: FileText, c: 'hover:border-red-500' },
+                  { f: 'excel', l: 'Excel Sheet', x: '.XLSX', icon: Database, c: 'hover:border-emerald-500' },
+                  { f: 'csv', l: 'CSV Data', x: '.CSV', icon: Activity, c: 'hover:border-blue-500' },
                 ].map(opt => (
                   <button 
                     key={opt.f} 
@@ -253,7 +253,7 @@ export default function UploadHistoryPage() {
                   onClick={() => setDownloadDropdown(null)} 
                   className="w-full py-4 text-[10px] font-black text-slate-400 hover:text-red-500 uppercase tracking-widest transition-all"
                 >
-                  Abort Protocol
+                  Close
                 </button>
               </div>
             </motion.div>

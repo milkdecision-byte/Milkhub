@@ -69,16 +69,32 @@ function evaluateLive(data, sys) {
   }
   // 7. MBRT (>= 120)
   if (mbrt !== null) {
-    if (mbrt < s('mbrt_min')) { flags.mbrt = 'fail'; reasons.push('Poor quality') }
+    if (mbrt < s('mbrt_check')) { flags.mbrt = 'fail'; reasons.push('Poor quality') }
     else flags.mbrt = 'pass'
   }
   // 8. Raw Temp (25 - 37)
   if (rawTemp !== null) {
-    if (rawTemp < s('raw_temp_min') || rawTemp > s('raw_temp_max')) { flags.raw_milk_temp = 'fail'; reasons.push('Reject (Raw Temp)') }
+    if (rawTemp < s('raw_milk_temp_min') || rawTemp > s('raw_milk_temp_max')) { flags.raw_milk_temp = 'fail'; reasons.push('Reject (Raw Temp)') }
     else flags.raw_milk_temp = 'pass'
   }
   
-  const isPass = (val, key) => val && val.toLowerCase() === (sys[key] || '').toLowerCase()
+  const getPassValue = (key) => {
+    if (sys[key]) return sys[key];
+    // Fallback to standard industry defaults if settings aren't loaded/set
+    const defaults = {
+      cob_pass: 'negative',
+      alcohol_pass: 'negative',
+      organoleptic_pass: 'normal',
+      sediment_pass: 'clean'
+    };
+    return defaults[key] || '';
+  };
+
+  const isPass = (val, key) => {
+    if (!val) return false;
+    const target = getPassValue(key);
+    return val.toLowerCase() === target.toLowerCase();
+  };
 
   // Laboratory Test Analysis
   if (data.cob_test) {
@@ -103,25 +119,18 @@ function evaluateLive(data, sys) {
 
   // Determination Logic
   const hasFail = Object.values(flags).some(f => f === 'fail');
-  const mandatory = ['fat', 'snf', 'ph', 'acidity', 'cob_test', 'mbrt']
-  const enteredMandatory = mandatory.filter(k => data[k] !== '').length;
-  const isComplete = enteredMandatory === mandatory.length;
+  const anyEntered = Object.keys(flags).length > 0;
   
   let decision = 'pending';
   if (hasFail) decision = 'reject';
-  else if (isComplete) decision = 'accept';
-  else if (enteredMandatory > 0) decision = 'analyzing';
-
-  const totalPossible = 12;
-  const enteredAll = Object.keys(flags).length;
+  else if (anyEntered) decision = 'accept';
 
   return { 
     decision, 
     reasons, 
     parameter_flags: flags, 
-    isLive: true, 
-    progress: (enteredAll / totalPossible) * 100,
-    isComplete
+    isLive: true,
+    isComplete: anyEntered
   }
 }
 
@@ -129,8 +138,7 @@ function ResultCard({ result }) {
   if (!result) return null
   
   const states = {
-    pending: { bg: 'bg-[#F5F3FF]/80 border-[#C4B5FD]/20', text: 'text-purple-400', icon: Database, label: 'AWAITING TELEMETRY', glow: 'shadow-purple-500/5' },
-    analyzing: { bg: 'bg-purple-600/5 border-purple-600/20', text: 'text-[#7C3AED]', icon: Activity, label: 'CORE ANALYSIS ACTIVE', glow: 'shadow-purple-500/10' },
+    pending: { bg: 'bg-[#F5F3FF]/80 border-[#C4B5FD]/20', text: 'text-purple-400', icon: Database, label: 'READY FOR ENTRY', glow: 'shadow-purple-500/5' },
     accept: { bg: 'bg-emerald-500/5 border-emerald-500/20', text: 'text-emerald-600', icon: CheckCircle2, label: 'ACCEPTED', glow: 'shadow-emerald-500/20' },
     reject: { bg: 'bg-rose-500/5 border-rose-500/20', text: 'text-rose-600', icon: XCircle, label: 'REJECTED', glow: 'shadow-rose-500/20' },
   }
@@ -146,42 +154,27 @@ function ResultCard({ result }) {
     >
       {/* Live Status Indicator */}
       <div className="absolute top-6 right-6 flex items-center gap-3 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl px-4 py-2 rounded-2xl border border-[#C4B5FD]/30 z-20">
-        <span className={`w-2 h-2 rounded-full ${result.decision === 'reject' ? 'bg-rose-500' : 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]'} animate-pulse`} />
-        <span className="text-[10px] font-bold tracking-[0.2em] text-[#7C3AED] uppercase">Live Diagnostic</span>
+        <span className={`w-2 h-2 rounded-full ${result.decision === 'reject' ? 'bg-rose-500' : 'bg-emerald-500 shadow-lg'}`} />
+        <span className="text-[10px] font-bold tracking-[0.2em] text-[#7C3AED] uppercase">Live Results</span>
       </div>
       
-      <Icon size={200} className={`absolute -right-16 -bottom-16 opacity-[0.03] ${cfg.text} transition-transform duration-700 ${result.decision === 'analyzing' ? 'animate-spin-slow' : ''}`}/>
+      <Icon size={200} className={`absolute -right-16 -bottom-16 opacity-[0.03] ${cfg.text} transition-transform duration-700`}/>
 
       <div className="flex items-start gap-8 mb-12 relative z-10">
-        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-white dark:bg-white/5 shadow-2xl border border-white/40 transition-all duration-500 ${result.decision === 'analyzing' ? 'scale-110 shadow-purple-500/30 rotate-12' : ''}`}>
+        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-white dark:bg-white/5 shadow-2xl border border-white/40 transition-all duration-500`}>
           <Icon size={40} className={cfg.text}/>
         </div>
         <div className="flex-1">
           <h3 className={`text-3xl font-bold tracking-tight ${cfg.text} transition-colors duration-500`}>{cfg.label}</h3>
-          
-          {/* Progress Bar */}
-          <div className="mt-6 space-y-3">
-            <div className="flex justify-between items-center text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest">
-              <span>Diagnostic Progress</span>
-              <span className={cfg.text}>{Math.round(result.progress || 0)}%</span>
-            </div>
-            <div className="h-2 w-full bg-[#EDE9FE] dark:bg-white/5 rounded-full overflow-hidden p-0.5 border border-[#C4B5FD]/20">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${result.progress}%` }}
-                className={`h-full rounded-full bg-gradient-to-r from-[#7C3AED] to-[#F97316] transition-all duration-700`}
-              />
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="space-y-5 mb-10 relative z-10">
-        <p className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Molecular Validation Matrix</p>
+        <p className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Quality Result Details</p>
         {result.reasons?.length === 0 ? (
           <div className="bg-white/60 dark:bg-white/5 p-6 rounded-3xl border border-[#C4B5FD]/20 flex items-center gap-4 group">
              <ShieldCheck size={22} className="text-purple-300 group-hover:text-purple-500 transition-colors" />
-             <p className="text-xs font-bold text-purple-900/40">Waiting for molecular telemetry input...</p>
+             <p className="text-xs font-bold text-purple-900/40">Waiting for milk quality data...</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -204,7 +197,7 @@ function ResultCard({ result }) {
 
       {result.parameter_flags && Object.keys(result.parameter_flags).length > 0 && (
         <div className="relative z-10">
-          <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1 mb-4">Parameter Integrity Grid</p>
+          <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1 mb-4">Test Results Summary</p>
           <div className="flex flex-wrap gap-3">
             {Object.entries(result.parameter_flags).map(([k, v]) => {
               const c = { 
@@ -256,9 +249,9 @@ export default function ManualEntryPage() {
     try {
       const r = await api.post('/predict', data)
       setServerResult(r.data)
-      toast.success(`Analysis Protocol Locked: ${r.data.decision.toUpperCase()}`)
+      toast.success(`Quality Record Saved: ${r.data.decision.toUpperCase()}`)
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Synchronization failure')
+      toast.error(err.response?.data?.error || 'Save failed')
     } finally {
       setLoading(false)
     }
@@ -286,7 +279,7 @@ export default function ManualEntryPage() {
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
-          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Molecular Terminal
+          <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Manual Milk Quality Entry
         </h2>
       </div>
 
@@ -297,7 +290,7 @@ export default function ManualEntryPage() {
             <div className="flex items-center justify-between border-b border-[#C4B5FD]/20 pb-8">
               <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white flex items-center gap-5 uppercase tracking-widest">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#8B5CF6] text-white flex items-center justify-center shadow-xl shadow-purple-500/20"><Microscope size={24}/></div>
-                Laboratory Telemetry
+                Manual Entry
               </h3>
               <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">System: <span className="text-orange-500">Live Feedback</span></div>
             </div>
@@ -335,7 +328,7 @@ export default function ManualEntryPage() {
                     className={`w-full bg-[#F5F3FF]/50 dark:bg-white/5 border px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none transition-all duration-500 shadow-inner focus:ring-4 focus:ring-orange-500/10 appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
                     {...register('cob_test', { required: true })}
                   >
-                    <option value="">Protocol Status</option>
+                    <option value="">Test Result</option>
                     <option value="negative">Negative</option>
                     <option value="positive">Positive</option>
                   </select>
@@ -353,7 +346,7 @@ export default function ManualEntryPage() {
             >
               <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white flex items-center gap-5 uppercase tracking-widest">
                 <div className="w-12 h-12 rounded-[1.5rem] bg-[#F5F3FF] dark:bg-white/10 flex items-center justify-center text-purple-400 shadow-inner group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-500"><Database size={24}/></div>
-                Extended Node Metadata
+                Additional Farmer Details
               </h3>
               <div className={`p-3 rounded-xl bg-[#F5F3FF] dark:bg-white/5 text-purple-400 transition-transform duration-500 ${showAdvanced ? 'rotate-180 bg-[#7C3AED] text-white shadow-lg shadow-purple-500/30' : ''}`}>
                 <ChevronDown size={22} />
@@ -370,30 +363,30 @@ export default function ManualEntryPage() {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Provider Node Identity</label>
-                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_name')} placeholder="Legal Entity Name"/>
+                      <label className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Farmer Name</label>
+                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_name')} placeholder="Farmer Name"/>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Registry Code</label>
-                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_code')} placeholder="NODE-ID-000"/>
+                      <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Farmer ID</label>
+                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_code')} placeholder="FARMER-000"/>
                     </div>
                     <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-8">
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Batch Date</label>
+                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Date</label>
                         <input type="date" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-purple-800 dark:text-slate-300 outline-none focus:ring-4 focus:ring-orange-500/10" {...register('date')} />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Shift Cycle</label>
+                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Shift</label>
                         <div className="relative">
                           <select className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10 appearance-none cursor-pointer" {...register('shift')}>
-                            <option value="morning">Morning Stream</option>
-                            <option value="evening">Evening Stream</option>
+                            <option value="morning">Morning</option>
+                            <option value="evening">Evening</option>
                           </select>
                           <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Volume Yield (L)</label>
+                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Quantity (L)</label>
                         <input type="number" step="0.1" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('quantity')} placeholder="0.0"/>
                       </div>
                     </div>
@@ -433,7 +426,7 @@ export default function ManualEntryPage() {
               className="flex-1 btn-commercial btn-commercial-primary py-6 rounded-[2rem] text-sm shadow-2xl disabled:bg-purple-200 disabled:text-purple-400 hover:shadow-orange-500/40"
             >
               {loading ? <Loader2 size={24} className="animate-spin"/> : <Send size={20}/>}
-              {loading ? 'Transmitting Data…' : 'Finalize Quality Protocol'}
+              {loading ? 'Transmitting Data…' : 'Save Quality Record'}
             </button>
             <button
               type="button"
@@ -452,7 +445,7 @@ export default function ManualEntryPage() {
 
           <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl">
             <h4 className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-10 flex items-center gap-4">
-              <ShieldCheck size={20} className="text-[#F97316]"/> Laboratory Protocol Standards
+              <ShieldCheck size={20} className="text-[#F97316]"/> Milk Quality Standards
             </h4>
             <div className="space-y-6">
               {settings ? [
@@ -477,7 +470,7 @@ export default function ManualEntryPage() {
               )) : (
                 <div className="py-12 flex flex-col items-center gap-5">
                   <Loader2 size={40} className="animate-spin text-[#7C3AED]" />
-                  <p className="text-[11px] font-bold text-purple-300 uppercase tracking-widest">Retrieving Standards...</p>
+                  <p className="text-[11px] font-bold text-purple-300 uppercase tracking-widest">Loading Standards...</p>
                 </div>
               )}
             </div>
@@ -487,7 +480,7 @@ export default function ManualEntryPage() {
                 <Info size={14} /> Quality Assurance Notice
               </p>
               <p className="text-[10px] text-purple-900/50 font-semibold leading-relaxed relative z-10">
-                Data vectors are continuously validated against regional laboratory benchmarks and archived within the immutable network ledger.
+                All data is validated against standard dairy quality benchmarks and stored in the records.
               </p>
             </div>
           </div>

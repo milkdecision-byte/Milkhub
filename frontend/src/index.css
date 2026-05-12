@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -62,7 +63,7 @@
   }
 
   body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Sora', sans-serif;
     @apply bg-[#F5F3FF] text-[#1E1B4B] antialiased;
     background-image: 
       radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
@@ -77,7 +78,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Sora', sans-serif;
     font-weight: 700;
     @apply tracking-tight;
   }
@@ -123,7 +124,7 @@
   }
 
   .btn-commercial {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Sora', sans-serif;
     @apply px-8 py-4 rounded-2xl font-bold text-[13px] uppercase tracking-[0.15em] transition-all duration-500 flex items-center justify-center gap-3 active:scale-[0.95] disabled:opacity-50 disabled:cursor-not-allowed border-none;
   }
 
@@ -168,7 +169,7 @@
 
   /* ── Form Design ── */
   .input, .select {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Sora', sans-serif;
     @apply bg-white dark:bg-white/5 border border-[#C4B5FD]/40 dark:border-white/10 rounded-2xl px-6 py-4 w-full text-sm font-semibold text-slate-900 dark:text-white outline-none transition-all shadow-sm;
   }
 
@@ -177,7 +178,7 @@
   }
 
   .status-pill {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Sora', sans-serif;
     @apply px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border;
   }
 

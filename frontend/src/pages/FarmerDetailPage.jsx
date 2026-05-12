@@ -45,13 +45,13 @@ export default function FarmerDetailPage() {
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
       <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin shadow-xl" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Intelligence Registry...</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Farmer Records...</p>
     </div>
   )
   
   if (!data) return (
     <div className="card-premium p-12 text-center">
-      <p className="text-sm font-black text-slate-500 uppercase tracking-widest">Entity node not detected in current registry.</p>
+      <p className="text-sm font-black text-slate-500 uppercase tracking-widest">Farmer not found in records.</p>
     </div>
   )
 
@@ -83,7 +83,7 @@ export default function FarmerDetailPage() {
         <div className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all shadow-sm">
           <ArrowLeft size={16} /> 
         </div>
-        Back to Network Registry
+        Back to Farmer Registry
       </button>
 
       {/* ── Profile Header ── */}
@@ -97,7 +97,7 @@ export default function FarmerDetailPage() {
             <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">{farmer.full_name}</h1>
             {farmer.fraud_flag && (
               <span className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-widest bg-red-500/10 px-4 py-1.5 rounded-full border border-red-500/20 shadow-sm animate-pulse">
-                <ShieldAlert size={14} /> High Risk Node
+                <ShieldAlert size={14} /> High Quality Risk
               </span>
             )}
           </div>
@@ -106,7 +106,7 @@ export default function FarmerDetailPage() {
               <Database size={14} className="text-blue-600" /> {farmer.farmer_code}
             </p>
             <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-              <MapPin size={14} className="text-blue-600" /> {farmer.village || farmer.district || 'Global Sector'}
+              <MapPin size={14} className="text-blue-600" /> {farmer.village || farmer.district || 'Other Area'}
             </p>
             {farmer.phone && (
               <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
@@ -119,15 +119,15 @@ export default function FarmerDetailPage() {
         <div className="grid grid-cols-3 gap-8 text-center border-l border-slate-100 dark:border-white/10 pl-10 hidden lg:grid">
           <div className="space-y-1">
             <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{farmer.total_submissions}</p>
-            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Yield Count</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Total Collections</p>
           </div>
           <div className="space-y-1">
             <p className="text-3xl font-black text-emerald-600 tracking-tighter">{acceptRate}%</p>
-            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Efficiency</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Acceptance Rate</p>
           </div>
           <div className="space-y-1">
             <p className="text-3xl font-black text-red-600 tracking-tighter">{farmer.fraud_count || 0}</p>
-            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Anomalies</p>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Rejections</p>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function FarmerDetailPage() {
         <div className="lg:col-span-2 card-premium p-8">
           <div className="flex items-center justify-between mb-10">
             <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <TrendingUp size={18} className="text-blue-600"/> Quality Trajectory Analysis
+              <TrendingUp size={18} className="text-blue-600"/> Milk Quality Trends
             </h3>
             <div className="flex items-center gap-4">
                {['Fat', 'SNF', 'pH'].map((key, i) => (
@@ -183,7 +183,7 @@ export default function FarmerDetailPage() {
             ) : (
               <div className="h-full flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-white/[0.02] rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10">
                 <Activity size={48} className="text-slate-200" />
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Insufficient Yield Cycles for Modeling</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Not enough data for trend analysis</p>
               </div>
             )}
           </div>
@@ -192,14 +192,14 @@ export default function FarmerDetailPage() {
         <div className="space-y-6">
           <div className="card-premium p-8 bg-slate-900 text-white relative overflow-hidden group">
             <h4 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-              <Microscope size={16} /> Technical Summary
+              <Microscope size={16} /> Farmer Details
             </h4>
             <div className="space-y-5 relative z-10">
               {[
-                { label: 'Avg Fat Protocol', value: `${farmer.avg_fat?.toFixed(3) ?? '—'}%`, icon: Zap },
-                { label: 'Avg SNF Profile', value: `${farmer.avg_snf?.toFixed(3) ?? '—'}%`, icon: Activity },
-                { label: 'Registry Age', value: records[records.length-1]?.date || '—', icon: Clock },
-                { label: 'Network Zone', value: farmer.village || 'Global Hub', icon: MapPin },
+                { label: 'Average Fat', value: `${farmer.avg_fat?.toFixed(3) ?? '—'}%`, icon: Zap },
+                { label: 'Average SNF', value: `${farmer.avg_snf?.toFixed(3) ?? '—'}%`, icon: Activity },
+                { label: 'Member Since', value: records[records.length-1]?.date || '—', icon: Clock },
+                { label: 'Village/Area', value: farmer.village || 'Main Area', icon: MapPin },
               ].map((item, i) => (
                 <div key={i} className="flex justify-between items-center group/item pb-4 border-b border-white/5 last:border-none last:pb-0">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -210,8 +210,8 @@ export default function FarmerDetailPage() {
               ))}
             </div>
             <div className="mt-10 p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
-               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Audit Score</p>
-               <p className="text-xl font-black tracking-tighter">{farmer.fraud_flag ? 'RESTRICTED' : 'A-GRADE PROVIDER'}</p>
+               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Quality Status</p>
+               <p className="text-xl font-black tracking-tighter">{farmer.fraud_flag ? 'HIGH RISK' : 'REGULAR FARMER'}</p>
             </div>
             <TrendingUp size={140} className="absolute -right-10 -bottom-10 opacity-5 text-white rotate-12 group-hover:rotate-0 transition-transform duration-700" />
           </div>
@@ -219,8 +219,8 @@ export default function FarmerDetailPage() {
           <div className="card-premium p-6 flex flex-col items-center justify-center text-center gap-4 bg-emerald-500/5 border-emerald-500/10">
             <CheckCircle2 size={32} className="text-emerald-500" />
             <div>
-              <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Compliance Status</p>
-              <p className="text-[10px] font-bold text-slate-500 mt-1">Provider is fully synchronized with current laboratory protocols.</p>
+              <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Status</p>
+              <p className="text-[10px] font-bold text-slate-500 mt-1">Farmer is in good standing with quality standards.</p>
             </div>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function FarmerDetailPage() {
       <div className="card-premium overflow-hidden">
         <div className="px-8 py-6 bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
           <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
-            <Database size={18} className="text-blue-600"/> Archival Supply Vectors
+            <Database size={18} className="text-blue-600"/> Past Milk Records
           </h3>
           <div className="flex gap-4">
              <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -246,15 +246,15 @@ export default function FarmerDetailPage() {
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-slate-50/50 dark:bg-black/20">
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Shift</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fat (%)</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">SNF (%)</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">pH</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Temp</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Audit</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Risk</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Result Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
@@ -271,12 +271,12 @@ export default function FarmerDetailPage() {
                     <span className={`text-[9px] font-black uppercase tracking-widest ${
                       r.fraud_risk === 'high' ? 'text-red-600' : 'text-slate-400'
                     }`}>
-                      {r.fraud_risk || 'Secure'}
+                      {r.fraud_risk || 'Low Risk'}
                     </span>
                   </td>
                   <td className="px-8 py-4 text-right">
                     <div className="max-w-[150px] truncate ml-auto text-[10px] font-bold text-slate-400 uppercase italic" title={r.reasons?.join(', ')}>
-                      {r.reasons && r.reasons.length > 0 ? r.reasons[0] : 'Normal Trace'}
+                      {r.reasons && r.reasons.length > 0 ? r.reasons[0] : 'No Issues'}
                     </div>
                   </td>
                 </tr>

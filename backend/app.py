@@ -118,7 +118,7 @@ def _seed_defaults():
         ("raw_milk_temp_min", "25"), ("raw_milk_temp_max", "37"),
         ("cob_pass", "negative"), ("alcohol_pass", "negative"),
         ("organoleptic_pass", "normal"), ("sediment_pass", "clean"),
-        ("company_name", "Milkhub Intelligence Hub"),
+        ("company_name", "IVRI Milk Quality Hub"),
         ("fraud_threshold", "3"),
     ]
     for key, value in defaults:

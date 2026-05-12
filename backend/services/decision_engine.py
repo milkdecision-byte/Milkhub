@@ -240,6 +240,8 @@ def get_engine_with_db_settings(db_settings: dict | None = None) -> DecisionEngi
     if not db_settings: return DecisionEngine()
     parsed = {}
     for k, v in db_settings.items():
-        try: parsed[k] = float(v)
-        except: pass
+        try:
+            parsed[k] = float(v)
+        except (ValueError, TypeError):
+            parsed[k] = v
     return DecisionEngine(thresholds=parsed)

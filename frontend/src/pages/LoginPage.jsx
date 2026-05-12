@@ -30,16 +30,16 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.username || !form.password) {
-      toast.error('Operator ID and Password are required')
+      toast.error('Admin ID and Password are required')
       return
     }
     setLoading(true)
     try {
       await login(form.username, form.password)
-      toast.success('Access Granted. Synchronizing Hub.')
+      toast.success('Login successful. Opening Hub.')
       navigate('/dashboard')
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Access Denied. Verification Failed.')
+      toast.error(err.response?.data?.error || 'Login failed. Invalid ID or Password.')
     } finally {
       setLoading(false)
     }
@@ -53,7 +53,7 @@ export default function LoginPage() {
   const textSub = theme === 'dark' ? 'text-white/60' : 'text-[#1E1B4B]/60'
 
   return (
-    <div className={`min-h-screen lg:h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-0 transition-colors duration-700 ${bgGradient} bg-gradient-to-br py-10 lg:py-0`} style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+    <div className={`min-h-screen lg:h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-0 transition-colors duration-700 ${bgGradient} bg-gradient-to-br py-10 lg:py-0`}>
       
       {/* ── Theme Toggle ── */}
       <button
@@ -76,18 +76,15 @@ export default function LoginPage() {
           className="lg:w-1/2 space-y-4 lg:space-y-8 text-center lg:text-left"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-600/10 border border-purple-600/30 text-purple-700 dark:text-purple-400 font-black uppercase tracking-[0.3em] text-[8px] sm:text-[10px] mb-1 shadow-sm">
-            <Sparkles size={10} /> AI-Powered Dairy Intelligence
+            <Sparkles size={10} /> Milk Quality Monitoring
           </div>
           
-          <h1 className={`text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-none ${textHeading}`}>
+          <h1 className={`text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-none ${textHeading}`} style={{ fontFamily: "'Clash Display', sans-serif" }}>
             IVRI Milk <br />
-            <span className="bg-gradient-to-r from-purple-700 to-purple-500 dark:from-purple-500 dark:to-purple-400 bg-clip-text text-transparent italic">Intelligence</span> <br />
+            <span className="bg-gradient-to-r from-purple-700 to-purple-500 dark:from-purple-500 dark:to-purple-400 bg-clip-text text-transparent italic">Quality</span> <br />
             <span className="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-400 bg-clip-text text-transparent">Hub</span>
           </h1>
 
-          <p className={`hidden sm:block text-lg lg:text-2xl ${theme === 'dark' ? 'text-white/70' : 'text-[#1E1B4B]'} max-w-md mx-auto lg:mx-0 font-bold leading-relaxed`}>
-            Real-time milk quality analysis and intelligent dairy monitoring platform.
-          </p>
         </motion.div>
 
         {/* ── RIGHT SIDE: LOGIN CARD ── */}
@@ -101,7 +98,7 @@ export default function LoginPage() {
             
               <div className="mb-6 sm:mb-8 text-center">
                 <h2 className={`text-2xl sm:text-3xl font-black ${textHeading} mb-1 tracking-tight italic`}>Admin Login</h2>
-                <p className={`text-[9px] font-black ${theme === 'dark' ? 'text-white/40' : 'text-[#1E1B4B]'} uppercase tracking-widest`}>ACCESS THE IVRI MILK HUB PLATFORM</p>
+                <p className={`text-[9px] font-black ${theme === 'dark' ? 'text-white/40' : 'text-[#1E1B4B]'} uppercase tracking-widest`}>LOGIN TO THE MILK QUALITY HUB</p>
               </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -146,7 +143,7 @@ export default function LoginPage() {
               >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 {loading ? <Loader2 size={16} className="animate-spin" /> : <ChevronRight size={16} />}
-                <span className="relative z-10">{loading ? 'Syncing...' : 'Access Platform'}</span>
+                <span className="relative z-10">{loading ? 'Syncing...' : 'Login Now'}</span>
               </button>
             </form>
           </div>
