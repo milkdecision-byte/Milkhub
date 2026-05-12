@@ -2,16 +2,35 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Droplets, Eye, EyeOff, LogIn, Sun, Moon, 
-  ShieldCheck, Lock, User, Activity, Globe, Zap, Loader2
+  Droplets, Eye, EyeOff, ShieldCheck, Lock, User, 
+  Activity, Zap, Loader2, Microscope, Thermometer, FlaskConical,
+  CheckCircle2, AlertTriangle, ChevronRight, Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 import toast from 'react-hot-toast'
+import loginPreview from '../assets/login_preview.png'
+
+function FloatingCard({ icon: Icon, label, value, color, delay }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.8 }}
+      className="bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-3xl flex items-center gap-5 shadow-2xl"
+    >
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color} shadow-lg shadow-black/20`}>
+        <Icon size={24} className="text-white" />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-sm font-bold text-white tracking-tight">{value}</p>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function LoginPage() {
   const { login } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
   const [showPass, setShowPass] = useState(false)
@@ -20,147 +39,191 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.username || !form.password) {
-      toast.error('Authentication Error: Credentials Required')
+      toast.error('Operator credentials required for hub access')
       return
     }
     setLoading(true)
     try {
       await login(form.username, form.password)
-      toast.success('Authentication Protocol Successful. Access Granted.')
+      toast.success('Hub access granted. Welcome, Operator.')
       navigate('/dashboard')
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Authentication Failed: Access Denied')
+      toast.error(err.response?.data?.error || 'Access denied. Invalid operator credentials.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 relative overflow-hidden selection:bg-blue-600/30 selection:text-white">
-      {/* ── Background Intelligence ── */}
-      <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-blue-600/10 rounded-full blur-[160px] -translate-y-1/2 translate-x-1/3 animate-pulse pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-emerald-600/5 rounded-full blur-[140px] translate-y-1/3 -translate-x-1/4 animate-pulse pointer-events-none" />
+    <div className="min-h-screen bg-[#070B1A] flex flex-col lg:flex-row overflow-hidden selection:bg-purple-600/30 selection:text-white" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+      
+      {/* ── LEFT SIDE: BRANDING & PREVIEW ── */}
+      <div className="hidden lg:flex lg:w-[58%] relative flex-col justify-center px-24 py-20 overflow-hidden bg-gradient-to-br from-[#070B1A] via-[#0D1224] to-[#111827]">
+        
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[160px] -translate-y-1/2 translate-x-1/3 animate-pulse pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[140px] translate-y-1/3 -translate-x-1/4 animate-pulse pointer-events-none" />
+        
+        <div className="relative z-20 space-y-10">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-4 text-purple-400 font-bold uppercase tracking-[0.4em] text-xs">
+              <Sparkles size={16} /> 
+              AI-Powered Dairy Intelligence
+            </div>
+            <h1 className="text-8xl font-bold tracking-tighter leading-[0.9] text-white">
+              IVRI <span className="text-white">Milk</span> <br />
+              <span className="bg-gradient-to-r from-purple-500 to-purple-300 bg-clip-text text-transparent italic">Intelligence</span> <br />
+              <span className="bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent">Hub</span>
+            </h1>
+            <p className="text-2xl text-white/60 max-w-2xl font-normal leading-relaxed pt-4">
+              Real-time milk quality monitoring, fraud detection, laboratory analytics, and intelligent dairy supply chain management.
+            </p>
+          </motion.div>
 
-      {/* ── Cyber Matrix Grid ── */}
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,.1) 1.5px, transparent 1.5px)`,
-          backgroundSize: '100px 100px'
-        }}
-      />
+          {/* Floating Analytics Grid */}
+          <div className="grid grid-cols-2 gap-6 max-w-xl">
+            <FloatingCard icon={Zap} label="Fat Analysis" value="Precision Monitoring" color="bg-purple-600" delay={0.2} />
+            <FloatingCard icon={Activity} label="SNF Monitoring" value="Real-Time Telemetry" color="bg-orange-500" delay={0.4} />
+            <FloatingCard icon={Droplets} label="pH Detection" value="Molecular Validation" color="bg-indigo-600" delay={0.6} />
+            <FloatingCard icon={CheckCircle2} label="Quality Approved" value="Verified Samples" color="bg-emerald-600" delay={0.8} />
+          </div>
 
-      {/* ── Theme Toggle Gateway ── */}
-      <div className="absolute top-10 right-10 z-50">
-        <button
-          onClick={toggleTheme}
-          className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/40 hover:text-blue-500 hover:bg-white/10 hover:border-blue-500/30 backdrop-blur-3xl transition-all shadow-3xl group"
-        >
-          {theme === 'dark' ? <Sun size={20} className="group-hover:rotate-90 transition-transform duration-700" /> : <Moon size={20} />}
-        </button>
+          {/* Dashboard Preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 1.2 }}
+            className="relative mt-12 group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#070B1A] via-transparent to-transparent z-10" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-orange-500 rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition duration-1000" />
+            <img 
+              src={loginPreview} 
+              alt="Dashboard Preview" 
+              className="relative z-0 rounded-[2.5rem] border border-white/10 shadow-2xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+            />
+            
+            {/* Floating Mini Overlay */}
+            <div className="absolute -right-10 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-3xl border border-white/20 p-8 rounded-[2rem] shadow-2xl z-20 hidden xl:block">
+               <div className="flex items-center gap-4 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Fraud Detection Active</span>
+               </div>
+               <div className="space-y-3">
+                  <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className="w-3/4 h-full bg-gradient-to-r from-purple-500 to-orange-500" />
+                  </div>
+                  <div className="w-32 h-1 bg-white/10 rounded-full" />
+               </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Decorative Grid */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+            backgroundSize: '80px 80px'
+          }}
+        />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-xl relative z-10"
-      >
-        {/* ── Secure Ingress Terminal ── */}
-        <div className="bg-slate-900/40 backdrop-blur-[60px] p-12 sm:p-16 rounded-[4rem] border border-white/10 shadow-[0_60px_150px_-30px_rgba(0,0,0,0.8)] relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-blue-600 to-transparent opacity-40" />
-          
-          {/* ── Identity Header ── */}
-          <div className="text-center mb-16">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="inline-flex items-center justify-center w-24 h-24 rounded-[2.5rem] bg-blue-600 shadow-[0_25px_60px_-15px_rgba(37,99,235,0.6)] mb-8 border border-white/20"
-            >
-              <Droplets size={44} className="text-white drop-shadow-2xl" />
-            </motion.div>
-            <h1 className="text-6xl font-bold text-white tracking-tighter uppercase mb-4 italic">
-              Milkhub<span className="text-blue-700">.</span>
-            </h1>
-            <div className="flex items-center justify-center gap-5">
-              <span className="h-px w-12 bg-white/20" />
-              <p className="text-blue-600 text-[11px] font-bold uppercase tracking-[0.6em]">Global Quality Network</p>
-              <span className="h-px w-12 bg-white/20" />
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-10">
-            {/* ── Operator Field ── */}
-            <div className="space-y-4">
-              <label className="text-[11px] font-bold text-white/40 uppercase tracking-[0.4em] ml-4 flex items-center gap-3">
-                <User size={14} className="text-blue-700" /> Operator Registry Identity
-              </label>
-              <div className="relative group/input">
-                <input
-                  className="w-full bg-white/[0.04] border border-white/10 px-10 py-7 rounded-[2rem] text-white font-bold placeholder:text-white/5 focus:ring-4 focus:ring-blue-600/10 focus:bg-white/[0.08] focus:border-blue-600/40 transition-all outline-none text-xl font-serif"
-                  placeholder="HUB-SEC-ID-000"
-                  value={form.username}
-                  onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
-                  autoFocus
-                />
-              </div>
-            </div>
-
-            {/* ── Security Protocol Field ── */}
-            <div className="space-y-4">
-              <label className="text-[11px] font-bold text-white/40 uppercase tracking-[0.4em] ml-4 flex items-center gap-3">
-                <Lock size={14} className="text-blue-700" /> Authentication Protocol
-              </label>
-              <div className="relative group/input">
-                <input
-                  className="w-full bg-white/[0.04] border border-white/10 px-10 py-7 rounded-[2rem] text-white font-bold placeholder:text-white/5 focus:ring-4 focus:ring-blue-600/10 focus:bg-white/[0.08] focus:border-blue-600/40 transition-all outline-none text-xl font-serif tracking-widest"
-                  type={showPass ? 'text' : 'password'}
-                  placeholder="••••••••••••"
-                  value={form.password}
-                  onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(p => !p)}
-                  className="absolute right-10 top-1/2 -translate-y-1/2 text-white/30 hover:text-blue-600 transition-colors"
-                >
-                  {showPass ? <EyeOff size={24} /> : <Eye size={24} />}
-                </button>
-              </div>
-            </div>
-
-            {/* ── Ingress Action ── */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-12 bg-blue-700 text-white py-7 rounded-[2.5rem] font-bold text-base uppercase tracking-[0.5em] shadow-3xl shadow-blue-900/60 hover:scale-[1.01] hover:shadow-blue-700/80 transition-all flex items-center justify-center gap-6 relative overflow-hidden group/btn border-none"
-            >
-              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000" />
-              {loading ? (
-                <Loader2 size={28} className="animate-spin" />
-              ) : (
-                <ShieldCheck size={28} />
-              )}
-              <span className="relative z-10">{loading ? 'Verifying Gateway…' : 'Access Network'}</span>
-            </button>
-          </form>
-          
-          {/* ── Decorative Matrix Elements ── */}
-          <Activity size={300} className="absolute -left-20 -bottom-20 text-blue-600 opacity-[0.02] -rotate-12 pointer-events-none" />
-          <Globe size={240} className="absolute -right-20 -top-20 text-blue-600 opacity-[0.02] rotate-12 pointer-events-none" />
+      {/* ── RIGHT SIDE: LOGIN FORM ── */}
+      <div className="flex-1 flex flex-col justify-center items-center px-8 lg:px-20 relative bg-gradient-to-br from-[#070B1A] to-[#0A0F20]">
+        
+        {/* Mobile Header (Visible only on mobile) */}
+        <div className="lg:hidden text-center mb-12">
+          <h1 className="text-4xl font-bold text-white mb-2">IVRI Hub</h1>
+          <p className="text-xs text-purple-400 font-bold uppercase tracking-widest">AI Dairy Intelligence</p>
         </div>
 
-        {/* ── Terminal Metadata ── */}
-        <div className="mt-16 flex flex-col items-center gap-6">
-          <div className="flex items-center gap-4 text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">
-            <Zap size={14} className="text-blue-600/40" /> 
-            Milkhub Security Node Alpha
-            <Zap size={14} className="text-blue-600/40" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="w-full max-w-md relative"
+        >
+          {/* Main Login Card */}
+          <div className="bg-white/[0.03] backdrop-blur-[40px] p-12 lg:p-14 rounded-[3.5rem] border border-white/10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-orange-500 to-purple-600 opacity-50" />
+            
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight italic">Operator Authentication</h2>
+              <p className="text-[11px] font-bold text-white/40 uppercase tracking-[0.3em]">Secure access to the IVRI dairy intelligence network.</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Operator ID */}
+              <div className="space-y-3">
+                <label className="text-[11px] font-bold text-[#E9D5FF] uppercase tracking-[0.4em] ml-4 flex items-center gap-3">
+                  <User size={14} className="text-purple-500" /> Operator ID
+                </label>
+                <div className="relative group">
+                  <input
+                    className="w-full bg-white/[0.04] border border-white/10 px-10 py-6 rounded-[1.8rem] text-white font-bold placeholder:text-white/10 focus:ring-4 focus:ring-purple-600/10 focus:bg-white/[0.07] focus:border-purple-600/40 transition-all outline-none text-lg"
+                    placeholder="Enter Operator ID"
+                    value={form.username}
+                    onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
+                  />
+                  <div className="absolute inset-0 rounded-[1.8rem] border border-purple-500/0 group-focus-within:border-purple-500/20 transition-all pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-3">
+                <label className="text-[11px] font-bold text-[#FFD6AE] uppercase tracking-[0.4em] ml-4 flex items-center gap-3">
+                  <Lock size={14} className="text-orange-500" /> Password
+                </label>
+                <div className="relative group">
+                  <input
+                    className="w-full bg-white/[0.04] border border-white/10 px-10 py-6 rounded-[1.8rem] text-white font-bold placeholder:text-white/10 focus:ring-4 focus:ring-orange-600/10 focus:bg-white/[0.07] focus:border-orange-600/40 transition-all outline-none text-lg tracking-widest"
+                    type={showPass ? 'text' : 'password'}
+                    placeholder="Enter Secure Password"
+                    value={form.password}
+                    onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(p => !p)}
+                    className="absolute right-8 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                  >
+                    {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                  <div className="absolute inset-0 rounded-[1.8rem] border border-orange-500/0 group-focus-within:border-orange-500/20 transition-all pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Access Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-10 bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#F97316] text-white py-6 rounded-[2rem] font-bold text-sm uppercase tracking-[0.4em] shadow-2xl shadow-purple-900/40 hover:scale-[1.02] hover:shadow-orange-500/20 transition-all flex items-center justify-center gap-4 relative overflow-hidden group border-none active:scale-[0.98]"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                {loading ? <Loader2 size={24} className="animate-spin" /> : <ChevronRight size={24} />}
+                <span className="relative z-10">{loading ? 'Synchronizing Hub…' : 'Access Intelligence Hub'}</span>
+              </button>
+            </form>
           </div>
-          <p className="text-[9px] font-bold text-white/10 uppercase tracking-[0.2em] max-w-sm text-center leading-loose">
-            Enterprise Grade Quality Network • End-to-End Encryption Enabled • Registry Protocol v4.0.2
-          </p>
-        </div>
-      </motion.div>
+
+          {/* Tagline */}
+          <div className="mt-12 text-center space-y-4">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">
+              Smart dairy diagnostics • fraud detection • quality assurance
+            </p>
+            <div className="flex items-center justify-center gap-6 opacity-20">
+               <Microscope size={20} className="text-white" />
+               <Thermometer size={20} className="text-white" />
+               <FlaskConical size={20} className="text-white" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   )
 }
-
