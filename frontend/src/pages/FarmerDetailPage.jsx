@@ -22,7 +22,7 @@ function StatusBadge({ decision }) {
         ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
         : 'bg-red-500/10 text-red-600 border-red-500/20'
     }`}>
-      {isAccept ? 'Certified' : 'Rejected'}
+      {isAccept ? 'ACCEPTED' : 'REJECTED'}
     </span>
   )
 }
@@ -234,10 +234,10 @@ export default function FarmerDetailPage() {
           </h3>
           <div className="flex gap-4">
              <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-               <div className="w-2 h-2 rounded-full bg-emerald-500" /> Certified
+               <div className="w-2 h-2 rounded-full bg-emerald-500" /> ACCEPTED
              </div>
              <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-               <div className="w-2 h-2 rounded-full bg-red-500" /> Rejected
+               <div className="w-2 h-2 rounded-full bg-red-500" /> REJECTED
              </div>
           </div>
         </div>

@@ -122,7 +122,7 @@ export default function FarmersPage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-purple-700 transition-colors">{f.full_name}</p>
-                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">Certified Provider</p>
+                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">ACCEPTED Provider</p>
                       </div>
                     </div>
                   </td>

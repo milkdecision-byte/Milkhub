@@ -100,7 +100,7 @@ function ResultCard({ result }) {
   const states = {
     pending: { bg: 'bg-[#F5F3FF]/80 border-[#C4B5FD]/20', text: 'text-purple-400', icon: Database, label: 'AWAITING TELEMETRY', glow: 'shadow-purple-500/5' },
     analyzing: { bg: 'bg-purple-600/5 border-purple-600/20', text: 'text-[#7C3AED]', icon: Activity, label: 'CORE ANALYSIS ACTIVE', glow: 'shadow-purple-500/10' },
-    accept: { bg: 'bg-emerald-500/5 border-emerald-500/20', text: 'text-emerald-600', icon: CheckCircle2, label: 'APPROVED', glow: 'shadow-emerald-500/20' },
+    accept: { bg: 'bg-emerald-500/5 border-emerald-500/20', text: 'text-emerald-600', icon: CheckCircle2, label: 'ACCEPTED', glow: 'shadow-emerald-500/20' },
     reject: { bg: 'bg-rose-500/5 border-rose-500/20', text: 'text-rose-600', icon: XCircle, label: 'REJECTED', glow: 'shadow-rose-500/20' },
   }
 
@@ -386,8 +386,8 @@ export default function ManualEntryPage() {
                       </div>
                     ))}
                     <div className="space-y-3">
-                      <label className="text-[9px] font-bold text-purple-400 tracking-[0.2em] ml-1">Raw Milk Temperature</label>
-                      <input type="number" step="0.1" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-5 py-3.5 rounded-2xl text-xs font-bold text-purple-800 dark:text-slate-300 outline-none" {...register('raw_milk_temp')} placeholder="0.0°C"/>
+                      <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest ml-1 whitespace-nowrap">Raw Temp (°C)</label>
+                      <input type="number" step="0.1" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-5 py-3.5 rounded-2xl text-xs font-bold text-purple-800 dark:text-slate-300 outline-none focus:ring-4 focus:ring-orange-500/10" {...register('raw_milk_temp')} placeholder="0.0"/>
                     </div>
                   </div>
                 </motion.div>

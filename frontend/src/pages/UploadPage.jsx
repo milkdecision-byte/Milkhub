@@ -15,7 +15,7 @@ function StatusPill({ decision }) {
   if (decision === 'accept') {
     return (
       <span className="px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-        Pass
+        ACCEPTED
       </span>
     )
   }
@@ -28,7 +28,7 @@ function StatusPill({ decision }) {
   }
   return (
     <span className="px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5">
-      Fail
+      REJECTED
     </span>
   )
 }
@@ -393,7 +393,7 @@ export default function UploadPage() {
               Mandatory Diagnostic Vectors
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Fat (%)', 'SNF (%)', 'pH'].map(h => (
+              {['Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'COB Test', 'MBRT'].map(h => (
                 <span key={h} className="px-5 py-2.5 bg-rose-500/5 text-rose-600 rounded-xl text-[11px] font-bold font-mono border border-rose-500/20 tracking-widest hover:bg-rose-500/10 transition-colors shadow-sm">{h}</span>
               ))}
             </div>
@@ -405,7 +405,7 @@ export default function UploadPage() {
               Auto-Imputed Laboratory Metadata (Optional)
             </p>
             <div className="flex flex-wrap gap-3">
-              {['Acidity', 'Temperature', 'Specific Gravity', 'MBRT', 'COB Test', 'Alcohol Test', 'Organoleptic', 'Quantity'].map(h => (
+              {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Quantity'].map(h => (
                 <span key={h} className="px-5 py-2.5 bg-[#F5F3FF] dark:bg-white/5 text-purple-500 rounded-xl text-[11px] font-bold font-mono border border-[#C4B5FD]/30 tracking-widest hover:border-purple-400 transition-colors shadow-sm">{h}</span>
               ))}
             </div>

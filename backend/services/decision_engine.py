@@ -100,10 +100,10 @@ class DecisionEngine:
             else:
                 flags["acidity"] = "pass"
         else:
-            minor_warnings.append("Acidity vector missing")
+            missing_fields.append("Acidity")
             flags["acidity"] = "missing"
 
-        # 5. Temperature
+        # 5. Temperature (Optional/Metadata)
         if sample.temperature is not None:
             if sample.temperature > self.t["temp_acceptable"]:
                 critical_failures.append(f"High Temperature ({sample.temperature:.1f}°C)")
@@ -114,7 +114,7 @@ class DecisionEngine:
             minor_warnings.append("Temperature vector missing")
             flags["temperature"] = "missing"
 
-        # 6. Specific Gravity
+        # 6. Specific Gravity (Optional/Metadata)
         if sample.specific_gravity is not None:
             if sample.specific_gravity < self.t["sg_min"]:
                 critical_failures.append(f"Low Density ({sample.specific_gravity:.4f})")
@@ -133,7 +133,7 @@ class DecisionEngine:
             else:
                 flags["mbrt"] = "pass"
         else:
-            minor_warnings.append("MBRT missing")
+            missing_fields.append("MBRT")
             flags["mbrt"] = "missing"
 
         # 8. COB Test
@@ -147,7 +147,7 @@ class DecisionEngine:
             missing_fields.append("COB Test")
             flags["cob_test"] = "missing"
 
-        # 9. Alcohol Test
+        # 9. Alcohol Test (Optional)
         if sample.alcohol_test is not None:
             if any(x in str(sample.alcohol_test).lower() for x in ("fail", "pos")):
                 critical_failures.append("Alcohol Test FAIL")
@@ -158,7 +158,7 @@ class DecisionEngine:
             minor_warnings.append("Alcohol Test missing")
             flags["alcohol_test"] = "missing"
 
-        # 10. Organoleptic
+        # 10. Organoleptic (Optional)
         if sample.organoleptic is not None:
             if str(sample.organoleptic).lower().strip() == "abnormal":
                 minor_warnings.append("Organoleptic Abnormal")
@@ -177,10 +177,10 @@ class DecisionEngine:
         if critical_failures:
             result.decision = "reject"
             result.reasons = critical_failures
-        # 2. If no critical failures but many missing fields → Partial
-        elif len(missing_fields) >= 3:
+        # 2. If no critical failures but ANY mandatory fields are missing → Partial
+        elif missing_fields:
             result.decision = "partial"
-            result.reasons = ["Partial Analysis: Insufficient molecular vectors for full certification"]
+            result.reasons = [f"Partial Analysis: Mandatory vectors missing ({', '.join(missing_fields)})"]
         # 3. Otherwise Accept
         else:
             result.decision = "accept"

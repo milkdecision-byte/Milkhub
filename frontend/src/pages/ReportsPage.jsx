@@ -140,8 +140,8 @@ export default function ReportsPage() {
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           <StatMiniCard label="Total Records" value={summary.total} icon={Database} colorClass="bg-gradient-to-br from-indigo-600 to-blue-700" />
-          <StatMiniCard label="Approved" value={summary.approved} icon={CheckCircle2} colorClass="bg-gradient-to-br from-emerald-500 to-teal-600" />
-          <StatMiniCard label="Rejected" value={summary.rejected} icon={ShieldAlert} colorClass="bg-gradient-to-br from-rose-500 to-red-700" />
+          <StatMiniCard label="ACCEPTED" value={summary.approved} icon={CheckCircle2} colorClass="bg-gradient-to-br from-emerald-500 to-teal-600" />
+          <StatMiniCard label="REJECTED" value={summary.rejected} icon={ShieldAlert} colorClass="bg-gradient-to-br from-rose-500 to-red-700" />
           <StatMiniCard label="Fraud High" value={summary.fraud} icon={Zap} colorClass="bg-gradient-to-br from-slate-700 to-slate-900" />
           <StatMiniCard label="Morning" value={summary.morning} icon={Calendar} colorClass="bg-gradient-to-br from-purple-500 to-indigo-600" />
           <StatMiniCard label="Evening" value={summary.evening} icon={Clock} colorClass="bg-gradient-to-br from-orange-500 to-amber-600" />
@@ -183,8 +183,8 @@ export default function ReportsPage() {
               onChange={e => setFilter('decision', e.target.value)}
             >
               <option value="">All Results</option>
-              <option value="accept">Approved Only</option>
-              <option value="reject">Rejected Only</option>
+              <option value="accept">ACCEPTED Only</option>
+              <option value="reject">REJECTED Only</option>
             </select>
           </div>
 
@@ -300,9 +300,9 @@ export default function ReportsPage() {
                   <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.mbrt || '---'}</td>
                   <td className="px-6 py-5">
                     <div className="flex flex-col gap-1">
-                      <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg text-center ${r.decision === 'accept' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
-                        {r.decision === 'accept' ? 'Approved' : 'Rejected'}
-                      </span>
+                        <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg text-center ${r.decision === 'accept' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                          {r.decision === 'accept' ? 'ACCEPTED' : 'REJECTED'}
+                        </span>
                       {r.decision === 'reject' && r.reasons?.slice(0,1).map((res,idx) => (
                         <span key={idx} className="text-[8px] font-bold text-rose-500 uppercase tracking-tighter text-center">{res}</span>
                       ))}

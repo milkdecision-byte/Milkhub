@@ -14,7 +14,7 @@ function StatusBadge({ status }) {
   const isAccepted = status?.toLowerCase() === 'accept' || status?.toLowerCase() === 'accepted'
   return (
     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 ${isAccepted ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5'}`}>
-      {isAccepted ? 'Certified' : 'Rejected'}
+      {isAccepted ? 'ACCEPTED' : 'REJECTED'}
     </span>
   )
 }

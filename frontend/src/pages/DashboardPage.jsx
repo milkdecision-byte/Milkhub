@@ -243,30 +243,52 @@ export default function DashboardPage() {
         <div className="card-premium p-10 lg:col-span-1 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-10">
             <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-[#7C3AED] shadow-[0_0_15px_rgba(124,58,237,0.5)]" /> Molecular Analysis
+              <span className="w-3 h-3 rounded-full bg-[#7C3AED] shadow-[0_0_15px_rgba(124,58,237,0.5)]" /> Milk Quality Analysis
             </h3>
             <Microscope size={20} className="text-[#7C3AED]/40" />
           </div>
           
-          <div className="h-[320px] w-full">
+          <div className="h-[340px] w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                <PolarGrid stroke={theme === 'dark' ? 'rgba(255,255,255,0.1)' : '#EDE9FE'} />
+              <RadarChart 
+                cx="50%" 
+                cy="50%" 
+                outerRadius="65%" 
+                data={radarData}
+                margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+              >
+                <PolarGrid stroke={theme === 'dark' ? 'rgba(139, 92, 246, 0.2)' : 'rgba(124, 58, 237, 0.15)'} />
                 <PolarAngleAxis 
                   dataKey="subject" 
-                  tick={{ fill: theme === 'dark' ? '#F8FAFC' : '#7C3AED', fontSize: 9, fontWeight: 700 }} 
+                  tick={{ 
+                    fill: theme === 'dark' ? '#CBD5E1' : '#4C1D95', 
+                    fontSize: window.innerWidth < 640 ? 8 : 10, 
+                    fontWeight: 900,
+                    letterSpacing: '0.02em'
+                  }} 
                 />
-                <Radar name="Parameters" dataKey="A" stroke="#7C3AED" fill="#8B5CF6" fillOpacity={0.4} />
+                <Radar 
+                  name="Parameters" 
+                  dataKey="A" 
+                  stroke="#7C3AED" 
+                  strokeWidth={2}
+                  fill="#8B5CF6" 
+                  fillOpacity={0.15} 
+                />
               </RadarChart>
             </ResponsiveContainer>
           </div>
 
           {/* Compact Scientific Stat Grid */}
-          <div className="mt-10 grid grid-cols-2 gap-3">
+          <div className="mt-8 grid grid-cols-2 gap-4">
             {radarData.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F5F3FF] dark:bg-white/5 border border-[#C4B5FD]/20 group hover:border-[#7C3AED]/40 transition-all duration-300">
-                <span className="text-[10px] font-bold text-purple-900/60 dark:text-slate-300">{item.subject}</span>
-                <span className="text-xs font-bold text-[#7C3AED] dark:text-white">{item.A}</span>
+              <div key={idx} className="flex flex-col gap-1.5 p-4 rounded-2xl bg-[#F5F3FF] dark:bg-white/5 border border-[#C4B5FD]/20 group hover:border-[#7C3AED]/40 transition-all duration-300 min-h-[72px] justify-center">
+                <span className="text-[9px] font-black text-purple-900/40 dark:text-slate-400 uppercase tracking-widest leading-none truncate">
+                  {item.subject}
+                </span>
+                <span className="text-lg font-black text-[#7C3AED] dark:text-white leading-none">
+                  {item.A}
+                </span>
               </div>
             ))}
           </div>
@@ -401,7 +423,7 @@ export default function DashboardPage() {
                     <td className="px-8 py-7 text-right">
                       <div className="flex justify-end">
                         <span className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 ${r.status === 'Accepted' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5'}`}>
-                          {r.status === 'Accepted' ? 'Certified' : 'Rejected'}
+                          {r.status === 'Accepted' ? 'ACCEPTED' : 'REJECTED'}
                         </span>
                       </div>
                     </td>

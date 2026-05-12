@@ -211,7 +211,7 @@ export default function SettingsPage() {
           <div className="bg-white/[0.03] backdrop-blur-3xl rounded-3xl p-8 border border-white/5 hover:border-emerald-500/30 transition-all group/card">
             <div className="flex items-center gap-3 mb-6">
               <CheckCircle2 size={20} className="text-emerald-500" />
-              <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Action: Certified</p>
+              <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Action: ACCEPTED</p>
             </div>
             <p className="text-[11px] font-bold leading-relaxed text-slate-400 uppercase tracking-widest">
               Automated ledger entry. Zero critical protocol deviations detected across the spectrum.
