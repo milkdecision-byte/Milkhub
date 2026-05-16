@@ -27,6 +27,7 @@ def _get_ml() -> MLService:
 def predict():
     uid = get_jwt_identity()
     data = request.get_json(silent=True) or {}
+    milk_type = data.get("milk_type", "cow").lower()
 
     sample = MilkSample(
         fat=_f(data.get("fat")),
@@ -45,14 +46,22 @@ def predict():
     )
 
     engine = _get_engine()
-    result = engine.evaluate(sample)
+    result = engine.evaluate(sample, milk_type=milk_type)
 
-    # ML prediction
+    # ── ML Prediction ────────────────────────────────────────────────────
     ml_svc: MLService = _get_ml()
     ml_pred, ml_conf = "unknown", 0.0
+    anomaly_score = 0.0
     if ml_svc:
         enc = MLService.encode_categorical(data)
-        ml_pred, ml_conf = ml_svc.predict_decision(enc)
+        ml_pred, ml_conf = ml_svc.predict_decision(enc, milk_type=milk_type)
+        anomaly_score = ml_svc.fraud_score(enc, milk_type=milk_type)
+
+    # ── Hybrid Override: Scientific rules ALWAYS override ML ─────────────
+    # If rules say reject → final = reject regardless of ML
+    # ML confidence is recorded but does NOT override rule-based decision
+    final_decision = result.decision
+    confidence_score = ml_conf if ml_pred == final_decision else max(0.0, ml_conf - 0.15)
 
     # Persist record
     record_date = _parse_date(data.get("date")) or dt_date.today()
@@ -106,11 +115,14 @@ def predict():
         organoleptic=sample.organoleptic, sediment_test=sample.sediment_test,
         mbrt=sample.mbrt, raw_milk_temp=sample.raw_milk_temp,
         quantity=sample.quantity,
-        decision=result.decision,
+        decision=final_decision,
         reasons=result.reasons,
         fraud_risk=result.fraud_risk,
         ml_prediction=ml_pred,
         ml_confidence=ml_conf,
+        milk_type=milk_type,
+        model_version="2.0-hybrid",
+        ml_score=confidence_score,
         entry_type="manual",
         entered_by=uid,
     )
@@ -120,12 +132,18 @@ def predict():
 
     return jsonify({
         "record_id": rec.id,
-        "decision": result.decision,
+        "decision": final_decision,
         "reasons": result.reasons,
+        "warnings": result.warnings,
         "fraud_risk": result.fraud_risk,
         "parameter_flags": result.parameter_flags,
         "ml_prediction": ml_pred,
-        "ml_confidence": round(ml_conf, 4),
+        "ml_confidence": round(ml_conf * 100, 1),
+        "confidence_score": round(confidence_score * 100, 1),
+        "anomaly_score": round(anomaly_score * 100, 1),
+        "model_version": "2.0-hybrid",
+        "milk_type": milk_type,
+        "hybrid_override": ml_pred != final_decision,
     }), 200
 
 
@@ -142,7 +160,7 @@ def _parse_date(v):
     if not v:
         return None
     from datetime import datetime
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d", "%d.%m.%Y", "%d.%m.%y", "%Y.%m.%d"):
         try:
             return datetime.strptime(str(v).strip(), fmt).date()
         except ValueError:

@@ -57,17 +57,40 @@ DEFAULT_THRESHOLDS = {
     "sediment_pass": "clean"
 }
 
+DEFAULT_BUFFALO_THRESHOLDS = {
+    "fat_min": 6.0,
+    "fat_max": 8.5,
+    "snf_min": 8.5,
+    "snf_max": 10.5,
+    "ph_min": 6.5,
+    "ph_max": 6.9,
+    "acidity_min": 0.13,
+    "acidity_max": 0.18,
+    "temp_acceptable": 10.0,
+    "sg_min": 1.028,
+    "sg_max": 1.034,
+    "mbrt_check": 240.0,
+    "raw_milk_temp_min": 25.0,
+    "raw_milk_temp_max": 37.0,
+    "cob_pass": "negative",
+    "alcohol_pass": "negative",
+    "organoleptic_pass": "normal",
+    "sediment_pass": "clean"
+}
+
 
 class DecisionEngine:
-    def __init__(self, thresholds: Optional[dict] = None):
-        self.t = {**DEFAULT_THRESHOLDS, **(thresholds or {})}
+    def __init__(self, standards: Optional[dict] = None):
+        self.standards = standards or {"cow": DEFAULT_THRESHOLDS}
+        self.t = self.standards.get("cow", DEFAULT_THRESHOLDS)
 
     def _is_pass(self, value: any, key: str) -> bool:
         """Dynamically check if a qualitative value matches the accept keyword."""
         if value is None: return False
         return str(value).lower().strip() == str(self.t.get(key, "")).lower().strip()
 
-    def evaluate(self, sample: MilkSample) -> DecisionResult:
+    def evaluate(self, sample: MilkSample, milk_type: str = "cow") -> DecisionResult:
+        self.t = self.standards.get(milk_type, DEFAULT_THRESHOLDS)
         result = DecisionResult()
         critical_failures = []
         minor_warnings = []
@@ -213,9 +236,9 @@ class DecisionEngine:
         if critical_failures:
             result.decision = "reject"
             result.reasons = critical_failures
-        # 2. If no critical failures but ANY mandatory fields are missing → Partial
+        # 2. If no critical failures but ANY mandatory fields are missing → manual_check (partial)
         elif missing_fields:
-            result.decision = "partial"
+            result.decision = "manual_check"
             result.reasons = [f"Partial Analysis: Mandatory vectors missing ({', '.join(missing_fields)})"]
         # 3. Otherwise Accept
         else:
@@ -237,11 +260,26 @@ class DecisionEngine:
         return "low"
 
 def get_engine_with_db_settings(db_settings: dict | None = None) -> DecisionEngine:
-    if not db_settings: return DecisionEngine()
-    parsed = {}
-    for k, v in db_settings.items():
-        try:
-            parsed[k] = float(v)
-        except (ValueError, TypeError):
-            parsed[k] = v
-    return DecisionEngine(thresholds=parsed)
+    cow_standards = {**DEFAULT_THRESHOLDS}
+    buffalo_standards = {**DEFAULT_BUFFALO_THRESHOLDS}
+    
+    if db_settings:
+        for k, v in db_settings.items():
+            if k in DEFAULT_THRESHOLDS:
+                try:
+                    cow_standards[k] = float(v)
+                except (ValueError, TypeError):
+                    cow_standards[k] = v
+            elif k.startswith("buffalo_"):
+                key = k.replace("buffalo_", "")
+                if key in DEFAULT_BUFFALO_THRESHOLDS:
+                    try:
+                        buffalo_standards[key] = float(v)
+                    except (ValueError, TypeError):
+                        buffalo_standards[key] = v
+                        
+    standards = {
+        "cow": cow_standards,
+        "buffalo": buffalo_standards
+    }
+    return DecisionEngine(standards=standards)

@@ -19,14 +19,29 @@ const EMPTY = {
   organoleptic: '', sediment_test: '',
 }
 
-function evaluateLive(data, sys) {
+const BUFFALO_DEFAULTS = {
+  fat_min: 6.0, fat_max: 8.5,
+  snf_min: 8.5, snf_max: 10.5,
+  ph_min: 6.5, ph_max: 6.9,
+  acidity_min: 0.13, acidity_max: 0.18,
+  temp_acceptable: 10.0,
+  sg_min: 1.028, sg_max: 1.034,
+  mbrt_check: 240.0,
+}
+
+function evaluateLive(data, sys, milkType = 'cow') {
   if (!sys) return null;
   
   const flags = {}
   const reasons = []
   
   const f = v => (v === '' || isNaN(v) ? null : parseFloat(v))
-  const s = k => parseFloat(sys[k] || 0)
+  const s = k => {
+    if (milkType === 'buffalo' && BUFFALO_DEFAULTS[k] !== undefined) {
+      return BUFFALO_DEFAULTS[k];
+    }
+    return parseFloat(sys[k] || 0);
+  }
   
   const fat = f(data.fat)
   const snf = f(data.snf)
@@ -145,6 +160,8 @@ function ResultCard({ result }) {
 
   const cfg = states[result.decision] || states.pending
   const Icon = cfg.icon
+  const isServerResult = !result.isLive
+  const fraudColor = result.fraud_risk === 'high' ? 'text-rose-600' : result.fraud_risk === 'medium' ? 'text-amber-600' : 'text-emerald-600'
 
   return (
     <motion.div
@@ -152,22 +169,47 @@ function ResultCard({ result }) {
       animate={{ opacity: 1, scale: 1 }}
       className={`card-premium p-10 ${cfg.bg} ${cfg.glow} border-2 relative overflow-hidden transition-all duration-500`}
     >
-      {/* Live Status Indicator */}
+      {/* Status Indicator */}
       <div className="absolute top-6 right-6 flex items-center gap-3 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl px-4 py-2 rounded-2xl border border-[#C4B5FD]/30 z-20">
         <span className={`w-2 h-2 rounded-full ${result.decision === 'reject' ? 'bg-rose-500' : 'bg-emerald-500 shadow-lg'}`} />
-        <span className="text-[10px] font-bold tracking-[0.2em] text-[#7C3AED] uppercase">Live Results</span>
+        <span className="text-[10px] font-bold tracking-[0.2em] text-[#7C3AED] uppercase">
+          {isServerResult ? 'AI Result' : 'Live Preview'}
+        </span>
       </div>
       
       <Icon size={200} className={`absolute -right-16 -bottom-16 opacity-[0.03] ${cfg.text} transition-transform duration-700`}/>
 
-      <div className="flex items-start gap-8 mb-12 relative z-10">
+      <div className="flex items-start gap-8 mb-8 relative z-10">
         <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-white dark:bg-white/5 shadow-2xl border border-white/40 transition-all duration-500`}>
           <Icon size={40} className={cfg.text}/>
         </div>
         <div className="flex-1">
           <h3 className={`text-3xl font-bold tracking-tight ${cfg.text} transition-colors duration-500`}>{cfg.label}</h3>
+          {isServerResult && result.hybrid_override && (
+            <span className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[9px] font-bold uppercase tracking-widest">
+              <Sparkles size={10}/> Scientific Override Applied
+            </span>
+          )}
         </div>
       </div>
+
+      {/* ML Intelligence Panel — only shown after server submission */}
+      {isServerResult && (
+        <div className="grid grid-cols-3 gap-4 mb-8 relative z-10">
+          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Confidence</p>
+            <p className="text-2xl font-black text-[#7C3AED]">{result.confidence_score ?? result.ml_confidence ?? 0}%</p>
+          </div>
+          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Anomaly</p>
+            <p className={`text-2xl font-black ${result.anomaly_score > 50 ? 'text-rose-600' : 'text-emerald-600'}`}>{result.anomaly_score ?? 0}%</p>
+          </div>
+          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Fraud Risk</p>
+            <p className={`text-lg font-black uppercase ${fraudColor}`}>{result.fraud_risk || 'Low'}</p>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-5 mb-10 relative z-10">
         <p className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Quality Result Details</p>
@@ -218,9 +260,18 @@ function ResultCard({ result }) {
           </div>
         </div>
       )}
+
+      {isServerResult && result.model_version && (
+        <div className="mt-6 relative z-10 flex items-center gap-2">
+          <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest">Model: {result.model_version}</span>
+          <span className="text-purple-200">•</span>
+          <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest capitalize">{result.milk_type} Milk Standards</span>
+        </div>
+      )}
     </motion.div>
   )
 }
+
 
 export default function ManualEntryPage() {
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm({ defaultValues: EMPTY })
@@ -229,8 +280,19 @@ export default function ManualEntryPage() {
   const [livePreview, setLivePreview] = useState(null)
   const [settings, setSettings] = useState(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [milkType, setMilkType] = useState('cow')
   
   const formValues = watch()
+
+  const gradients = {
+    fat: 'linear-gradient(135deg, #fff7ed, #ffedd5)',
+    snf: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+    ph: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+    acidity: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
+    temperature: 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
+    mbrt: 'linear-gradient(135deg, #ecfeff, #cffafe)',
+    cob_test: 'linear-gradient(135deg, #faf5ff, #f3e8ff)',
+  }
 
   useEffect(() => {
     api.get('/settings').then(r => setSettings(r.data)).catch(console.error)
@@ -238,16 +300,16 @@ export default function ManualEntryPage() {
 
   useEffect(() => {
     if (!serverResult && settings) {
-      const result = evaluateLive(formValues, settings);
+      const result = evaluateLive(formValues, settings, milkType);
       setLivePreview(result);
     }
-  }, [JSON.stringify(formValues), serverResult, settings])
+  }, [JSON.stringify(formValues), serverResult, settings, milkType])
 
   const onSubmit = async (data) => {
     setLoading(true)
     setServerResult(null)
     try {
-      const r = await api.post('/predict', data)
+      const r = await api.post('/predict', { ...data, milk_type: milkType })
       setServerResult(r.data)
       toast.success(`Quality Record Saved: ${r.data.decision.toUpperCase()}`)
     } catch (err) {
@@ -295,6 +357,24 @@ export default function ManualEntryPage() {
               <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">System: <span className="text-orange-500">Live Feedback</span></div>
             </div>
             
+            {/* Milk Type Selector */}
+            <div className="flex gap-6 mt-6 mb-10">
+              <div 
+                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+                onClick={() => setMilkType('cow')}
+              >
+                <span className="text-3xl">🐄</span>
+                <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Cow Milk</span>
+              </div>
+              <div 
+                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+                onClick={() => setMilkType('buffalo')}
+              >
+                <span className="text-3xl">🐃</span>
+                <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Buffalo Milk</span>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {[
                 { id: 'fat', label: 'Fat (%)', icon: Zap },
@@ -313,7 +393,8 @@ export default function ManualEntryPage() {
                   <input 
                     type="number" 
                     step="0.001" 
-                    className={`w-full bg-[#F5F3FF]/50 dark:bg-white/5 border px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none transition-all duration-500 shadow-inner focus:ring-4 focus:ring-orange-500/10 ${getBorderColor(field.id)}`} 
+                    style={{ backgroundImage: gradients[field.id] }}
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] ${getBorderColor(field.id)}`} 
                     {...register(field.id, { required: true })} 
                     placeholder="0.000"
                   />
@@ -325,7 +406,8 @@ export default function ManualEntryPage() {
                 </label>
                 <div className="relative">
                   <select 
-                    className={`w-full bg-[#F5F3FF]/50 dark:bg-white/5 border px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none transition-all duration-500 shadow-inner focus:ring-4 focus:ring-orange-500/10 appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
+                    style={{ backgroundImage: gradients.cob_test }}
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
                     {...register('cob_test', { required: true })}
                   >
                     <option value="">Test Result</option>
@@ -423,9 +505,9 @@ export default function ManualEntryPage() {
             <button
               type="submit"
               disabled={loading || !displayResult?.isComplete}
-              className="flex-1 btn-commercial btn-commercial-primary py-6 rounded-[2rem] text-sm shadow-2xl disabled:bg-purple-200 disabled:text-purple-400 hover:shadow-orange-500/40"
+              className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
             >
-              {loading ? <Loader2 size={24} className="animate-spin"/> : <Send size={20}/>}
+              {loading ? <Loader2 size={20} className="animate-spin"/> : <Send size={18}/>}
               {loading ? 'Transmitting Data…' : 'Save Quality Record'}
             </button>
             <button

@@ -12,7 +12,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 # Feature order must match training
-FEATURE_COLUMNS = [
+FEATURE_COLS = [
     "fat", "snf", "ph", "acidity", "temperature",
     "specific_gravity", "mbrt", "cob_test_num"
 ]
@@ -22,52 +22,56 @@ DECISION_LABELS = ["accept", "reject"]
 
 class MLService:
     """
-    Wrapper around trained joblib models.
-    Falls back gracefully when models are not yet trained.
+    Wrapper around trained joblib models for different milk types.
+    Falls back gracefully to 'cow' when specific models are not yet trained.
     """
 
     def __init__(self, models_path: str):
         self.models_path = models_path
-        self.clf_path = os.path.join(models_path, "decision_model.pkl")
-        self.iso_path = os.path.join(models_path, "fraud_model.pkl")
-        self.scaler_path = os.path.join(models_path, "scaler.pkl")
-
-        self.classifier = None
-        self.isolator = None
-        self.scaler = None
+        self.classifiers = {}
+        self.isolators = {}
+        self.scalers = {}
         self._load_models()
 
     # ── Load ──────────────────────────────────────────────────────────────
 
     def _load_models(self):
-        try:
-            if os.path.exists(self.clf_path):
-                self.classifier = joblib.load(self.clf_path)
-                logger.info("Decision model loaded.")
-            if os.path.exists(self.iso_path):
-                self.isolator = joblib.load(self.iso_path)
-                logger.info("Fraud model loaded.")
-            if os.path.exists(self.scaler_path):
-                self.scaler = joblib.load(self.scaler_path)
-                logger.info("Scaler loaded.")
-        except Exception as e:
-            logger.warning(f"Could not load ML models: {e}")
+        for mtype in ["cow", "buffalo"]:
+            try:
+                clf_path = os.path.join(self.models_path, f"decision_model_{mtype}.pkl")
+                iso_path = os.path.join(self.models_path, f"fraud_model_{mtype}.pkl")
+                scaler_path = os.path.join(self.models_path, f"scaler_{mtype}.pkl")
+
+                if os.path.exists(clf_path):
+                    self.classifiers[mtype] = joblib.load(clf_path)
+                    logger.info(f"Decision model for {mtype} loaded.")
+                if os.path.exists(iso_path):
+                    self.isolators[mtype] = joblib.load(iso_path)
+                    logger.info(f"Fraud model for {mtype} loaded.")
+                if os.path.exists(scaler_path):
+                    self.scalers[mtype] = joblib.load(scaler_path)
+                    logger.info(f"Scaler for {mtype} loaded.")
+            except Exception as e:
+                logger.warning(f"Could not load ML models for {mtype}: {e}")
 
     # ── Predict Decision ──────────────────────────────────────────────────
 
-    def predict_decision(self, features: dict) -> tuple[str, float]:
+    def predict_decision(self, features: dict, milk_type: str = "cow") -> tuple[str, float]:
         """
         Returns (label, confidence).
-        Falls back to 'unknown' if model not loaded.
+        Falls back to 'cow' if specific model not loaded.
         """
-        if self.classifier is None:
+        clf = self.classifiers.get(milk_type) or self.classifiers.get("cow")
+        scaler = self.scalers.get(milk_type) or self.scalers.get("cow")
+
+        if clf is None:
             return "unknown", 0.0
 
         try:
             X = self._build_feature_vector(features)
-            if self.scaler:
-                X = self.scaler.transform(X)
-            probs = self.classifier.predict_proba(X)[0]
+            if scaler:
+                X = scaler.transform(X)
+            probs = clf.predict_proba(X)[0]
             idx = int(np.argmax(probs))
             label = DECISION_LABELS[idx]
             confidence = float(probs[idx])
@@ -78,18 +82,20 @@ class MLService:
 
     # ── Fraud Score ───────────────────────────────────────────────────────
 
-    def fraud_score(self, features: dict) -> float:
+    def fraud_score(self, features: dict, milk_type: str = "cow") -> float:
         """
         Returns anomaly score (higher = more anomalous).
-        IsolationForest score_samples returns negative values;
-        we negate so higher = worse.
         """
-        if self.isolator is None:
+        iso = self.isolators.get(milk_type) or self.isolators.get("cow")
+        scaler = self.scalers.get(milk_type) or self.scalers.get("cow")
+
+        if iso is None:
             return 0.0
         try:
             X = self._build_feature_vector(features)
-            score = float(-self.isolator.score_samples(X)[0])
-            # Normalise roughly to 0–1
+            if scaler:
+                X = scaler.transform(X)
+            score = float(-iso.score_samples(X)[0])
             score = min(max((score + 0.5) / 1.0, 0.0), 1.0)
             return round(score, 4)
         except Exception as e:
@@ -100,7 +106,7 @@ class MLService:
 
     def _build_feature_vector(self, features: dict) -> np.ndarray:
         row = []
-        for col in FEATURE_COLUMNS:
+        for col in FEATURE_COLS:
             row.append(float(features.get(col) or 0.0))
         return np.array(row).reshape(1, -1)
 
@@ -115,4 +121,4 @@ class MLService:
         return out
 
     def models_ready(self) -> bool:
-        return self.classifier is not None and self.isolator is not None
+        return len(self.classifiers) > 0 and len(self.isolators) > 0

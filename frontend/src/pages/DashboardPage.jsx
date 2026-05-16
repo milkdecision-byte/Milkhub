@@ -1,444 +1,633 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend,
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line
 } from 'recharts'
 import {
-  TrendingUp, CheckCircle2, XCircle, Users, Activity, 
-  Calendar, RefreshCcw, CloudOff, History, Thermometer,
-  Droplets, Zap, ShieldCheck, Microscope, Clock, BarChart3,
-  ArrowUpRight, ArrowDownRight, Sparkles, ChevronRight,
-  Monitor, Database, Info, FlaskConical
+  TrendingUp, TrendingDown, CheckCircle2, XCircle, 
+  Activity, Calendar, Clock, ArrowUpRight, ArrowDownRight,
+  FlaskConical, Thermometer, Droplets, Zap, ShieldCheck,
+  Microscope, Info, ChevronRight, MoreHorizontal, Search,
+  Filter, Download, LayoutGrid, List, Sun, Moon, ChevronDown
 } from 'lucide-react'
 import api from '../utils/api'
 import { useTheme } from '../context/ThemeContext'
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-const todayISO = () => new Date().toISOString().split('T')[0]
-
-function StatCard({ label, value, icon: Icon, gradient, chartColor }) {
-  return (
-    <motion.div 
-      whileHover={{ y: -8, shadow: '0 30px 60px -12px rgba(124, 58, 237, 0.15)' }}
-      className="card-premium p-8 relative overflow-hidden group border-transparent transition-all duration-500 h-[280px] flex flex-col justify-between"
-    >
-      <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br ${gradient}`} />
-      
-      <div className="relative z-10">
-        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${gradient} text-white shadow-xl shadow-purple-500/20 group-hover:scale-110 transition-transform duration-500 mb-8`}>
-          <Icon size={28} />
-        </div>
-        
-        <div className="space-y-1">
-          <p className="text-[11px] font-bold text-purple-900/40 dark:text-white/60 uppercase tracking-[0.2em] leading-none">{label}</p>
-          <h3 className="text-4xl font-bold text-[#1E1B4B] dark:text-white tracking-tighter leading-none">{value}</h3>
-        </div>
-      </div>
-
-      <div className="h-16 w-full mt-auto relative z-10 pt-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={[{v:10},{v:18},{v:14},{v:22},{v:18},{v:28}]}>
-            <defs>
-              <linearGradient id={`gradient-${label.replace(/\s+/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={chartColor} stopOpacity={0.4}/>
-                <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <Area 
-              type="monotone" 
-              dataKey="v" 
-              stroke={chartColor} 
-              fill={`url(#gradient-${label.replace(/\s+/g, '-')})`} 
-              strokeWidth={3} 
-              dot={false}
-              isAnimationActive={true}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className={`absolute -right-10 -bottom-10 w-32 h-32 rounded-full blur-3xl opacity-10 bg-gradient-to-br ${gradient}`} />
-    </motion.div>
-  )
-}
-
-// ── Main Component ────────────────────────────────────────────────────────────
+// --- Main Dashboard ---
 
 export default function DashboardPage() {
   const { theme } = useTheme()
-  const [viewMode, setViewMode] = useState('realtime') 
-  const [historyDate, setHistoryDate] = useState(todayISO())
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [refreshing, setRefreshing] = useState(false)
+  const [activeTrendShift, setActiveTrendShift] = useState('fullDay') // morning, evening, fullDay
 
-  const fetchDashboard = useCallback(async (isAuto = false) => {
-    if (!isAuto) setLoading(true)
-    else setRefreshing(true)
+  const fetchDashboard = useCallback(async () => {
+    setLoading(true)
     try {
-      const endpoint = viewMode === 'realtime' ? '/dashboard/today' : `/dashboard?date=${historyDate}`
-      const res = await api.get(endpoint)
+      const res = await api.get('/dashboard/today')
       setData(res.data)
       setError(null)
     } catch (err) {
       setError('System connection error. Please verify network status.')
     } finally {
       setLoading(false)
-      setRefreshing(false)
     }
-  }, [viewMode, historyDate])
+  }, [])
 
   useEffect(() => {
     fetchDashboard()
   }, [fetchDashboard])
 
   if (loading && !data) return (
-    <div className="flex flex-col items-center justify-center h-[60vh] gap-6">
-      <div className="w-20 h-20 rounded-3xl border-4 border-[#7C3AED] border-t-transparent animate-spin relative">
-        <div className="absolute inset-0 border-4 border-orange-400 border-b-transparent rounded-3xl animate-spin-slow" />
-      </div>
-      <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest animate-pulse">Loading Data</p>
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm font-semibold text-blue-600 animate-pulse">Syncing Analytics...</p>
     </div>
   )
 
   const stats = data?.kpis || {}
   const records = data?.records || []
-  
-  // Exact Scientific Formatting for Parameters
-  const radarData = [
-    { subject: 'Fat (%)', A: stats.avg_fat || 3.5 },
-    { subject: 'SNF (%)', A: stats.avg_snf || 8.2 },
-    { subject: 'pH', A: stats.avg_ph || 6.7 },
-    { subject: 'Temperature (°C)', A: stats.avg_temp || 4.2 },
-    { subject: 'Specific Gravity', A: stats.avg_gravity || 1.028 },
-    { subject: 'Acidity (% LA)', A: stats.avg_acidity || 0.14 },
-  ]
+
+  // Dynamic Trend Data from backend filtered by shift
+  const trendData = data?.daily_trend?.length > 0 
+    ? data.daily_trend.map(d => {
+        let acc = 0, rej = 0
+        if (activeTrendShift === 'morning') {
+          acc = d.morning_acc; rej = d.morning_rej
+        } else if (activeTrendShift === 'evening') {
+          acc = d.evening_acc; rej = d.evening_rej
+        } else {
+          acc = d.total_acc; rej = d.total_rej
+        }
+        return {
+          name: d.date.split('-').slice(1).join('/'), 
+          collection: acc,
+          rejected: rej
+        }
+      })
+    : [
+        { name: '06:00', collection: 0, rejected: 0 },
+        { name: '12:00', collection: 0, rejected: 0 },
+        { name: '18:00', collection: 0, rejected: 0 },
+      ]
 
   const donutData = [
-    { name: 'Accepted', value: stats.accepted || 0, color: '#7C3AED' },
-    { name: 'Rejected', value: stats.rejected || 0, color: '#F97316' },
+    { name: 'Accepted', value: stats.accepted || 0, color: '#2563eb' },
+    { name: 'Rejected', value: stats.rejected || 0, color: '#ef4444' },
   ]
 
+  // Dynamic AI Insight Logic
+  const insights = [
+    {
+      title: stats.morning_qty > stats.evening_qty ? "Morning Surge" : "Evening Surge",
+      desc: `Today's ${stats.morning_qty > stats.evening_qty ? 'morning' : 'evening'} collection (${Math.max(stats.morning_qty, stats.evening_qty)}L) is leading the daily volume.`,
+      type: 'info',
+      icon: Info,
+      color: 'blue'
+    },
+    {
+      title: stats.rejected > 0 ? "Quality Alert" : "Quality Stable",
+      desc: stats.rejected > 0 
+        ? `${stats.rejected} samples were rejected today. Main issues: ${stats.avg_temp > 10 ? 'High Temp' : 'Standard variance'}.`
+        : "All processed samples today meet the set quality standards. No immediate action required.",
+      type: stats.rejected > 0 ? 'warning' : 'success',
+      icon: stats.rejected > 0 ? Activity : ShieldCheck,
+      color: stats.rejected > 0 ? 'orange' : 'emerald'
+    },
+    {
+      title: "Efficiency Insight",
+      desc: `Current acceptance rate is ${Math.round((stats.accepted / (stats.total || 1)) * 100)}%. System throughput is optimal.`,
+      type: 'system',
+      icon: Zap,
+      color: 'indigo'
+    }
+  ]
+
+  const handleExport = () => {
+    if (!records || records.length === 0) {
+      alert('No data to export')
+      return
+    }
+    
+    const headers = ['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']
+    const csvData = records.map(r => [
+      r.id || '',
+      r.farmer_name || '',
+      r.quantity || '',
+      r.fat || '',
+      r.snf || '',
+      r.decision || '',
+      r.date || ''
+    ])
+    
+    const csvContent = [headers, ...csvData].map(e => e.join(',')).join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'milk_collection_report.csv')
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
-    <div className="space-y-10 pb-20 overflow-x-hidden max-w-full">
-      
-      {/* ── Header Control Hub ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-7 space-y-2">
-          <div className="flex items-center gap-3 mb-4">
-            {/* Stream Sync UI removed */}
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#1E1B4B] dark:text-white tracking-tight leading-[1.05] py-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-            IVRI Milk <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#F97316]">Management Hub</span>
-          </h1>
+    <div className="space-y-6 pb-12">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Analytics Overview</h1>
+          <p className="text-sm text-[var(--text-muted)]">Real-time monitoring of milk collection and quality parameters.</p>
         </div>
-
-        <div className="lg:col-span-5">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card-premium p-6 border-[#C4B5FD]/20 shadow-2xl relative overflow-hidden group h-full"
-          >
-            <div className="flex items-center justify-between mb-6 relative z-10">
-              <div className="flex items-center gap-3">
-                <div className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 flex items-center gap-2 ${viewMode === 'realtime' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-purple-500/10 text-purple-600 border-purple-500/20'}`}>
-                  <span className={`w-2 h-2 rounded-full ${viewMode === 'realtime' ? 'bg-emerald-500' : 'bg-purple-500'}`} />
-                  {viewMode === 'realtime' ? 'Real-time Records' : 'Batch History'}
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F5F3FF] dark:bg-white/5 border border-[#C4B5FD]/30 text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest">
-                  <Activity size={10} /> System Connected
-                </div>
-              </div>
-              <div className="text-[10px] font-bold text-[#7C3AED]/40 uppercase tracking-widest">
-                ID: HUB-{viewMode.toUpperCase()}-01
-              </div>
-            </div>
-
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">
-                  {viewMode === 'realtime' ? 'Live Quality Check' : 'Daily Record Review'}
-                </h2>
-                <p className="text-[11px] text-purple-900/40 dark:text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                  {viewMode === 'realtime' 
-                    ? 'Tracking milk quality samples from active collection centers.' 
-                    : `Reviewing quality records for the selected date: ${historyDate}`}
-                </p>
-                <div className="flex items-center gap-4 mt-6">
-                  <div className="px-4 py-2 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                    <FlaskConical size={14} className="text-emerald-500" /> Laboratory System Connected
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="flex bg-[#F5F3FF] dark:bg-white/5 p-1 rounded-2xl border border-[#C4B5FD]/20 shadow-inner">
-                  <button 
-                    onClick={() => setViewMode('realtime')}
-                    className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-500 ${viewMode === 'realtime' ? 'bg-white dark:bg-white/10 text-orange-600 shadow-lg shadow-orange-500/10' : 'text-purple-400 hover:text-purple-600'}`}
-                  >
-                    <Monitor size={14} className="inline mr-2" /> Live
-                  </button>
-                  <button 
-                    onClick={() => setViewMode('history')}
-                    className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all duration-500 ${viewMode === 'history' ? 'bg-white dark:bg-white/10 text-orange-600 shadow-lg shadow-orange-500/10' : 'text-purple-400 hover:text-purple-600'}`}
-                  >
-                    <Database size={14} className="inline mr-2" /> Audit
-                  </button>
-                </div>
-                {viewMode === 'history' && (
-                  <motion.input 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    type="date" 
-                    value={historyDate}
-                    onChange={e => setHistoryDate(e.target.value)}
-                    className="w-full bg-[#F5F3FF] dark:bg-slate-900/60 border border-[#C4B5FD]/40 rounded-xl text-[10px] font-bold text-[#7C3AED] px-4 py-2.5 focus:ring-4 focus:ring-orange-500/5 outline-none transition-all cursor-pointer"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700">
-              <Monitor size={120} className="text-[#7C3AED]" />
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* ── KPI Grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 lg:gap-8">
-        <StatCard label="Total Samples" value={stats.total || 0} icon={Activity} gradient="from-[#7C3AED] to-[#8B5CF6]" chartColor="#7C3AED" />
-        <StatCard label="Accepted Samples" value={stats.accepted || 0} icon={ShieldCheck} gradient="from-[#10B981] to-[#34D399]" chartColor="#10B981" />
-        <StatCard label="Rejected Samples" value={stats.rejected || 0} icon={XCircle} gradient="from-[#F43F5E] to-[#FB7185]" chartColor="#F43F5E" />
-        <StatCard label="Morning Collection" value={`${stats.morning_qty || 0}L`} icon={Sparkles} gradient="from-[#F97316] to-[#FDBA74]" chartColor="#F97316" />
-        <StatCard label="Evening Collection" value={`${stats.evening_qty || 0}L`} icon={Droplets} gradient="from-[#8B5CF6] to-[#C4B5FD]" chartColor="#8B5CF6" />
-        <StatCard label="Active Farmers" value={data?.farmer_count || 0} icon={Users} gradient="from-[#4F46E5] to-[#6366F1]" chartColor="#4F46E5" />
-      </div>
-
-      {/* ── Main Analytics ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        
-        {/* Molecular Analysis (Radar) - REDESIGNED */}
-        <div className="card-premium p-10 lg:col-span-1 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between mb-10">
-            <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-[#7C3AED] shadow-[0_0_15px_rgba(124,58,237,0.5)]" /> Milk Quality Analysis
-            </h3>
-            <Microscope size={20} className="text-[#7C3AED]/40" />
-          </div>
-          
-          <div className="h-[340px] w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart 
-                cx="50%" 
-                cy="50%" 
-                outerRadius="65%" 
-                data={radarData}
-                margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
-              >
-                <PolarGrid stroke={theme === 'dark' ? 'rgba(139, 92, 246, 0.2)' : 'rgba(124, 58, 237, 0.15)'} />
-                <PolarAngleAxis 
-                  dataKey="subject" 
-                  tick={{ 
-                    fill: theme === 'dark' ? '#CBD5E1' : '#4C1D95', 
-                    fontSize: window.innerWidth < 640 ? 8 : 10, 
-                    fontWeight: 900,
-                    letterSpacing: '0.02em'
-                  }} 
-                />
-                <Radar 
-                  name="Parameters" 
-                  dataKey="A" 
-                  stroke="#7C3AED" 
-                  strokeWidth={2}
-                  fill="#8B5CF6" 
-                  fillOpacity={0.15} 
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Compact Scientific Stat Grid */}
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            {radarData.map((item, idx) => (
-              <div key={idx} className="flex flex-col gap-1.5 p-4 rounded-2xl bg-[#F5F3FF] dark:bg-white/5 border border-[#C4B5FD]/20 group hover:border-[#7C3AED]/40 transition-all duration-300 min-h-[72px] justify-center">
-                <span className="text-[9px] font-black text-purple-900/40 dark:text-slate-400 uppercase tracking-widest leading-none truncate">
-                  {item.subject}
-                </span>
-                <span className="text-lg font-black text-[#7C3AED] dark:text-white leading-none">
-                  {item.A}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Decision Metrics (Donut) */}
-        <div className="card-premium p-10 lg:col-span-1 overflow-hidden">
-          <div className="flex items-center justify-between mb-10">
-            <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]" /> Decision Metrics
-            </h3>
-            <BarChart3 size={20} className="text-orange-400/40" />
-          </div>
-          <div className="h-[320px] w-full relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={donutData} innerRadius={85} outerRadius={115} paddingAngle={8} dataKey="value">
-                  {donutData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ background: '#1E1B4B', border: 'none', borderRadius: 20, padding: '16px 20px', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}
-                  itemStyle={{ color: '#F8FAFC', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-5xl font-bold text-[#1E1B4B] dark:text-white">{Math.round((stats.accepted / (stats.total || 1)) * 100)}%</p>
-              <p className="text-[10px] font-bold text-[#7C3AED]/60 uppercase tracking-[0.2em] mt-2">Quality Index</p>
-            </div>
-          </div>
-          <div className="mt-10 space-y-3">
-            {donutData.map(d => (
-              <div key={d.name} className="flex items-center justify-between p-4 rounded-2xl hover:bg-[#F5F3FF] dark:hover:bg-white/5 transition-all duration-500 border border-transparent hover:border-[#C4B5FD]/20">
-                <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 rounded-full shadow-lg shadow-black/5" style={{ backgroundColor: d.color }} />
-                  <span className="text-xs font-bold text-[#1E1B4B]/80 dark:text-slate-300 uppercase tracking-widest">{d.name}</span>
-                </div>
-                <span className="text-sm font-bold text-[#1E1B4B] dark:text-white">{d.value} Samples</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quality Overview (Summary) */}
-        <div className="card-premium p-10 lg:col-span-1 overflow-hidden">
-          <div className="flex items-center justify-between mb-10">
-            <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-[#8B5CF6] shadow-[0_0_15px_rgba(139,92,246,0.5)]" /> Quality Overview
-            </h3>
-            <Zap size={20} className="text-purple-400/40" />
-          </div>
-          <div className="space-y-6">
-            {[
-              { p: 'Fat (%)', v: stats.avg_fat, r: '3.5%', s: 'Optimal', c: 'text-[#7C3AED]' },
-              { p: 'SNF (%)', v: stats.avg_snf, r: '8.5%', s: 'Balanced', c: 'text-orange-500' },
-              { p: 'pH', v: stats.avg_ph, r: '6.7', s: 'Normal', c: 'text-purple-600' },
-              { p: 'Acidity (% LA)', v: stats.avg_acidity, r: '0.14', s: 'Scientific', c: 'text-rose-500' },
-              { p: 'Temperature (°C)', v: stats.avg_temp, r: '4.2°C', s: 'Controlled', c: 'text-indigo-600' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between group">
-                <div>
-                  <p className="text-sm font-bold text-[#1E1B4B] dark:text-white mb-1">{item.p}</p>
-                  <p className="text-[10px] font-bold text-[#7C3AED]/40 dark:text-lavender/60 uppercase tracking-widest">Baseline: {item.r}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`text-lg font-bold ${item.c}`}>{item.v || '—'}</p>
-                  <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full">{item.s}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-10 py-4 rounded-[1.5rem] bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40 hover:-translate-y-1 transition-all duration-500">
-            Export Global Insights
+        <div className="flex items-center gap-3">
+          <button className="btn-pro border border-[var(--border-light)] bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <Calendar size={18} />
+            <span>Today</span>
+          </button>
+          <button onClick={handleExport} className="btn-pro btn-pro-primary">
+            <Download size={18} />
+            <span>Export Report</span>
           </button>
         </div>
       </div>
 
-      {/* ── Records Section ── */}
-      <div className="space-y-8">
-        <div className="flex items-center justify-between px-4">
-          <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-4">
-            <span className="w-4 h-4 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Milk Collection Records
-          </h3>
-          <NavLink to="/records" className="group flex items-center gap-3 text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest hover:text-orange-500 transition-all">
-            Full Records <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </NavLink>
+      {/* Overview Cards Grid */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8 pb-10"
+      >
+        {/* Premium Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8">
+          <OverviewCard 
+            title="Morning Collection" 
+            total={stats.morning_qty} 
+            accepted={stats.morning_acc_qty} 
+            rejected={stats.morning_rej_qty} 
+            acceptance={Math.round((stats.morning_acc_qty / (stats.morning_qty || 1)) * 100)}
+            icon={Sun} 
+            color="orange"
+            trendData={trendData.map(d => ({ value: d.collection }))}
+          />
+          <OverviewCard 
+            title="Evening Collection" 
+            total={stats.evening_qty} 
+            accepted={stats.evening_acc_qty} 
+            rejected={stats.evening_rej_qty} 
+            acceptance={Math.round((stats.evening_acc_qty / (stats.evening_qty || 1)) * 100)}
+            icon={Moon} 
+            color="purple"
+            trendData={trendData.map(d => ({ value: d.collection }))}
+          />
+          <OverviewCard 
+            title="Full Day Collection" 
+            total={stats.total_qty || (stats.morning_qty + stats.evening_qty)} 
+            accepted={stats.morning_acc_qty + stats.evening_acc_qty} 
+            rejected={stats.morning_rej_qty + stats.evening_rej_qty} 
+            acceptance={Math.round(((stats.morning_acc_qty + stats.evening_acc_qty) / (stats.total_qty || 1)) * 100)}
+            icon={Activity} 
+            color="indigo"
+            trendData={trendData.map(d => ({ value: d.collection }))}
+          />
         </div>
 
-        <div className="card-premium overflow-hidden">
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                  <th className="table-header-enterprise">Farmer Details</th>
-                  <th className="table-header-enterprise">Shift Details</th>
-                  <th className="table-header-enterprise text-center">Milk Parameters</th>
-                  <th className="table-header-enterprise text-right">Quantity (L)</th>
-                  <th className="table-header-enterprise text-right">Quality Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
-                {records.slice(0, 10).map((r, i) => (
-                  <tr key={i} className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-all duration-300 group">
-                    <td className="px-8 py-7">
-                      <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-[#7C3AED] transition-colors">{r.farmer_name}</p>
-                      <p className="text-[10px] font-bold text-[#7C3AED]/40 dark:text-lavender/60 uppercase tracking-widest mt-1">Reg: {r.farmer_code}</p>
-                    </td>
-                    <td className="px-8 py-7">
-                      <span className={`status-pill ${r.shift === 'Morning' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-purple-500/10 text-purple-600 border-purple-500/20'}`}>
-                        {r.shift} Node
-                      </span>
-                    </td>
-                    <td className="px-8 py-7">
-                      <div className="flex items-center justify-center gap-10">
-                        <div className="text-center">
-                          <p className="text-[9px] font-bold text-[#7C3AED]/40 dark:text-lavender/80 uppercase mb-1">Fat (%)</p>
-                          <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{r.fat}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[9px] font-bold text-[#7C3AED]/40 dark:text-lavender/80 uppercase mb-1">SNF (%)</p>
-                          <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{r.snf}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[9px] font-bold text-[#7C3AED]/40 dark:text-lavender/80 uppercase mb-1">pH</p>
-                          <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{r.ph}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-7 text-right">
-                      <p className="text-lg font-bold text-[#1E1B4B] dark:text-white">{r.quantity}</p>
-                    </td>
-                    <td className="px-8 py-7 text-right">
-                      <div className="flex justify-end">
-                        <span className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 ${r.status === 'Accepted' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-lg shadow-emerald-500/5' : 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5'}`}>
-                          {r.status === 'Accepted' ? 'ACCEPTED' : 'REJECTED'}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Analytics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Milk Collection Trend */}
+          <div 
+            className="lg:col-span-7 card-pro p-4 md:p-8 flex flex-col h-[300px] md:h-[450px]"
+            style={{ backgroundImage: 'linear-gradient(135deg, #eff6ff, #dbeafe)' }}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+              <div>
+                <h3 className="text-lg md:text-xl font-black tracking-tight">Milk Collection Trend</h3>
+                <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Shift-wise volume analytics</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex p-1.5 bg-indigo-50/50 dark:bg-slate-800 rounded-2xl border border-indigo-100/50 dark:border-indigo-500/10">
+                  <button 
+                    onClick={() => setActiveTrendShift('morning')}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'morning' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                  >
+                    Morning
+                  </button>
+                  <button 
+                    onClick={() => setActiveTrendShift('evening')}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'evening' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                  >
+                    Evening
+                  </button>
+                  <button 
+                    onClick={() => setActiveTrendShift('fullDay')}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'fullDay' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                  >
+                    Full Day
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6 mb-8 text-[10px] font-black uppercase tracking-[0.2em]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-3.5 h-3.5 rounded-full bg-gradient-emerald glow-emerald" />
+                <span className="text-emerald-500">Accepted (L)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-3.5 h-3.5 rounded-full bg-gradient-orange glow-orange" />
+                <span className="text-rose-500">Rejected (L)</span>
+              </div>
+            </div>
+
+            <div className="flex-1 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData}>
+                  <defs>
+                    <linearGradient id="colorAcc" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorRej" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#1e293b' : '#f1f5f9'} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: theme === 'dark' ? '#0f172a' : '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                    itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                  />
+                  <Area type="monotone" dataKey="collection" stroke="#22C55E" strokeWidth={3} fillOpacity={0.1} fill="url(#colorAcc)" />
+                  <Area type="monotone" dataKey="rejected" stroke="#EF4444" strokeWidth={3} fillOpacity={0.1} fill="url(#colorRej)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
+
+          {/* Acceptance Overview */}
+          <div 
+            className="lg:col-span-5 card-pro p-4 md:p-8 flex flex-col h-[300px] md:h-[450px] relative overflow-hidden"
+            style={{ backgroundImage: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' }}
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[80px] rounded-full" />
+            <h3 className="text-lg md:text-xl font-black tracking-tight mb-8">Acceptance Overview</h3>
+            
+            <div className="flex-1 flex flex-col md:flex-row items-center gap-8">
+              <div className="w-full md:w-1/2 h-[220px] relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={donutData} innerRadius={70} outerRadius={95} paddingAngle={8} dataKey="value" stroke="none">
+                      <Cell fill="url(#gradEmerald)" />
+                      <Cell fill="url(#gradOrange)" />
+                    </Pie>
+                    <defs>
+                      <linearGradient id="gradEmerald" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#34d399" />
+                      </linearGradient>
+                      <linearGradient id="gradOrange" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#ef4444" />
+                        <stop offset="100%" stopColor="#fb7185" />
+                      </linearGradient>
+                    </defs>
+                    <RechartsTooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-4xl font-black tracking-tighter text-indigo-600 dark:text-indigo-400">
+                    {Math.round((stats.accepted / (stats.total || 1)) * 100)}%
+                  </span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Accepted</span>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full space-y-6">
+                <div className="p-4 rounded-2xl bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-500/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Accepted Milk</span>
+                    <span className="text-sm font-black text-emerald-600">{stats.accepted || 0} L</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(stats.accepted / (stats.total || 1)) * 100}%` }}
+                      className="h-full bg-gradient-emerald"
+                    />
+                  </div>
+                </div>
+                <div className="p-4 rounded-2xl bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-500/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Rejected Milk</span>
+                    <span className="text-sm font-black text-rose-600">{stats.rejected || 0} L</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(stats.rejected / (stats.total || 1)) * 100}%` }}
+                      className="h-full bg-gradient-orange"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between px-2 pt-2">
+                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Collection</span>
+                  <span className="text-lg font-black text-indigo-600 dark:text-indigo-400 whitespace-nowrap">{stats.total || 0} L</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quality Parameters Row */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-purple flex items-center justify-center text-white glow-purple">
+                <ShieldCheck size={22} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-xl font-black tracking-tight">Milk Quality Standards</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time laboratory parameters</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-6">
+            <ParameterCard 
+              label="Fat (%)" value={stats.avg_fat || 0} 
+              range={`${data?.standards?.fat?.min}-${data?.standards?.fat?.max}`} 
+              status={stats.avg_fat < (data?.standards?.fat?.min || 3.2) ? 'Critical' : 'Optimal'}
+              icon={Droplets} color="amber"
+            />
+            <ParameterCard 
+              label="SNF (%)" value={stats.avg_snf || 0} 
+              range={`${data?.standards?.snf?.min}-${data?.standards?.snf?.max}`} 
+              status={stats.avg_snf < (data?.standards?.snf?.min || 8.0) ? 'Critical' : 'Optimal'}
+              icon={Activity} color="blue"
+            />
+            <ParameterCard 
+              label="pH" value={stats.avg_ph || 0} 
+              range={`${data?.standards?.ph?.min}-${data?.standards?.ph?.max}`} 
+              status={(stats.avg_ph < (data?.standards?.ph?.min || 6.5) || stats.avg_ph > (data?.standards?.ph?.max || 6.8)) ? 'Warning' : 'Optimal'}
+              icon={FlaskConical} color="indigo"
+            />
+            <ParameterCard 
+              label="MBRT (hrs)" value={stats.avg_mbrt || 0} 
+              range={`> ${data?.standards?.mbrt?.min || 3.0}`} 
+              status={stats.avg_mbrt < (data?.standards?.mbrt?.min || 3.0) ? 'Critical' : 'Optimal'}
+              icon={Clock} color="emerald"
+            />
+            <ParameterCard 
+              label="Gravity" value={stats.avg_gravity || 0} 
+              range={`${data?.standards?.gravity?.min}-${data?.standards?.gravity?.max}`} 
+              status={(stats.avg_gravity < (data?.standards?.gravity?.min || 1.028) || stats.avg_gravity > (data?.standards?.gravity?.max || 1.032)) ? 'Critical' : 'Optimal'}
+              icon={Microscope} color="blue"
+            />
+            <ParameterCard 
+              label="Acidity" value={stats.avg_acidity || 0} 
+              range={`< ${data?.standards?.acidity?.max || 0.16}`} 
+              status={stats.avg_acidity > (data?.standards?.acidity?.max || 0.16) ? 'Warning' : 'Optimal'}
+              icon={Zap} color="rose"
+            />
+            <ParameterCard 
+              label="Temp (°C)" value={stats.avg_temp || 0} 
+              range={`< ${data?.standards?.temp?.max || 10.0}`} 
+              status={stats.avg_temp > (data?.standards?.temp?.max || 10.0) ? 'Critical' : 'Optimal'}
+              icon={Thermometer} color="orange"
+            />
+          </div>
+        </div>
+
+        {/* Bottom Grid: Records & AI */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Recent Records */}
+          <div className="lg:col-span-8 card-pro flex flex-col">
+            <div className="p-4 md:p-8 border-b border-indigo-50 dark:border-indigo-500/10 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg md:text-xl font-black tracking-tight">Recent Collection Records</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Live sampling data</p>
+              </div>
+              <button 
+                onClick={() => navigate('/records')}
+                className="px-5 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-wider hover:scale-105 transition-all"
+              >
+                View Full History
+              </button>
+            </div>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left">
+                <thead>
+                  <tr>
+                    <th className="table-header-pro">ID</th>
+                    <th className="table-header-pro">Farmer</th>
+                    <th className="table-header-pro text-right">Qty</th>
+                    <th className="table-header-pro text-center">Quality</th>
+                    <th className="table-header-pro text-center">Status</th>
+                    <th className="table-header-pro text-right">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-indigo-50 dark:divide-indigo-500/10">
+                  {records.slice(0, 8).map((r, i) => (
+                    <tr key={i} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                      <td className="px-6 py-5">
+                        <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <p className="text-sm font-black tracking-tight">{r.farmer_name}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                      </td>
+                      <td className="px-6 py-5 text-right font-black text-indigo-600 dark:text-indigo-400">{r.quantity}L</td>
+                      <td className="px-6 py-5 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[11px] font-black text-slate-700 dark:text-slate-300">Fat: {r.fat}%</span>
+                          <span className="text-[10px] font-bold text-slate-400">SNF: {r.snf}%</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <span className={`status-badge mx-auto ${r.decision === 'accept' ? 'status-badge-success' : 'status-badge-error'}`}>
+                          {r.decision === 'accept' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                          {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* AI Insights Panel */}
+          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-gradient-to-b from-indigo-500/5 to-transparent">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-lg md:text-xl font-black tracking-tight">AI Insights</h3>
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white glow-indigo">
+                <Zap size={20} fill="currentColor" />
+              </div>
+            </div>
+            <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2">
+              {insights.map((insight, idx) => {
+                const Icon = insight.icon
+                const gradients = {
+                  emerald: 'from-emerald-50 to-emerald-100/50 dark:from-emerald-900/10 dark:to-emerald-800/10 border-emerald-200/50 dark:border-emerald-500/10 text-emerald-600',
+                  indigo: 'from-indigo-50 to-indigo-100/50 dark:from-indigo-900/10 dark:to-indigo-800/10 border-indigo-200/50 dark:border-indigo-500/10 text-indigo-600',
+                  rose: 'from-rose-50 to-rose-100/50 dark:from-rose-900/10 dark:to-rose-800/10 border-rose-200/50 dark:border-rose-500/10 text-rose-600',
+                  orange: 'from-orange-50 to-orange-100/50 dark:from-orange-900/10 dark:to-orange-800/10 border-orange-200/50 dark:border-orange-500/10 text-orange-600',
+                }
+                const g = gradients[insight.color] || gradients.indigo
+                return (
+                  <div key={idx} className={`p-5 rounded-2xl bg-gradient-to-br border ${g} transition-all duration-300 hover:scale-[1.02]`}>
+                    <div className="flex gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm shrink-0">
+                        <Icon size={20} strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs font-black uppercase tracking-wider">{insight.title}</p>
+                          <span className="text-[9px] font-black opacity-60">09:30 AM</span>
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed">{insight.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <button className="mt-8 btn-pro btn-pro-primary py-4 rounded-[20px] text-[11px] uppercase tracking-[0.2em]">
+              View All Intelligence Logs
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+const OverviewCard = ({ title, total, accepted, rejected, acceptance, icon: Icon, color, trendData }) => {
+  const colors = {
+    indigo: { 
+      grad: 'from-indigo-500 to-indigo-600', 
+      soft: 'bg-indigo-50/50 dark:bg-indigo-900/10',
+      text: 'text-indigo-600 dark:text-indigo-400',
+      glow: 'glow-indigo'
+    },
+    orange: { 
+      grad: 'from-orange-500 to-coral-500', 
+      soft: 'bg-orange-50/50 dark:bg-orange-900/10',
+      text: 'text-orange-600 dark:text-orange-400',
+      glow: 'glow-orange'
+    },
+    purple: { 
+      grad: 'from-purple-500 to-pink-500', 
+      soft: 'bg-purple-50/50 dark:bg-purple-900/10',
+      text: 'text-purple-600 dark:text-purple-400',
+      glow: 'glow-purple'
+    },
+  }
+  const c = colors[color] || colors.indigo
+
+  return (
+    <div 
+      className="card-pro group p-8 flex flex-col gap-6 relative overflow-hidden"
+      style={{ backgroundImage: `linear-gradient(135deg, ${color === 'orange' ? '#fff7ed, #ffedd5' : color === 'purple' ? '#f5f3ff, #ede9fe' : '#eff6ff, #dbeafe'})` }}
+    >
+      <div className={`absolute -top-10 -right-10 w-32 h-32 ${c.soft} blur-[60px] rounded-full group-hover:scale-150 transition-transform duration-700`} />
+      
+      <div className="flex items-start justify-between relative z-10">
+        <div className={`w-12 h-12 rounded-full ${color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'purple' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+          <Icon size={24} strokeWidth={2.5} />
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
+          <h2 className={`text-3xl font-black tracking-tighter ${c.text}`}>{(total || 0).toLocaleString()}L</h2>
         </div>
       </div>
 
-      {/* ── Footer Analytics Strip ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[
-          { l: 'Farmer Registry', v: '124 Validated', icon: Users, g: 'from-purple-500 to-indigo-600' },
-          { l: 'Accuracy Level', v: '100% Validated', icon: Activity, g: 'from-emerald-400 to-teal-500' },
-          { l: 'System Status', v: 'Online', icon: Zap, g: 'from-blue-400 to-indigo-500' },
-          { l: 'Data Verification', v: 'Verified', icon: ShieldCheck, g: 'from-indigo-400 to-purple-500' },
-        ].map((item, i) => (
-          <div key={i} className="card-premium p-8 flex items-center gap-6 border-dashed hover:border-purple-600/20 group transition-all duration-500">
-            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.g} flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500 shadow-xl`}>
-              <item.icon size={22} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[#7C3AED]/40 tracking-widest mb-1">{item.l}</p>
-              <p className="text-base font-bold text-[#1E1B4B] dark:text-white">{item.v}</p>
-            </div>
+      <div className="grid grid-cols-2 gap-6 relative z-10">
+        <div>
+          <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Accepted</p>
+          <p className="text-base font-black tracking-tight text-emerald-600">{(accepted || 0).toLocaleString()} L</p>
+        </div>
+        <div>
+          <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">Rejected</p>
+          <p className="text-base font-black tracking-tight text-rose-600">{(rejected || 0).toLocaleString()} L</p>
+        </div>
+      </div>
+
+      <div className="pt-6 border-t border-indigo-50 dark:border-indigo-500/10 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+            <TrendingUp size={18} strokeWidth={2.5} />
           </div>
-        ))}
+          <div>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Acceptance</p>
+            <p className="text-sm font-black text-emerald-500">{acceptance}%</p>
+          </div>
+        </div>
+        <div className="w-24 h-10 opacity-50 group-hover:opacity-100 transition-opacity">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={trendData}>
+              <Area type="monotone" dataKey="value" stroke={color === 'orange' ? '#f97316' : color === 'purple' ? '#a855f7' : '#6366f1'} strokeWidth={2} fill="transparent" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
+  const statusColors = {
+    Optimal: 'from-emerald-500 to-mint-500 shadow-emerald-500/20 text-emerald-500',
+    Warning: 'from-orange-500 to-coral-500 shadow-orange-500/20 text-orange-500',
+    Critical: 'from-rose-500 to-pink-500 shadow-rose-500/20 text-rose-500',
+  }
+  const colorMap = {
+    amber: 'text-orange-500',
+    blue: 'text-blue-500',
+    indigo: 'text-indigo-500',
+    emerald: 'text-emerald-500',
+    rose: 'text-rose-500',
+    orange: 'text-orange-500'
+  }
+  
+  const gradientMap = {
+    'fat (%)': 'linear-gradient(135deg, #fff7ed, #ffedd5)',
+    'snf (%)': 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+    'ph': 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+    'mbrt (hrs)': 'linear-gradient(135deg, #ecfeff, #cffafe)',
+    'gravity': 'linear-gradient(135deg, #f0fdfa, #ccfbf1)',
+    'acidity': 'linear-gradient(135deg, #fef2f2, #fee2e2)',
+    'temp (°c)': 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
+  }
+
+  return (
+    <div 
+      className="card-pro group p-5 flex flex-col items-center gap-4 hover:border-indigo-500/30"
+      style={{ backgroundImage: gradientMap[label.toLowerCase()] || 'none' }}
+    >
+      <div className={`w-12 h-12 rounded-2xl bg-white/50 dark:bg-white/10 flex items-center justify-center ${colorMap[color]} group-hover:scale-110 transition-transform duration-300`}>
+        <Icon size={24} strokeWidth={2.5} />
+      </div>
+      <div className="text-center">
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+        <h4 className={`text-lg font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
+      </div>
+      <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center">
+          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Normal Range</span>
+          <span className="text-[10px] font-black text-indigo-500">{range}</span>
+        </div>
+        <div className={`status-badge ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>
+          {status}
+        </div>
       </div>
     </div>
   )

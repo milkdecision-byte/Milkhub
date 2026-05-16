@@ -80,6 +80,7 @@ def upload():
         uploaded_by=uid
     )
     preview_mode = request.form.get("preview") == "true"
+    milk_type = request.form.get("milk_type", "cow").lower()
     if not preview_mode:
         db.session.add(upload_batch)
 
@@ -99,12 +100,18 @@ def upload():
             raw_milk_temp=row.get("raw_milk_temp"),
             quantity=row.get("quantity"),
         )
-        result = engine.evaluate(sample)
+        result = engine.evaluate(sample, milk_type=milk_type)
 
         ml_pred, ml_conf = "unknown", 0.0
+        anomaly_score = 0.0
         if ml_svc:
             enc = MLService.encode_categorical(row)
-            ml_pred, ml_conf = ml_svc.predict_decision(enc)
+            ml_pred, ml_conf = ml_svc.predict_decision(enc, milk_type=milk_type)
+            anomaly_score = ml_svc.fraud_score(enc, milk_type=milk_type)
+
+        # Hybrid: scientific rules always override ML
+        final_decision = result.decision
+        confidence_score = ml_conf if ml_pred == final_decision else max(0.0, ml_conf - 0.15)
 
         record_date = _parse_date(row.get("date")) or dt_date.today()
         shift = row.get("shift", "morning")
@@ -126,11 +133,14 @@ def upload():
             organoleptic=sample.organoleptic, sediment_test=sample.sediment_test,
             mbrt=sample.mbrt, raw_milk_temp=sample.raw_milk_temp,
             quantity=sample.quantity,
-            decision=result.decision,
+            decision=final_decision,
             reasons=result.reasons,
             fraud_risk=result.fraud_risk,
             ml_prediction=ml_pred,
             ml_confidence=ml_conf,
+            milk_type=milk_type,
+            model_version="2.0-hybrid",
+            ml_score=confidence_score,
             entry_type="upload",
             upload_type=upload_type,
             session_name=session_name,
@@ -138,13 +148,13 @@ def upload():
         )
         if not preview_mode:
             db.session.add(rec)
-            _update_farmer_stats(farmer_id, result.decision, result.fraud_risk, sample.fat, sample.snf, sample.quantity)
+            _update_farmer_stats(farmer_id, final_decision, result.fraud_risk, sample.fat, sample.snf, sample.quantity)
 
-        if result.decision == "accept":
+        if final_decision == "accept":
             accepted += 1
-        elif result.decision == "reject":
+        elif final_decision == "reject":
             rejected += 1
-        elif result.decision == "partial":
+        elif final_decision == "partial":
             partial += 1
             
         if result.fraud_risk in ("medium", "high"):

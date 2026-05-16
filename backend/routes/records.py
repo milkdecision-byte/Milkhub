@@ -57,7 +57,12 @@ def get_records():
 
     if batch_id:
         q = q.filter(MilkRecord.batch_id == batch_id)
-    if date_from:
+    if date_from and not date_to:
+        try:
+            q = q.filter(MilkRecord.date == datetime.strptime(date_from, "%Y-%m-%d").date())
+        except ValueError:
+            pass
+    elif date_from:
         try:
             q = q.filter(MilkRecord.date >= datetime.strptime(date_from, "%Y-%m-%d").date())
         except ValueError:
@@ -159,6 +164,17 @@ def _build_dashboard_response(base_q, target_date, shift, batch_id, data_source=
         func.sum(db.case((MilkRecord.fraud_risk == "medium", 1), else_=0)).label("fraud_medium"),
         func.sum(db.case((MilkRecord.shift == "morning", MilkRecord.quantity), else_=0)).label("morning_qty"),
         func.sum(db.case((MilkRecord.shift == "evening", MilkRecord.quantity), else_=0)).label("evening_qty"),
+        func.sum(db.case((and_(MilkRecord.shift == "morning", MilkRecord.decision == "accept"), MilkRecord.quantity), else_=0)).label("morning_acc_qty"),
+        func.sum(db.case((and_(MilkRecord.shift == "morning", MilkRecord.decision == "reject"), MilkRecord.quantity), else_=0)).label("morning_rej_qty"),
+        func.sum(db.case((and_(MilkRecord.shift == "evening", MilkRecord.decision == "accept"), MilkRecord.quantity), else_=0)).label("evening_acc_qty"),
+        func.sum(db.case((and_(MilkRecord.shift == "evening", MilkRecord.decision == "reject"), MilkRecord.quantity), else_=0)).label("evening_rej_qty"),
+        func.avg(MilkRecord.fat).label("avg_fat"),
+        func.avg(MilkRecord.snf).label("avg_snf"),
+        func.avg(MilkRecord.ph).label("avg_ph"),
+        func.avg(MilkRecord.specific_gravity).label("avg_gravity"),
+        func.avg(MilkRecord.acidity).label("avg_acidity"),
+        func.avg(MilkRecord.temperature).label("avg_temp"),
+        func.avg(MilkRecord.mbrt).label("avg_mbrt"),
     ).filter(MilkRecord.id.in_(base_ids_q)).one()
 
     total        = agg.total or 0
@@ -170,27 +186,34 @@ def _build_dashboard_response(base_q, target_date, shift, batch_id, data_source=
     evening_qty  = float(agg.evening_qty or 0)
 
     # 30-day trend — always based on created_at date for accuracy
-    trend_q = db.session.query(
+    trend_rows = db.session.query(
         func.cast(MilkRecord.created_at, db.Date).label("rec_date"),
-        MilkRecord.decision,
-        func.count(MilkRecord.id).label("cnt"),
+        func.sum(db.case((and_(MilkRecord.shift == "morning", MilkRecord.decision == "accept"), MilkRecord.quantity), else_=0)).label("m_acc"),
+        func.sum(db.case((and_(MilkRecord.shift == "morning", MilkRecord.decision == "reject"), MilkRecord.quantity), else_=0)).label("m_rej"),
+        func.sum(db.case((and_(MilkRecord.shift == "evening", MilkRecord.decision == "accept"), MilkRecord.quantity), else_=0)).label("e_acc"),
+        func.sum(db.case((and_(MilkRecord.shift == "evening", MilkRecord.decision == "reject"), MilkRecord.quantity), else_=0)).label("e_rej"),
+        func.sum(db.case((MilkRecord.decision == "accept", MilkRecord.quantity), else_=0)).label("total_acc"),
+        func.sum(db.case((MilkRecord.decision == "reject", MilkRecord.quantity), else_=0)).label("total_rej"),
     ).filter(
         func.cast(MilkRecord.created_at, db.Date) >= thirty_ago,
         func.cast(MilkRecord.created_at, db.Date) <= target_date
-    )
-    if shift and shift not in ("fullday", "full day", "all", "") and not batch_id:
-        trend_q = trend_q.filter(MilkRecord.shift == shift)
-    daily_rows = trend_q.group_by(
-        func.cast(MilkRecord.created_at, db.Date), MilkRecord.decision
-    ).all()
+    ).group_by(func.cast(MilkRecord.created_at, db.Date)).all()
 
-    daily_map: dict = {}
-    for row in daily_rows:
-        key = str(row.rec_date)
-        if key not in daily_map:
-            daily_map[key] = {"date": key, "accept": 0, "reject": 0}
-        daily_map[key][row.decision] = row.cnt
-    daily_trend = sorted(daily_map.values(), key=lambda x: x["date"])
+    daily_trend = [
+        {
+            "date": str(row.rec_date),
+            "morning_acc": float(row.m_acc or 0),
+            "morning_rej": float(row.m_rej or 0),
+            "evening_acc": float(row.e_acc or 0),
+            "evening_rej": float(row.e_rej or 0),
+            "total_acc": float(row.total_acc or 0),
+            "total_rej": float(row.total_rej or 0),
+        }
+        for row in trend_rows
+    ]
+
+    # Records for table
+    records_list = [r.to_dict() for r in base_q.order_by(MilkRecord.created_at.desc()).limit(10).all()]
 
     # Top farmers
     top_farmers = db.session.query(
@@ -244,12 +267,33 @@ def _build_dashboard_response(base_q, target_date, shift, batch_id, data_source=
             "fraud_medium": fraud_medium,
             "morning_qty": morning_qty,
             "evening_qty": evening_qty,
+            "morning_acc_qty": float(agg.morning_acc_qty or 0),
+            "morning_rej_qty": float(agg.morning_rej_qty or 0),
+            "evening_acc_qty": float(agg.evening_acc_qty or 0),
+            "evening_rej_qty": float(agg.evening_rej_qty or 0),
+            "avg_fat": round(float(agg.avg_fat or 0), 2),
+            "avg_snf": round(float(agg.avg_snf or 0), 2),
+            "avg_ph": round(float(agg.avg_ph or 0), 2),
+            "avg_gravity": round(float(agg.avg_gravity or 0), 3),
+            "avg_acidity": round(float(agg.avg_acidity or 0), 2),
+            "avg_temp": round(float(agg.avg_temp or 0), 1),
+            "avg_mbrt": round(float(agg.avg_mbrt or 0), 1),
         },
         "daily_trend": daily_trend,
+        "records": records_list,
         "top_farmers": top_farmers_list,
         "shift_comparison": shift_map,
         "accept_rate": round(accepted / total * 100, 1) if total else 0,
         "reject_rate": round(rejected / total * 100, 1) if total else 0,
+        "standards": {
+            "fat": {"min": 3.2, "max": 4.5},
+            "snf": {"min": 8.0, "max": 9.0},
+            "ph": {"min": 6.5, "max": 6.8},
+            "mbrt": {"min": 3.0},
+            "gravity": {"min": 1.028, "max": 1.032},
+            "acidity": {"min": 0.12, "max": 0.16},
+            "temp": {"max": 10.0}
+        }
     }
 
 
@@ -339,8 +383,16 @@ def list_farmers():
     q = q.order_by(Farmer.registered_at.desc())
     paginated = q.paginate(page=page, per_page=per_page, error_out=False)
 
+    from sqlalchemy import func
+    farmers_list = []
+    for f in paginated.items:
+        d = f.to_dict()
+        total_qty = db.session.query(func.sum(MilkRecord.quantity)).filter(MilkRecord.farmer_id == f.id).scalar()
+        d["total_liters"] = float(total_qty) if total_qty else 0.0
+        farmers_list.append(d)
+
     return jsonify({
-        "farmers": [f.to_dict() for f in paginated.items],
+        "farmers": farmers_list,
         "total": paginated.total,
         "pages": paginated.pages,
     }), 200

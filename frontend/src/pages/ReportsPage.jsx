@@ -19,7 +19,7 @@ function StatMiniCard({ label, value, icon: Icon, colorClass }) {
       </div>
       <div>
         <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-1">{label}</p>
-        <p className="text-2xl font-bold text-[#1E1B4B] dark:text-white tracking-tighter">{value.toLocaleString()}</p>
+        <p className="text-2xl font-bold text-[#1E1B4B] tracking-tighter">{value.toLocaleString()}</p>
       </div>
     </div>
   )
@@ -70,10 +70,23 @@ export default function ReportsPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
 
+  const displayedRecords = records.filter(r => !filters.date_from || r.date === filters.date_from)
+
   const fetchReportsData = useCallback(async () => {
     setLoading(true)
+    setRecords([]) // Clear previous state
+    setSummary(null)
     try {
       const activeFilters = Object.fromEntries(Object.entries(filters).filter(([,v]) => v))
+      
+      if (activeFilters.date_from && new Date(activeFilters.date_from) > new Date()) {
+        toast.error('Future dates are unavailable')
+        setLoading(false)
+        setRecords([])
+        setSummary(null)
+        return
+      }
+
       const [sumRes, recRes] = await Promise.all([
         api.get('/records/summary', { params: activeFilters }),
         api.get('/records', { params: { ...activeFilters, page, per_page: 20 } })
@@ -93,6 +106,10 @@ export default function ReportsPage() {
   }, [fetchReportsData])
 
   const downloadReport = async (key, path) => {
+    if (!records || records.length === 0) {
+      toast.error('No valid data exists for export')
+      return
+    }
     setLoadingKey(key)
     try {
       const params = new URLSearchParams(Object.fromEntries(Object.entries(filters).filter(([,v]) => v)))
@@ -168,8 +185,9 @@ export default function ReportsPage() {
             <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Date Selection</label>
             <input 
               type="date" 
-              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
+              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
               value={filters.date_from}
+              max={new Date().toISOString().split('T')[0]}
               onChange={e => setFilter('date_from', e.target.value)}
             />
           </div>
@@ -178,7 +196,7 @@ export default function ReportsPage() {
           <div className="space-y-3">
             <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Quality Result</label>
             <select 
-              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.decision}
               onChange={e => setFilter('decision', e.target.value)}
             >
@@ -192,7 +210,7 @@ export default function ReportsPage() {
           <div className="space-y-3">
             <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Risk Level</label>
             <select 
-              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.fraud_risk}
               onChange={e => setFilter('fraud_risk', e.target.value)}
             >
@@ -208,7 +226,7 @@ export default function ReportsPage() {
           <div className="space-y-3">
             <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Entry Source</label>
             <select 
-              className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/30 px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 dark:text-white outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.session}
               onChange={e => setFilter('session', e.target.value)}
             >
@@ -236,20 +254,20 @@ export default function ReportsPage() {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1800px]">
             <thead>
-              <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                <th className="px-6 py-6 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest sticky left-0 bg-[#F5F3FF] dark:bg-black/60 z-20">Provider Entity</th>
-                <th className="table-header-enterprise">Registry ID</th>
-                <th className="table-header-enterprise">Date / Time</th>
-                <th className="table-header-enterprise">Fat (%)</th>
-                <th className="table-header-enterprise">SNF (%)</th>
-                <th className="table-header-enterprise">pH</th>
-                <th className="table-header-enterprise">Acidity (% LA)</th>
-                <th className="table-header-enterprise">Temp (°C)</th>
-                <th className="table-header-enterprise">Specific Gravity</th>
-                <th className="table-header-enterprise">COB Test</th>
-                <th className="table-header-enterprise">MBRT (min)</th>
-                <th className="table-header-enterprise">Quality Result</th>
-                <th className="table-header-enterprise text-right pr-10">Risk Status</th>
+              <tr className="bg-[#1E1B4B] text-white border-b border-[#C4B5FD]/20">
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest sticky left-0 bg-[#1E1B4B] z-20">Provider Entity</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Registry ID</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Date / Time</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Fat (%)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">SNF (%)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">pH</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Acidity (% LA)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Temp (°C)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Specific Gravity</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">COB Test</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">MBRT (min)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Quality Result</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-right pr-10">Risk Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
@@ -260,17 +278,17 @@ export default function ReportsPage() {
                     <p className="text-[11px] font-bold text-purple-400 uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
                   </td>
                 </tr>
-              ) : records.length === 0 ? (
+              ) : displayedRecords.length === 0 ? (
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
                     <Database size={64} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
-                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records found for selected date</h3>
+                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records available for selected date</h3>
                     <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
                   </td>
                 </tr>
-              ) : records.map((r, i) => (
+              ) : displayedRecords.map((r, i) => (
                 <tr key={r.id} className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-colors group">
-                  <td className="px-6 py-5 sticky left-0 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md z-10">
+                  <td className="px-6 py-5 sticky left-0 bg-white dark:bg-[#111827] z-10">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-lg shadow-purple-500/20">
                         {r.farmer_name?.[0]}
@@ -281,23 +299,23 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-[11px] font-bold text-purple-900/60 dark:text-slate-200 uppercase tracking-widest">{r.farmer_code || '---'}</td>
+                  <td className="px-6 py-5 text-[11px] font-bold text-slate-700 uppercase tracking-widest">{r.farmer_code || '---'}</td>
                   <td className="px-6 py-5">
                     <p className="text-xs font-bold text-[#1E1B4B] dark:text-white">{r.date}</p>
                     <p className="text-[10px] font-bold text-purple-400 dark:text-purple-300 uppercase tracking-widest">{r.shift}</p>
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.fat?.toFixed(2)}</td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.snf?.toFixed(2)}</td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.ph?.toFixed(2)}</td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.acidity?.toFixed(3)}</td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.temperature?.toFixed(1)}</td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.specific_gravity?.toFixed(4)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.fat?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.snf?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.ph?.toFixed(2)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.acidity?.toFixed(3)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.temperature?.toFixed(1)}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.specific_gravity?.toFixed(4)}</td>
                   <td className="px-6 py-5">
                     <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg border ${r.cob_test === 'positive' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}>
                       {r.cob_test}
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-sm font-bold text-slate-700 dark:text-white">{r.mbrt || '---'}</td>
+                  <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.mbrt || '---'}</td>
                   <td className="px-6 py-5">
                     <div className="flex flex-col gap-1">
                         <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg text-center ${r.decision === 'accept' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>

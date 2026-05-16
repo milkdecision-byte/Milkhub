@@ -82,7 +82,7 @@ export default function LoginPage() {
           <h1 className={`text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-none ${textHeading}`} style={{ fontFamily: "'Clash Display', sans-serif" }}>
             IVRI Milk <br />
             <span className="bg-gradient-to-r from-purple-700 to-purple-500 dark:from-purple-500 dark:to-purple-400 bg-clip-text text-transparent italic">Quality</span> <br />
-            <span className="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-400 bg-clip-text text-transparent">Hub</span>
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Hub</span>
           </h1>
 
         </motion.div>
@@ -94,10 +94,10 @@ export default function LoginPage() {
           className="w-full lg:w-[380px]"
         >
           <div className="bg-white/40 dark:bg-white/[0.03] backdrop-blur-[40px] p-6 sm:p-8 lg:p-10 rounded-[2.5rem] sm:rounded-[3rem] border border-white/40 dark:border-white/10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] dark:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-orange-500 opacity-30" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-blue-600 opacity-30" />
             
               <div className="mb-6 sm:mb-8 text-center">
-                <h2 className={`text-2xl sm:text-3xl font-black ${textHeading} mb-1 tracking-tight italic`}>Admin Login</h2>
+                <h2 className={`text-2xl sm:text-3xl font-black ${textHeading} mb-1 tracking-tight italic`} style={{ fontFamily: "'Outfit', sans-serif" }}>Admin Login</h2>
                 <p className={`text-[9px] font-black ${theme === 'dark' ? 'text-white/40' : 'text-[#1E1B4B]'} uppercase tracking-widest`}>LOGIN TO THE MILK QUALITY HUB</p>
               </div>
 
@@ -115,12 +115,12 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className={`text-[10px] font-black ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
+                <label className={`text-[10px] font-black ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
                   <Lock size={12} /> Password
                 </label>
                 <div className="relative group">
                   <input
-                    className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-orange-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-orange-600/10 outline-none transition-all text-sm tracking-widest shadow-sm`}
+                    className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-blue-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all text-sm tracking-widest shadow-sm`}
                     type={showPass ? 'text' : 'password'}
                     placeholder="Enter Admin Password"
                     value={form.password}
@@ -139,7 +139,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-4 bg-gradient-to-r from-[#7C3AED] to-[#F97316] text-white py-4 rounded-[1.2rem] font-bold text-[10px] uppercase tracking-[0.3em] shadow-2xl shadow-purple-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative overflow-hidden group border-none"
+                className="w-full mt-4 bg-gradient-to-r from-[#1E1B4B] to-[#7C3AED] text-white py-4 rounded-[1.2rem] font-bold text-[10px] uppercase tracking-[0.3em] shadow-2xl shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative overflow-hidden group border-none"
               >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 {loading ? <Loader2 size={16} className="animate-spin" /> : <ChevronRight size={16} />}

@@ -86,13 +86,11 @@ export default function FarmersPage() {
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                <th className="table-header-enterprise">Farmer Name</th>
+                <th className="table-header-enterprise text-center">Farmer Name</th>
                 <th className="table-header-enterprise">Farmer ID</th>
-                <th className="table-header-enterprise">Village/Area</th>
-                <th className="table-header-enterprise">Total Collections</th>
+                <th className="table-header-enterprise text-center">Area</th>
                 <th className="table-header-enterprise text-center">Quality History</th>
-                <th className="table-header-enterprise">Risk Status</th>
-                <th className="table-header-enterprise text-right">View</th>
+                <th className="table-header-enterprise text-center">View</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
@@ -116,7 +114,7 @@ export default function FarmersPage() {
                   onClick={() => navigate(`/farmers/${f.id}`)}
                 >
                   <td className="px-8 py-7">
-                    <div className="flex items-center gap-5">
+                    <div className="flex items-center justify-center gap-5">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-lg shadow-purple-900/20 group-hover:scale-110 transition-transform">
                         {f.full_name[0]?.toUpperCase()}
                       </div>
@@ -127,11 +125,10 @@ export default function FarmersPage() {
                     </div>
                   </td>
                   <td className="px-8 py-7 text-purple-900/50 dark:text-slate-400 font-mono text-[11px] font-bold tracking-tighter">{f.farmer_code}</td>
-                  <td className="px-8 py-7 text-purple-900/60 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
-                    <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Other Area'}
-                  </td>
-                  <td className="px-8 py-7">
-                    <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{f.total_submissions} <span className="text-[10px] font-bold text-purple-400 uppercase ml-1">Units</span></p>
+                  <td className="px-8 py-7 text-purple-900/60 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+                    <div className="flex items-center justify-center gap-2">
+                      <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Other Area'}
+                    </div>
                   </td>
                   <td className="px-8 py-7">
                     <div className="flex items-center justify-center gap-4">
@@ -160,14 +157,9 @@ export default function FarmersPage() {
                       </div>
                     </div>
                   </td>
+
                   <td className="px-8 py-7">
-                    {f.fraud_flag
-                      ? <span className="flex items-center gap-2 text-rose-600 text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-500/20 shadow-sm animate-pulse"><UserX size={14} /> High Alert</span>
-                      : <span className="flex items-center gap-2 text-emerald-600 text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 shadow-sm"><UserCheck size={14} /> Verified</span>
-                    }
-                  </td>
-                  <td className="px-8 py-7 text-right">
-                    <div className="flex items-center justify-end gap-4">
+                    <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={(e) => handleDelete(e, f.id, f.full_name)}
                         className="p-3 rounded-xl text-purple-300 hover:text-rose-600 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"

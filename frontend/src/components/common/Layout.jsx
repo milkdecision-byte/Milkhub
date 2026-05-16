@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Upload, ClipboardEdit, FileText,
   Users, BarChart3, Settings, LogOut, Menu, X,
-  Droplets, ChevronRight, Sun, Moon, History, Calendar,
-  Sparkles
+  Search, Bell, Clock, Calendar, Sun, Moon,
+  History, User, ChevronDown, Plus
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -25,242 +25,234 @@ const NAV = [
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState(new Date())
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Handle window resize
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
-      if (mobile) {
-        setSidebarOpen(false)
-      } else {
-        setSidebarOpen(window.innerWidth > 1280) // Auto open on large screens
-      }
+      if (mobile) setSidebarOpen(false)
+      else setSidebarOpen(true)
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Close sidebar on mobile when route changes
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false)
-    }
-  }, [location.pathname, isMobile])
-
   const handleLogout = async () => {
     await logout()
-    toast.success('Session Terminated')
+    toast.success('Logged out successfully')
     navigate('/login')
   }
 
-  const sidebarWidth = isMobile ? 260 : (sidebarOpen ? 280 : 80)
-
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F5F3FF] dark:bg-[#030712] transition-colors duration-500">
-      {/* Mobile Backdrop Overlay */}
-      <AnimatePresence>
-        {isMobile && sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-[#4C1D95]/40 backdrop-blur-md z-[60] lg:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ── Sidebar Component ── */}
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-main)]">
+      {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{
-          width: sidebarWidth,
-          x: (isMobile && !sidebarOpen) ? -sidebarWidth : 0,
-        }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className={`
-          fixed inset-y-0 left-0 lg:relative z-[70] 
-          flex flex-col premium-sidebar-bg
-          border-r border-white/10 shadow-2xl lg:shadow-none 
-          transition-colors duration-500 overflow-hidden
-        `}
+        animate={{ width: sidebarOpen ? 280 : (isMobile ? 0 : 80) }}
+        className={`fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-[#071B4A] to-[#0B2C78] text-white flex flex-col transition-all duration-500 overflow-hidden ${isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}`}
       >
-        {/* Logo Section */}
-        <div className="flex items-center gap-4 px-6 py-10 border-b border-white/10 min-h-[100px] flex-shrink-0">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-900/20 border border-white/20 group cursor-pointer overflow-hidden">
-            <Droplets size={26} className="text-white group-hover:scale-125 transition-transform duration-500" />
+        {/* Logo */}
+        <div className="h-24 flex items-center px-8">
+          <div className="w-12 h-12 rounded-2xl bg-[#071B4A] border border-[#2563EB]/30 flex items-center justify-center text-white shadow-xl shadow-blue-500/10 backdrop-blur-xl group hover:scale-105 transition-all duration-500">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-500">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="url(#logo-drop-grad)" />
+              <path d="M2 14h3l2-4 2.5 8 2.5-6 2 2h6" stroke="url(#logo-pulse-grad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" className="animate-pulse" />
+              <defs>
+                <linearGradient id="logo-drop-grad" x1="12" y1="2.69" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#2563EB" />
+                  <stop offset="1" stopColor="#7C3AED" />
+                </linearGradient>
+                <linearGradient id="logo-pulse-grad" x1="2" y1="14" x2="22" y2="14" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#06B6D4" />
+                  <stop offset="0.5" stopColor="#7C3AED" />
+                  <stop offset="1" stopColor="#06B6D4" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
-          <AnimatePresence mode="wait">
-            {(sidebarOpen || isMobile) && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="overflow-hidden whitespace-nowrap"
-              >
-                <p className="text-2xl font-bold text-white tracking-tight font-heading">Milkhub</p>
-                <p className="text-[9px] text-orange-300 font-bold tracking-[0.4em] uppercase opacity-90">Milk Monitoring</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Navigation Menu */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-8 px-4 custom-scrollbar space-y-3">
-          {NAV.map((item) => {
-            const isActive = location.pathname === item.to
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `
-                  group flex items-center h-14 rounded-2xl transition-all duration-300 relative overflow-hidden
-                  ${sidebarOpen || isMobile ? 'px-4 gap-4' : 'justify-center'}
-                  ${isActive 
-                    ? 'premium-active-menu text-white' 
-                    : 'text-white/60 hover:text-white hover:bg-white/10'}
-                `}
-                title={!sidebarOpen && !isMobile ? item.label : ''}
-              >
-                <div className={`flex items-center justify-center flex-shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
-                  <item.icon size={22} className={`${isActive ? 'text-white' : 'text-white/40 group-hover:text-white'}`} />
-                </div>
-                
-                <AnimatePresence>
-                  {(sidebarOpen || isMobile) && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      className="text-sm font-bold tracking-wide whitespace-nowrap"
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-
-                {isActive && (
-                  <motion.div 
-                    layoutId="activeGlow" 
-                    className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-50"
-                  />
-                )}
-              </NavLink>
-            )
-          })}
-        </nav>
-
-        {/* User Module */}
-        <div className="p-4 mt-auto bg-black/10 backdrop-blur-xl border-t border-white/10">
-          <div className={`flex items-center gap-4 mb-4 ${sidebarOpen || isMobile ? 'px-2' : 'justify-center'}`}>
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-600 flex items-center justify-center text-white font-bold shadow-xl border border-white/20 flex-shrink-0 group cursor-help overflow-hidden">
-              <span className="group-hover:scale-125 transition-transform duration-500">{user?.username?.charAt(0).toUpperCase() || 'U'}</span>
+          {sidebarOpen && (
+            <div className="ml-4 overflow-hidden">
+              <span className="block font-black text-2xl tracking-tighter bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-transparent bg-clip-text leading-none">IVRI Milk</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-white/70 mt-1 block">Management Hub</span>
             </div>
-            <AnimatePresence>
-              {(sidebarOpen || isMobile) && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="overflow-hidden min-w-0"
-                >
-                  <p className="text-sm font-bold text-white truncate">{user?.username || 'Operator'}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                    <p className="text-[10px] text-purple-200/60 font-bold uppercase tracking-widest">System Active</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className={`
-              w-full flex items-center h-12 rounded-xl transition-all duration-300 group
-              ${sidebarOpen || isMobile ? 'px-4 gap-4' : 'justify-center'}
-              text-purple-200/60 hover:text-white hover:bg-white/10
-            `}
-            title={!sidebarOpen && !isMobile ? 'Logout' : ''}
-          >
-            <LogOut size={20} className="flex-shrink-0 group-hover:-translate-x-1 transition-transform" />
-            <AnimatePresence>
-              {(sidebarOpen || isMobile) && (
-                <motion.span
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="text-[10px] font-bold tracking-[0.2em] uppercase"
-                >
-                  Terminate
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
+          )}
         </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `sidebar-nav-item group ${isActive ? 'active' : ''} ${!sidebarOpen && !isMobile ? 'justify-center px-0' : ''}`}
+              title={!sidebarOpen ? item.label : ''}
+            >
+              <div className={`p-2 rounded-xl transition-all duration-300 ${sidebarOpen ? '' : 'group-hover:scale-110'}`}>
+                <item.icon size={22} strokeWidth={2.5} className="flex-shrink-0" />
+              </div>
+              {(sidebarOpen || isMobile) && <span className="tracking-tight">{item.label}</span>}
+            </NavLink>
+          ))}
+        </nav>
       </motion.aside>
 
-      {/* ── Main Viewport ── */}
-      <div className="flex-1 flex flex-col overflow-hidden relative min-w-0">
-        {/* Superior Topbar */}
-        <header className="h-[100px] flex items-center gap-6 px-6 sm:px-10 bg-white/40 dark:bg-[#020617]/40 backdrop-blur-xl z-30 border-b border-[#C4B5FD]/20">
-          <button
-            onClick={() => setSidebarOpen(p => !p)}
-            className="flex items-center justify-center w-12 h-12 text-[#7C3AED] hover:text-orange-500 transition-all bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-[#C4B5FD]/30 group"
-          >
-            {sidebarOpen ? <X size={20} className="group-hover:rotate-90 transition-transform duration-300" /> : <Menu size={20} className="group-hover:scale-110 transition-transform" />}
-          </button>
+      {/* Main Content */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-500 ${!isMobile ? (sidebarOpen ? 'ml-[280px]' : 'ml-[80px]') : ''}`}>
+        {/* Header */}
+        <header className="h-20 glass sticky top-0 z-40 flex items-center justify-between px-4 md:px-8 mx-0 md:mx-6 my-0 md:my-4 rounded-none md:rounded-3xl">
+          <div className="flex items-center gap-6 flex-1">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:scale-105 active:scale-95 transition-all shadow-sm"
+            >
+              <Menu size={22} strokeWidth={2.5} />
+            </button>
 
-          <div className="flex-1 flex items-center justify-between min-w-0">
-            <div className="min-w-0">
-              <h2 className="text-2xl font-bold text-[#1E1B4B] dark:text-white truncate tracking-tight">
-                Milk Quality <span className="text-[#7C3AED]">Monitor</span>
-              </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <Sparkles size={12} className="text-orange-400" />
-                <span className="text-[10px] font-bold text-[#7C3AED]/60 uppercase tracking-[0.2em]">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-                </span>
+            {/* Search Bar */}
+            <div className="hidden md:flex items-center max-w-md w-full relative group">
+              <Search size={18} strokeWidth={2.5} className="absolute left-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search analytics, farmers..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    navigate(`/records?search=${e.target.value}`)
+                    toast.success(`Searching for: ${e.target.value}`)
+                  }
+                }}
+                className="w-full pl-12 pr-4 py-3"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-8">
+            {/* Live Time & Date */}
+            <div className="hidden lg:flex items-center gap-6 px-6 border-x border-indigo-100 dark:border-indigo-500/10 h-10">
+              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                <Clock size={16} strokeWidth={2.5} />
+                <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                <Calendar size={16} strokeWidth={2.5} />
+                <span>{currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-600 shadow-sm uppercase tracking-widest">
-                <span className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)] animate-pulse" />
-                System Active
-              </div>
-              <button
-                onClick={toggleTheme}
-                className="w-12 h-12 flex items-center justify-center rounded-2xl text-[#7C3AED] hover:text-orange-500 bg-white dark:bg-white/5 border border-[#C4B5FD]/30 shadow-sm transition-all duration-300 hover:scale-105 active:scale-95"
+            {/* Action Icons Removed */}
+
+            {/* Admin Profile */}
+            <div className="relative">
+              <button 
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-4 pl-6 border-l border-indigo-100 dark:border-indigo-500/10 h-10 group"
               >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-2xl bg-[#2563EB] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-[#2563EB]/20">
+                    {user?.username?.charAt(0).toUpperCase() || 'A'}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
+                </div>
+                <div className="hidden sm:block text-left">
+                  <p className="text-sm font-black tracking-tight leading-none mb-1">{user?.username || 'Admin'}</p>
+                  <p className="text-[9px] text-indigo-400 font-black uppercase tracking-widest">System Admin</p>
+                </div>
+                <ChevronDown size={16} strokeWidth={2.5} className={`text-indigo-300 transition-transform duration-300 ${profileOpen ? 'rotate-180' : ''}`} />
               </button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setProfileOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                      className="absolute right-0 mt-4 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/10 rounded-3xl shadow-2xl z-20 overflow-hidden p-2"
+                    >
+                      <div className="p-4 border-b border-indigo-50 dark:border-indigo-500/10">
+                        <p className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1">Signed in as</p>
+                        <p className="text-sm font-black truncate text-slate-900 dark:text-white">{user?.email || 'admin@milkhub.ai'}</p>
+                      </div>
+                      <div className="p-1 space-y-1">
+                        <button 
+                          onClick={() => { setProfileOpen(false); navigate('/settings') }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all"
+                        >
+                          <Settings size={18} strokeWidth={2.5} className="text-indigo-400" />
+                          Settings
+                        </button>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-2xl transition-all"
+                        >
+                          <LogOut size={18} strokeWidth={2.5} />
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
 
-        {/* Monitoring Area */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 lg:p-10 custom-scrollbar bg-[#F5F3FF] dark:bg-[#030712] relative">
-          {/* Background Ambient Glow */}
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/10 blur-[120px] rounded-full -mr-40 -mt-40 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-600/10 blur-[120px] rounded-full -ml-40 -mb-40 pointer-events-none" />
-          
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-[1600px] mx-auto w-full relative z-10"
-          >
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-8 pb-24 lg:pb-8 custom-scrollbar">
+          <div className="max-w-7xl mx-auto">
             <Outlet />
-          </motion.div>
+          </div>
         </main>
+      </div>
+
+      {/* Mobile Backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile Bottom Action Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-[var(--border-light)] px-6 py-3 flex items-center justify-between z-50 shadow-lg">
+        <NavLink to="/dashboard" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+          <LayoutDashboard size={22} strokeWidth={2.5} />
+          <span className="text-[10px] font-black uppercase tracking-wider">Dashboard</span>
+        </NavLink>
+        <NavLink to="/upload" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+          <Upload size={22} strokeWidth={2.5} />
+          <span className="text-[10px] font-black uppercase tracking-wider">Upload</span>
+        </NavLink>
+        
+        {/* Central Action Button */}
+        <button 
+          onClick={() => navigate('/manual-entry')}
+          className="flex items-center justify-center w-12 h-12 bg-indigo-600 text-white rounded-full -mt-8 shadow-lg border-4 border-white dark:border-slate-900 glow-indigo"
+        >
+          <Plus size={24} strokeWidth={3} />
+        </button>
+        
+        <NavLink to="/reports" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+          <BarChart3 size={22} strokeWidth={2.5} />
+          <span className="text-[10px] font-black uppercase tracking-wider">Reports</span>
+        </NavLink>
+        <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+          <Settings size={22} strokeWidth={2.5} />
+          <span className="text-[10px] font-black uppercase tracking-wider">Settings</span>
+        </NavLink>
       </div>
     </div>
   )
 }
+

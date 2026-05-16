@@ -42,3 +42,24 @@ def update_settings():
 
     db.session.commit()
     return jsonify({"message": "Settings updated"}), 200
+
+
+@settings_bp.post("/retrain")
+@jwt_required()
+def retrain_models():
+    claims = get_jwt()
+    if claims.get("role") not in ("admin",):
+        return jsonify({"error": "Admin access required"}), 403
+
+    try:
+        from ml.train_models import train
+        train()
+        
+        from flask import current_app
+        ml_svc = current_app.config.get("ML_SERVICE")
+        if ml_svc:
+            ml_svc._load_models()
+            
+        return jsonify({"message": "Models retrained successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Retraining failed: {e}"}), 500

@@ -47,6 +47,7 @@ export default function RecordsPage() {
     decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: initialBatchId
   })
   const [batchesList, setBatchesList] = useState([])
+  const [selectedRecord, setSelectedRecord] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -87,10 +88,11 @@ export default function RecordsPage() {
         </h2>
         <div className="flex items-center gap-4">
           <button 
-            className="btn-commercial btn-commercial-secondary border-[#C4B5FD]/30"
+            className="btn-commercial btn-commercial-secondary border-[#C4B5FD]/30 flex items-center gap-2"
             onClick={() => setFilters({ decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: '' })}
           >
-            <RefreshCcw size={18} /> Reset Filters
+            <RefreshCcw size={18} />
+            <span>Reset Filters</span>
           </button>
         </div>
       </div>
@@ -194,13 +196,13 @@ export default function RecordsPage() {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                <th className="table-header-enterprise">Provider Node</th>
-                <th className="table-header-enterprise">Temporal Node</th>
-                <th className="table-header-enterprise">Metrics (Scientific)</th>
-                <th className="table-header-enterprise text-center">Diagnostics</th>
-                <th className="table-header-enterprise text-right">Operational Result</th>
-                <th className="table-header-enterprise text-right">Audit</th>
+              <tr className="bg-[#F5F3FF] border-b border-[#C4B5FD]/20">
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest">Farmer</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest">ID</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest">Shift</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest text-center">Status</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-purple-900/40 uppercase tracking-widest text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
@@ -220,84 +222,30 @@ export default function RecordsPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02 }}
-                  className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-all duration-300 group"
+                  className="hover:bg-[#F5F3FF]/50 transition-all duration-300 group"
                 >
-                  <td className="px-8 py-7">
-                    <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-purple-700 transition-colors">{r.farmer_name}</p>
-                    <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">Registry ID: {r.farmer_code || 'MILK-HUB-NULL'}</p>
+                  <td className="px-6 py-4 text-sm font-bold text-[#1E1B4B]">
+                    {r.farmer_name}
                   </td>
-                  <td className="px-8 py-7">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2.5 rounded-xl ${r.shift === 'morning' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-purple-500/10 text-purple-600 border-purple-500/20'}`}>
-                        {r.shift === 'morning' ? <Clock size={18} /> : <Moon size={18} />}
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{r.date}</p>
-                        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mt-0.5">{r.shift} Shift</p>
-                      </div>
-                    </div>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {r.farmer_code || '---'}
                   </td>
-                  <td className="px-8 py-7">
-                    <div className="flex items-center gap-10">
-                       <div className="text-center min-w-[50px]">
-                         <p className="text-[9px] font-bold text-purple-400 mb-1.5">Fat (%)</p>
-                         <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{r.fat?.toFixed(2) || '—'}</p>
-                       </div>
-                       <div className="text-center min-w-[50px]">
-                         <p className="text-[9px] font-bold text-purple-400 mb-1.5">SNF (%)</p>
-                         <p className="text-sm font-bold text-[#1E1B4B] dark:text-white">{r.snf?.toFixed(2) || '—'}</p>
-                       </div>
-                       <div className="text-center min-w-[50px]">
-                         <p className="text-[9px] font-bold text-purple-400 mb-1.5">pH</p>
-                         <p className="text-sm font-bold text-orange-500">{r.ph?.toFixed(2) || '—'}</p>
-                       </div>
-                    </div>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {r.date}
                   </td>
-                  <td className="px-8 py-7">
-                    <div className="flex flex-col gap-2 min-w-[140px]">
-                      <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 whitespace-nowrap ${r.cob_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>
-                        COB Test: {r.cob_test || 'negative'}
-                      </span>
-                      <span className={`px-4 py-1.5 rounded-xl text-[9px] font-bold tracking-widest border transition-all duration-500 whitespace-nowrap ${r.alcohol_test === 'positive' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-lg shadow-rose-500/5' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>
-                        Alcohol Test: {r.alcohol_test || 'negative'}
-                      </span>
-                    </div>
+                  <td className="px-6 py-4 text-sm text-gray-500 uppercase">
+                    {r.shift}
                   </td>
-                  <td className="px-8 py-7 text-right">
-                    <div className="flex flex-col items-end gap-2">
-                      <StatusBadge status={r.decision} />
-                      {r.decision === 'reject' && r.reasons && r.reasons.length > 0 && (
-                        <div className="flex flex-col items-end gap-1 mt-1">
-                          {r.reasons.map((reason, idx) => {
-                            let displayReason = reason;
-                            // Dynamic fix for legacy strings to ensure "Original Value" display
-                            if (reason.toUpperCase().includes('ALCOHOL TEST FAIL')) displayReason = `Alcohol Test: ${r.alcohol_test || 'positive'}`;
-                            if (reason.toUpperCase().includes('COB POSITIVE')) displayReason = `COB Test: ${r.cob_test || 'positive'}`;
-                            if (reason.toUpperCase().includes('PH')) displayReason = `pH: ${r.ph?.toFixed(2)}`;
-                            if (reason.toUpperCase().includes('FAT')) displayReason = `Fat: ${r.fat?.toFixed(2)}%`;
-                            if (reason.toUpperCase().includes('SNF')) displayReason = `SNF: ${r.snf?.toFixed(2)}%`;
-                            if (reason.toUpperCase().includes('TEMPERATURE')) displayReason = `Temp: ${r.temperature?.toFixed(1)}°C`;
-                            if (reason.toUpperCase().includes('ACIDITY')) displayReason = `Acidity: ${r.acidity?.toFixed(3)}%`;
-                            if (reason.toUpperCase().includes('DENSITY')) displayReason = `Density: ${r.specific_gravity?.toFixed(4)}`;
-                            
-                            return (
-                              <span key={idx} className="text-[9px] font-bold text-rose-500/70 uppercase tracking-tighter italic bg-rose-500/5 px-2 py-0.5 rounded-md border border-rose-500/10">
-                                {displayReason}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <RiskBadge risk={r.fraud_risk} />
-                    </div>
+                  <td className="px-6 py-4 text-center">
+                    <StatusBadge status={r.decision} />
                   </td>
-                  <td className="px-8 py-7 text-right">
+                  <td className="px-6 py-4 text-center">
                     <button 
-                      onClick={() => navigate(`/farmers/${r.farmer_id}`)}
-                      className="w-12 h-12 flex items-center justify-center rounded-2xl bg-purple-50 dark:bg-white/5 text-purple-400 hover:bg-purple-600 hover:text-white transition-all duration-500 border border-transparent hover:border-purple-200/50 group/eye shadow-sm"
-                      title="View Farmer Details"
+                      onClick={() => setSelectedRecord(r)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white transition-all duration-300 mx-auto"
+                      title="View Audit"
                     >
-                      <Eye size={20} className="group-hover/eye:scale-110 transition-transform" />
+                      <Eye size={18} />
                     </button>
                   </td>
                 </motion.tr>
@@ -346,6 +294,113 @@ export default function RecordsPage() {
           </div>
         )}
       </div>
+      {/* ── View Audit Modal ── */}
+      <AnimatePresence>
+        {selectedRecord && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/50" onClick={() => setSelectedRecord(null)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl shadow-2xl z-10 w-full max-w-2xl overflow-hidden"
+            >
+              <div className="p-8 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#1E1B4B]">Audit Details</h3>
+                    <p className="text-sm text-gray-500">Farmer: {selectedRecord.farmer_name} ({selectedRecord.farmer_code})</p>
+                  </div>
+                  <button onClick={() => setSelectedRecord(null)} className="text-gray-400 hover:text-gray-600">
+                    <XCircle size={24} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-8 grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Date & Time</p>
+                  <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.date} | {selectedRecord.shift} Shift</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
+                  <StatusBadge status={selectedRecord.decision} />
+                </div>
+                
+                <div className="col-span-2 border-t border-gray-100 pt-6">
+                  <h4 className="text-sm font-bold text-[#1E1B4B] mb-4">Scientific Parameters</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Fat</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.fat?.toFixed(2) || '---'}%</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">SNF</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.snf?.toFixed(2) || '---'}%</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">pH</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.ph?.toFixed(2) || '---'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Acidity</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.acidity?.toFixed(3) || '---'}%</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Temp</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.temperature?.toFixed(1) || '---'}°C</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">MBRT</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.mbrt || '---'} min</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Gravity</p>
+                      <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.specific_gravity?.toFixed(4) || '---'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-2 border-t border-gray-100 pt-6">
+                  <h4 className="text-sm font-bold text-[#1E1B4B] mb-4">Qualitative Tests</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Alcohol Test</p>
+                      <p className="text-sm font-bold text-[#1E1B4B] capitalize">{selectedRecord.alcohol_test || '---'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">COB Test</p>
+                      <p className="text-sm font-bold text-[#1E1B4B] capitalize">{selectedRecord.cob_test || '---'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-2 border-t border-gray-100 pt-6">
+                  <h4 className="text-sm font-bold text-[#1E1B4B] mb-4">Diagnostics</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Risk Level</p>
+                      <RiskBadge risk={selectedRecord.fraud_risk} />
+                    </div>
+                    {selectedRecord.reasons && selectedRecord.reasons.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Rejection Reasons</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedRecord.reasons.map((r, idx) => (
+                            <span key={idx} className="text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg border border-rose-100">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

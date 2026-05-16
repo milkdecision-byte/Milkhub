@@ -40,6 +40,7 @@ export default function UploadPage() {
   const [result, setResult] = useState(null)
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [sessionName, setSessionName] = useState('')
+  const [milkType, setMilkType] = useState('cow')
   const navigate = useNavigate()
 
   const onDrop = useCallback(files => {
@@ -71,6 +72,7 @@ export default function UploadPage() {
     setProgress(10)
     const fd = new FormData()
     fd.append('file', file)
+    fd.append('milk_type', milkType)
     if (sessionName) fd.append('session_name', sessionName)
     if (isPreview) fd.append('preview', 'true')
     try {
@@ -130,6 +132,24 @@ export default function UploadPage() {
 
       {!result && (
         <>
+          {/* Milk Type Selector */}
+          <div className="flex gap-6 mb-10">
+            <div 
+              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+              onClick={() => setMilkType('cow')}
+            >
+              <span className="text-3xl">🐄</span>
+              <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Cow Milk</span>
+            </div>
+            <div 
+              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+              onClick={() => setMilkType('buffalo')}
+            >
+              <span className="text-3xl">🐃</span>
+              <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Buffalo Milk</span>
+            </div>
+          </div>
+
           {/* ── Dropzone ── */}
           <motion.div
             {...getRootProps()}
@@ -194,14 +214,14 @@ export default function UploadPage() {
                 <button 
                   onClick={() => executePipeline(true)} 
                   disabled={uploading} 
-                  className="flex-1 btn-commercial btn-commercial-primary py-6 rounded-[2.5rem] shadow-2xl shadow-purple-600/30"
+                  className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
                 >
-                  {uploading ? <Loader2 size={24} className="animate-spin"/> : <Zap size={24}/>}
+                  {uploading ? <Loader2 size={20} className="animate-spin"/> : <Zap size={18}/>}
                   {uploading ? 'Processing Data…' : 'Verify Quality Data'}
                 </button>
                 <button 
                   onClick={() => { setFile(null); setResult(null); setProgress(0); setIsConfirmed(false) }}
-                  className="px-12 rounded-[2.5rem] bg-white dark:bg-white/5 border border-[#C4B5FD]/40 text-purple-500 hover:text-rose-600 hover:bg-rose-500/5 transition-all shadow-lg font-bold uppercase text-[10px] tracking-widest"
+                  className="px-10 py-4 rounded-full bg-white border border-rose-300 text-rose-600 hover:bg-rose-50 transition-all duration-300 font-bold uppercase text-[10px] tracking-widest shadow-sm"
                 >
                   Clear Selection
                 </button>
@@ -344,26 +364,27 @@ export default function UploadPage() {
                 <>
                   <button 
                     onClick={() => { setFile(null); setResult(null); setProgress(0); setIsConfirmed(false) }}
-                    className="px-12 rounded-[2rem] bg-white dark:bg-white/5 border border-[#C4B5FD]/40 text-purple-500 hover:text-rose-600 hover:bg-rose-500/5 transition-all shadow-lg font-bold uppercase text-[10px] tracking-widest"
+                    className="px-10 py-4 rounded-full bg-white border border-rose-300 text-rose-600 hover:bg-rose-50 transition-all duration-300 font-bold uppercase text-[10px] tracking-widest shadow-sm"
                   >
                     Cancel Upload
                   </button>
                   <button 
                     onClick={() => executePipeline(false)} 
                     disabled={uploading}
-                    className="btn-commercial btn-commercial-primary px-14 py-5 shadow-2xl"
+                    className="flex items-center gap-3 bg-[#7C3AED] text-white px-12 py-4 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
                   >
-                    {uploading ? <Loader2 size={20} className="animate-spin"/> : <ShieldCheck size={20}/>}
+                    {uploading ? <Loader2 size={20} className="animate-spin"/> : <ShieldCheck size={18}/>}
                     {uploading ? 'Saving Data…' : 'Save to Records'}
                   </button>
                 </>
               ) : (
                 <button 
                   onClick={() => navigate(`/records?batch_id=${result.batch_id}`)}
-                  className="btn-commercial btn-commercial-primary px-14 py-6 shadow-2xl flex items-center gap-4 group"
+                  className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white px-12 py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all duration-300 group"
                 >
-                  <LayoutDashboard size={22} className="group-hover:rotate-12 transition-transform" />
-                  Access System Ledger <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                  <LayoutDashboard size={20} className="group-hover:rotate-12 transition-transform" />
+                  <span>Access System Ledger</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                 </button>
               )}
             </div>
@@ -394,7 +415,7 @@ export default function UploadPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               {['Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'COB Test', 'MBRT'].map(h => (
-                <span key={h} className="px-5 py-2.5 bg-rose-500/5 text-rose-600 rounded-xl text-[11px] font-bold font-mono border border-rose-500/20 tracking-widest hover:bg-rose-500/10 transition-colors shadow-sm">{h}</span>
+                <span key={h} className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[11px] font-bold font-mono border border-rose-600 tracking-widest hover:bg-rose-600 transition-colors shadow-md shadow-rose-500/10">{h}</span>
               ))}
             </div>
           </div>
@@ -406,7 +427,7 @@ export default function UploadPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Temp', 'Quantity'].map(h => (
-                <span key={h} className="px-5 py-2.5 bg-[#F5F3FF] dark:bg-white/5 text-purple-500 rounded-xl text-[11px] font-bold font-mono border border-[#C4B5FD]/30 tracking-widest hover:border-purple-400 transition-colors shadow-sm">{h}</span>
+                <span key={h} className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-[11px] font-bold font-mono border border-purple-600 tracking-widest hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/10">{h}</span>
               ))}
             </div>
           </div>

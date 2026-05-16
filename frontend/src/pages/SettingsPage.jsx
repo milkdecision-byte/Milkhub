@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Save, RotateCcw, Settings2, ShieldCheck, Thermometer, 
   FlaskConical, Loader2, Database, Activity, ShieldAlert,
-  Droplets, Zap, CheckCircle2, LayoutDashboard, Cog, Microscope
+  Droplets, Zap, CheckCircle2, LayoutDashboard, Cog, Microscope, Sparkles
 } from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
@@ -130,10 +130,30 @@ const DEFAULTS = {
   sediment_pass: 'clean',
 }
 
+const BUFFALO_DEFAULTS = {
+  fat_min: '6.0', fat_max: '8.5',
+  snf_min: '8.5', snf_max: '10.5',
+  ph_min: '6.5', ph_max: '6.9',
+  acidity_min: '0.13', acidity_max: '0.18',
+  temp_ideal: '4', temp_acceptable: '10',
+  raw_milk_temp_min: '25', raw_milk_temp_max: '37',
+  sg_min: '1.028', sg_max: '1.034',
+  mbrt_good: '300', mbrt_check: '240',
+  cob_pass: 'negative',
+  alcohol_pass: 'negative',
+  organoleptic_pass: 'normal',
+  sediment_pass: 'clean',
+}
+
 export default function SettingsPage() {
-  const [settings, setSettings] = useState(DEFAULTS)
+  // Pre-populate both cow defaults and buffalo defaults into initial state
+  const buffaloInit = {}
+  Object.entries(BUFFALO_DEFAULTS).forEach(([k, v]) => { buffaloInit[`buffalo_${k}`] = v })
+  const [settings, setSettings] = useState({ ...DEFAULTS, ...buffaloInit })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState('cow')
+  const [retraining, setRetraining] = useState(false)
 
   useEffect(() => {
     api.get('/settings')
@@ -154,12 +174,40 @@ export default function SettingsPage() {
     }
   }
 
-  const handleReset = () => {
-    setSettings(DEFAULTS)
-    toast('Settings reset to standard values', { icon: '↩️' })
+  const handleRetrain = async () => {
+    setRetraining(true)
+    try {
+      await api.post('/settings/retrain')
+      toast.success('ML Models retrained successfully')
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Retraining failed')
+    } finally {
+      setRetraining(false)
+    }
   }
 
-  const updateField = (k, v) => setSettings(p => ({ ...p, [k]: v }))
+  const handleReset = () => {
+    if (activeTab === 'cow') {
+      setSettings(p => ({ ...p, ...DEFAULTS }))
+    } else if (activeTab === 'buffalo') {
+      const buffSettings = {}
+      Object.entries(BUFFALO_DEFAULTS).forEach(([k, v]) => {
+        buffSettings[`buffalo_${k}`] = v
+      })
+      setSettings(p => ({ ...p, ...buffSettings }))
+    }
+    toast(`Settings reset to standard values for ${activeTab}`, { icon: '↩️' })
+  }
+
+  const updateField = (k, v) => {
+    const key = activeTab === 'buffalo' && k !== 'company_name' && k !== 'fraud_threshold' ? `buffalo_${k}` : k;
+    setSettings(p => ({ ...p, [key]: v }))
+  }
+
+  const getValue = (k) => {
+    const key = activeTab === 'buffalo' && k !== 'company_name' && k !== 'fraud_threshold' ? `buffalo_${k}` : k;
+    return settings[key] ?? (activeTab === 'buffalo' ? BUFFALO_DEFAULTS[k] : DEFAULTS[k]) ?? '';
+  }
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
@@ -187,22 +235,46 @@ export default function SettingsPage() {
           </p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:items-center gap-4 w-full lg:w-auto">
+          <button 
+            onClick={handleRetrain} 
+            disabled={retraining} 
+            className="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg shadow-purple-600/20 flex items-center justify-center gap-3 border-2 border-transparent transition-all w-full lg:w-auto"
+          >
+            {retraining ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+            {retraining ? 'Retraining…' : 'Retrain ML Models'}
+          </button>
           <button 
             onClick={handleReset} 
-            className="btn-commercial bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:text-red-600 flex items-center gap-2"
+            className="px-6 py-3 rounded-xl font-bold text-sm bg-white dark:bg-white/5 border-2 border-slate-200 dark:border-white/10 text-slate-500 hover:text-red-600 flex items-center justify-center gap-3 transition-all w-full lg:w-auto"
           >
             <RotateCcw size={16} /> Reset to Default
           </button>
           <button 
             onClick={handleSave} 
             disabled={saving} 
-            className="btn-commercial bg-blue-600 text-white shadow-lg shadow-blue-600/20 flex items-center gap-3 border-transparent"
+            className="px-6 py-3 rounded-xl font-bold text-sm bg-blue-600 text-white shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 border-2 border-transparent transition-all w-full lg:w-auto"
           >
             {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             {saving ? 'Synchronizing…' : 'Save Settings'}
           </button>
         </div>
+      </div>
+
+      {/* ── Tabs ── */}
+      <div className="grid grid-cols-2 lg:flex gap-4 border-b border-slate-200 dark:border-white/10 pb-4 w-full">
+        <button
+          onClick={() => setActiveTab('cow')}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'cow' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          <span>🐄</span> Cow Standards
+        </button>
+        <button
+          onClick={() => setActiveTab('buffalo')}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'buffalo' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          <span>🐃</span> Buffalo Standards
+        </button>
       </div>
 
       {/* ── Groups ── */}
@@ -233,8 +305,8 @@ export default function SettingsPage() {
                     <label className="text-[10px] font-black text-slate-400 tracking-widest ml-1">{field.label}</label>
                     {field.type === 'select' ? (
                       <select
-                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono appearance-none"
-                        value={settings[field.key] ?? ''}
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono appearance-none"
+                        value={getValue(field.key)}
                         onChange={e => updateField(field.key, e.target.value)}
                       >
                         {field.options.map(opt => (
@@ -243,10 +315,10 @@ export default function SettingsPage() {
                       </select>
                     ) : (
                       <input
-                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono"
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono"
                         type={field.type || 'number'}
                         step={field.step || '0.01'}
-                        value={settings[field.key] ?? ''}
+                        value={getValue(field.key)}
                         onChange={e => updateField(field.key, e.target.value)}
                       />
                     )}

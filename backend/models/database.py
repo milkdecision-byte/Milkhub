@@ -98,6 +98,7 @@ class UploadBatch(db.Model):
     rejected = db.Column(db.Integer, default=0)
     fraud_alerts = db.Column(db.Integer, default=0)
     uploaded_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    milk_type = db.Column(db.String(20), default="cow")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -112,6 +113,7 @@ class UploadBatch(db.Model):
             "accepted": self.accepted,
             "rejected": self.rejected,
             "fraud_alerts": self.fraud_alerts,
+            "milk_type": self.milk_type,
             "uploaded_by": self.uploaded_by,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
@@ -170,6 +172,11 @@ class MilkRecord(db.Model):
     )
     ml_prediction = db.Column(db.String(20))
     ml_confidence = db.Column(db.Numeric(5, 4))
+    
+    # New ML fields
+    milk_type = db.Column(db.String(20), default="cow")
+    model_version = db.Column(db.String(20))
+    ml_score = db.Column(db.Numeric(5, 4))
 
     # Meta
     entry_type = db.Column(
@@ -209,6 +216,9 @@ class MilkRecord(db.Model):
             "fraud_risk": self.fraud_risk,
             "ml_prediction": self.ml_prediction,
             "ml_confidence": float(self.ml_confidence) if self.ml_confidence else None,
+            "milk_type": self.milk_type,
+            "model_version": self.model_version,
+            "ml_score": float(self.ml_score) if self.ml_score else None,
             "entry_type": self.entry_type,
             "upload_type": self.upload_type,
             "session_name": self.session_name,

@@ -93,7 +93,8 @@ export default function UploadHistoryPage() {
         <div className="relative group">
           <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
           <input 
-            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 pl-16 pr-8 py-5 rounded-[1.5rem] text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-600/5 transition-all outline-none shadow-inner" 
+            style={{ backgroundImage: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' }}
+            className="w-full border border-purple-100 pl-16 pr-8 py-5 rounded-[1.5rem] text-sm font-bold text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-purple-500/10 backdrop-blur-[10px]" 
             placeholder="Search by Upload ID or File Name…"
             value={search} 
             onChange={e => setSearch(e.target.value)} 
@@ -105,7 +106,8 @@ export default function UploadHistoryPage() {
             <Calendar size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600 pointer-events-none" />
             <input 
               type="date" 
-              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 pl-14 pr-6 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-blue-600/5 transition-all"
+              style={{ backgroundImage: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' }}
+              className="w-full border border-purple-100 pl-14 pr-6 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-purple-500/10 backdrop-blur-[10px]"
               value={dateFilter} 
               onChange={e => setDateFilter(e.target.value)} 
             />
@@ -113,7 +115,8 @@ export default function UploadHistoryPage() {
           <div className="flex-1 min-w-[240px] relative">
             <Filter size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600 pointer-events-none" />
             <select 
-              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 pl-14 pr-12 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-blue-600/5 transition-all cursor-pointer appearance-none"
+              style={{ backgroundImage: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' }}
+              className="w-full border border-purple-100 pl-14 pr-12 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-purple-500/10 backdrop-blur-[10px] appearance-none cursor-pointer"
               value={shiftFilter} 
               onChange={e => setShiftFilter(e.target.value)}
             >
@@ -137,6 +140,7 @@ export default function UploadHistoryPage() {
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">File Name</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Date</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Shift</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Milk Type</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Records</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Quality Status</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Uploaded By</th>
@@ -165,12 +169,13 @@ export default function UploadHistoryPage() {
                   transition={{ delay: i * 0.02 }}
                   className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors group"
                 >
-                  <td className="px-8 py-5 text-slate-900 dark:text-white font-mono text-[10px] font-black uppercase tracking-tighter truncate max-w-[120px]">{b.batch_id}</td>
-                  <td className="px-8 py-5 text-slate-900 dark:text-white font-black text-xs truncate max-w-[180px]">{b.session_name || 'System Baseline'}</td>
+                  <td className="px-8 py-5 text-[#1E1B4B] font-mono text-[10px] font-black uppercase tracking-tighter truncate max-w-[120px]">{b.batch_id}</td>
+                  <td className="px-8 py-5 text-[#1E1B4B] font-black text-xs truncate max-w-[180px]">{b.session_name || 'System Baseline'}</td>
                   <td className="px-8 py-5 text-slate-500 text-[10px] font-bold truncate max-w-[180px]" title={b.file_name}>{b.file_name || 'Direct Laboratory Entry'}</td>
                   <td className="px-8 py-5 text-slate-500 text-[10px] font-bold whitespace-nowrap">{b.upload_date}</td>
-                  <td className="px-8 py-5 text-slate-600 dark:text-slate-300 capitalize text-[10px] font-black tracking-widest">{b.shift}</td>
-                  <td className="px-8 py-5 text-slate-900 dark:text-white font-black text-xs font-mono">{b.total_records}</td>
+                  <td className="px-8 py-5 text-slate-600 capitalize text-[10px] font-black tracking-widest">{b.shift}</td>
+                  <td className="px-8 py-5 text-slate-600 capitalize text-[10px] font-black tracking-widest">{b.milk_type || 'cow'}</td>
+                  <td className="px-8 py-5 text-[#1E1B4B] font-black text-xs font-mono">{b.total_records}</td>
                   <td className="px-8 py-5">
                     <div className="flex gap-2">
                       <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-black tracking-widest whitespace-nowrap">Accepted: {b.accepted}</span>
