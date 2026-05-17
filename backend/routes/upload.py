@@ -80,7 +80,6 @@ def upload():
         uploaded_by=uid
     )
     preview_mode = request.form.get("preview") == "true"
-    milk_type = request.form.get("milk_type", "cow").lower()
     if not preview_mode:
         db.session.add(upload_batch)
 
@@ -100,14 +99,14 @@ def upload():
             raw_milk_temp=row.get("raw_milk_temp"),
             quantity=row.get("quantity"),
         )
-        result = engine.evaluate(sample, milk_type=milk_type)
+        result = engine.evaluate(sample)
 
         ml_pred, ml_conf = "unknown", 0.0
         anomaly_score = 0.0
         if ml_svc:
             enc = MLService.encode_categorical(row)
-            ml_pred, ml_conf = ml_svc.predict_decision(enc, milk_type=milk_type)
-            anomaly_score = ml_svc.fraud_score(enc, milk_type=milk_type)
+            ml_pred, ml_conf = ml_svc.predict_decision(enc)
+            anomaly_score = ml_svc.fraud_score(enc)
 
         # Hybrid: scientific rules always override ML
         final_decision = result.decision
@@ -138,7 +137,6 @@ def upload():
             fraud_risk=result.fraud_risk,
             ml_prediction=ml_pred,
             ml_confidence=ml_conf,
-            milk_type=milk_type,
             model_version="2.0-hybrid",
             ml_score=confidence_score,
             entry_type="upload",

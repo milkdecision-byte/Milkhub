@@ -28,41 +28,39 @@ class MLService:
 
     def __init__(self, models_path: str):
         self.models_path = models_path
-        self.classifiers = {}
-        self.isolators = {}
-        self.scalers = {}
+        self.classifier = None
+        self.isolator = None
+        self.scaler = None
         self._load_models()
 
     # ── Load ──────────────────────────────────────────────────────────────
 
     def _load_models(self):
-        for mtype in ["cow", "buffalo"]:
-            try:
-                clf_path = os.path.join(self.models_path, f"decision_model_{mtype}.pkl")
-                iso_path = os.path.join(self.models_path, f"fraud_model_{mtype}.pkl")
-                scaler_path = os.path.join(self.models_path, f"scaler_{mtype}.pkl")
+        try:
+            clf_path = os.path.join(self.models_path, f"decision_model.pkl")
+            iso_path = os.path.join(self.models_path, f"fraud_model.pkl")
+            scaler_path = os.path.join(self.models_path, f"scaler.pkl")
 
-                if os.path.exists(clf_path):
-                    self.classifiers[mtype] = joblib.load(clf_path)
-                    logger.info(f"Decision model for {mtype} loaded.")
-                if os.path.exists(iso_path):
-                    self.isolators[mtype] = joblib.load(iso_path)
-                    logger.info(f"Fraud model for {mtype} loaded.")
-                if os.path.exists(scaler_path):
-                    self.scalers[mtype] = joblib.load(scaler_path)
-                    logger.info(f"Scaler for {mtype} loaded.")
-            except Exception as e:
-                logger.warning(f"Could not load ML models for {mtype}: {e}")
+            if os.path.exists(clf_path):
+                self.classifier = joblib.load(clf_path)
+                logger.info(f"Decision model loaded.")
+            if os.path.exists(iso_path):
+                self.isolator = joblib.load(iso_path)
+                logger.info(f"Fraud model loaded.")
+            if os.path.exists(scaler_path):
+                self.scaler = joblib.load(scaler_path)
+                logger.info(f"Scaler loaded.")
+        except Exception as e:
+            logger.warning(f"Could not load ML models: {e}")
 
     # ── Predict Decision ──────────────────────────────────────────────────
 
-    def predict_decision(self, features: dict, milk_type: str = "cow") -> tuple[str, float]:
+    def predict_decision(self, features: dict) -> tuple[str, float]:
         """
         Returns (label, confidence).
-        Falls back to 'cow' if specific model not loaded.
         """
-        clf = self.classifiers.get(milk_type) or self.classifiers.get("cow")
-        scaler = self.scalers.get(milk_type) or self.scalers.get("cow")
+        clf = self.classifier
+        scaler = self.scaler
 
         if clf is None:
             return "unknown", 0.0
@@ -82,12 +80,12 @@ class MLService:
 
     # ── Fraud Score ───────────────────────────────────────────────────────
 
-    def fraud_score(self, features: dict, milk_type: str = "cow") -> float:
+    def fraud_score(self, features: dict) -> float:
         """
         Returns anomaly score (higher = more anomalous).
         """
-        iso = self.isolators.get(milk_type) or self.isolators.get("cow")
-        scaler = self.scalers.get(milk_type) or self.scalers.get("cow")
+        iso = self.isolator
+        scaler = self.scaler
 
         if iso is None:
             return 0.0
@@ -121,4 +119,4 @@ class MLService:
         return out
 
     def models_ready(self) -> bool:
-        return len(self.classifiers) > 0 and len(self.isolators) > 0
+        return self.classifier is not None and self.isolator is not None

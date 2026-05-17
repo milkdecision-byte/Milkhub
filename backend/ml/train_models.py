@@ -45,15 +45,7 @@ COW_STANDARDS = {
     "mbrt_check": 120.0,
 }
 
-BUFFALO_STANDARDS = {
-    "fat_min": 6.0, "fat_max": 8.5,
-    "snf_min": 8.5, "snf_max": 10.5,
-    "ph_min": 6.5, "ph_max": 6.9,
-    "acidity_min": 0.13, "acidity_max": 0.18,
-    "temp_acceptable": 10.0,
-    "sg_min": 1.028, "sg_max": 1.034,
-    "mbrt_check": 240.0,
-}
+
 
 # ── Generators ─────────────────────────────────────────────────────────
 
@@ -104,8 +96,8 @@ def generate_dataset(standards, n_per_class: int = 2000):
 
 # ── Train ──────────────────────────────────────────────────────────────
 
-def train_for_type(milk_type: str, standards: dict):
-    log.info(f"Generating synthetic training data for {milk_type} …")
+def train_models(standards: dict):
+    log.info("Generating synthetic training data …")
     X, y = generate_dataset(standards, n_per_class=2000)
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -128,7 +120,7 @@ def train_for_type(milk_type: str, standards: dict):
     )
     clf.fit(X_train_sc, y_train)
     preds = clf.predict(X_test_sc)
-    log.info(f"\\nReport for {milk_type}:")
+    log.info("\\nReport:")
     log.info("\\n" + classification_report(
         y_test, preds, target_names=["accept", "reject"]
     ))
@@ -144,14 +136,13 @@ def train_for_type(milk_type: str, standards: dict):
     iso.fit(X_normal)
 
     log.info("Saving models …")
-    joblib.dump(clf, os.path.join(SAVE_PATH, f"decision_model_{milk_type}.pkl"), compress=3)
-    joblib.dump(iso, os.path.join(SAVE_PATH, f"fraud_model_{milk_type}.pkl"), compress=3)
-    joblib.dump(scaler, os.path.join(SAVE_PATH, f"scaler_{milk_type}.pkl"), compress=3)
-    log.info(f"✓ Models saved for {milk_type} to {SAVE_PATH}")
+    joblib.dump(clf, os.path.join(SAVE_PATH, f"decision_model.pkl"), compress=3)
+    joblib.dump(iso, os.path.join(SAVE_PATH, f"fraud_model.pkl"), compress=3)
+    joblib.dump(scaler, os.path.join(SAVE_PATH, f"scaler.pkl"), compress=3)
+    log.info(f"✓ Models saved to {SAVE_PATH}")
 
 def train():
-    train_for_type("cow", COW_STANDARDS)
-    train_for_type("buffalo", BUFFALO_STANDARDS)
+    train_models(COW_STANDARDS)
 
 if __name__ == "__main__":
     train()

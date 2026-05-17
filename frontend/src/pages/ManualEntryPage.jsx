@@ -19,17 +19,9 @@ const EMPTY = {
   organoleptic: '', sediment_test: '',
 }
 
-const BUFFALO_DEFAULTS = {
-  fat_min: 6.0, fat_max: 8.5,
-  snf_min: 8.5, snf_max: 10.5,
-  ph_min: 6.5, ph_max: 6.9,
-  acidity_min: 0.13, acidity_max: 0.18,
-  temp_acceptable: 10.0,
-  sg_min: 1.028, sg_max: 1.034,
-  mbrt_check: 240.0,
-}
 
-function evaluateLive(data, sys, milkType = 'cow') {
+
+function evaluateLive(data, sys) {
   if (!sys) return null;
   
   const flags = {}
@@ -37,9 +29,6 @@ function evaluateLive(data, sys, milkType = 'cow') {
   
   const f = v => (v === '' || isNaN(v) ? null : parseFloat(v))
   const s = k => {
-    if (milkType === 'buffalo' && BUFFALO_DEFAULTS[k] !== undefined) {
-      return BUFFALO_DEFAULTS[k];
-    }
     return parseFloat(sys[k] || 0);
   }
   
@@ -280,8 +269,6 @@ export default function ManualEntryPage() {
   const [livePreview, setLivePreview] = useState(null)
   const [settings, setSettings] = useState(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [milkType, setMilkType] = useState('cow')
-  
   const formValues = watch()
 
   const gradients = {
@@ -300,16 +287,16 @@ export default function ManualEntryPage() {
 
   useEffect(() => {
     if (!serverResult && settings) {
-      const result = evaluateLive(formValues, settings, milkType);
+      const result = evaluateLive(formValues, settings);
       setLivePreview(result);
     }
-  }, [JSON.stringify(formValues), serverResult, settings, milkType])
+  }, [JSON.stringify(formValues), serverResult, settings])
 
   const onSubmit = async (data) => {
     setLoading(true)
     setServerResult(null)
     try {
-      const r = await api.post('/predict', { ...data, milk_type: milkType })
+      const r = await api.post('/predict', data)
       setServerResult(r.data)
       toast.success(`Quality Record Saved: ${r.data.decision.toUpperCase()}`)
     } catch (err) {
@@ -357,23 +344,7 @@ export default function ManualEntryPage() {
               <div className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">System: <span className="text-orange-500">Live Feedback</span></div>
             </div>
             
-            {/* Milk Type Selector */}
-            <div className="flex gap-6 mt-6 mb-10">
-              <div 
-                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
-                onClick={() => setMilkType('cow')}
-              >
-                <span className="text-3xl">🐄</span>
-                <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Cow Milk</span>
-              </div>
-              <div 
-                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
-                onClick={() => setMilkType('buffalo')}
-              >
-                <span className="text-3xl">🐃</span>
-                <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Buffalo Milk</span>
-              </div>
-            </div>
+
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {[

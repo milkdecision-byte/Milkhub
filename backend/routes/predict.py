@@ -27,7 +27,6 @@ def _get_ml() -> MLService:
 def predict():
     uid = get_jwt_identity()
     data = request.get_json(silent=True) or {}
-    milk_type = data.get("milk_type", "cow").lower()
 
     sample = MilkSample(
         fat=_f(data.get("fat")),
@@ -46,7 +45,7 @@ def predict():
     )
 
     engine = _get_engine()
-    result = engine.evaluate(sample, milk_type=milk_type)
+    result = engine.evaluate(sample)
 
     # ── ML Prediction ────────────────────────────────────────────────────
     ml_svc: MLService = _get_ml()
@@ -54,8 +53,8 @@ def predict():
     anomaly_score = 0.0
     if ml_svc:
         enc = MLService.encode_categorical(data)
-        ml_pred, ml_conf = ml_svc.predict_decision(enc, milk_type=milk_type)
-        anomaly_score = ml_svc.fraud_score(enc, milk_type=milk_type)
+        ml_pred, ml_conf = ml_svc.predict_decision(enc)
+        anomaly_score = ml_svc.fraud_score(enc)
 
     # ── Hybrid Override: Scientific rules ALWAYS override ML ─────────────
     # If rules say reject → final = reject regardless of ML
@@ -120,7 +119,6 @@ def predict():
         fraud_risk=result.fraud_risk,
         ml_prediction=ml_pred,
         ml_confidence=ml_conf,
-        milk_type=milk_type,
         model_version="2.0-hybrid",
         ml_score=confidence_score,
         entry_type="manual",
@@ -142,7 +140,6 @@ def predict():
         "confidence_score": round(confidence_score * 100, 1),
         "anomaly_score": round(anomaly_score * 100, 1),
         "model_version": "2.0-hybrid",
-        "milk_type": milk_type,
         "hybrid_override": ml_pred != final_decision,
     }), 200
 

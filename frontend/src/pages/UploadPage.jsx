@@ -40,7 +40,6 @@ export default function UploadPage() {
   const [result, setResult] = useState(null)
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [sessionName, setSessionName] = useState('')
-  const [milkType, setMilkType] = useState('cow')
   const navigate = useNavigate()
 
   const onDrop = useCallback(files => {
@@ -72,7 +71,6 @@ export default function UploadPage() {
     setProgress(10)
     const fd = new FormData()
     fd.append('file', file)
-    fd.append('milk_type', milkType)
     if (sessionName) fd.append('session_name', sessionName)
     if (isPreview) fd.append('preview', 'true')
     try {
@@ -132,24 +130,6 @@ export default function UploadPage() {
 
       {!result && (
         <>
-          {/* Milk Type Selector */}
-          <div className="flex gap-6 mb-10">
-            <div 
-              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
-              onClick={() => setMilkType('cow')}
-            >
-              <span className="text-3xl">🐄</span>
-              <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Cow Milk</span>
-            </div>
-            <div 
-              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
-              onClick={() => setMilkType('buffalo')}
-            >
-              <span className="text-3xl">🐃</span>
-              <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Buffalo Milk</span>
-            </div>
-          </div>
-
           {/* ── Dropzone ── */}
           <motion.div
             {...getRootProps()}

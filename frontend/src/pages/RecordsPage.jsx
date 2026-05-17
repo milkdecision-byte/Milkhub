@@ -49,7 +49,6 @@ export default function RecordsPage() {
   const [batchesList, setBatchesList] = useState([])
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [milkFilter, setMilkFilter] = useState('all')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -86,11 +85,7 @@ export default function RecordsPage() {
       item.farmer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.farmer_code?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesMilk =
-      milkFilter === "all" ||
-      item.milk_type?.toLowerCase() === milkFilter.toLowerCase();
-
-    return matchesSearch && matchesMilk;
+    return matchesSearch;
   });
 
   const downloadCSV = () => {
@@ -104,8 +99,6 @@ export default function RecordsPage() {
     ])
     
     let filename = "milk_records.csv";
-    if (milkFilter === "cow") filename = "cow_milk_records.csv";
-    if (milkFilter === "buffalo") filename = "buffalo_milk_records.csv";
 
     const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -135,7 +128,7 @@ export default function RecordsPage() {
 
       {/* ── Filter Panel ── */}
       <div className="card-premium p-8 space-y-10 border-[#C4B5FD]/20 shadow-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           <div className="relative group">
             <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#7C3AED] group-focus-within:text-orange-500 transition-colors" />
             <input 
@@ -185,18 +178,6 @@ export default function RecordsPage() {
               <option value="low" className="text-slate-900">Low Risk</option>
               <option value="medium" className="text-slate-900">Medium Risk</option>
               <option value="high">High Quality Risk</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
-          </div>
-          <div className="relative">
-            <select 
-              className="w-full px-6 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-sm font-semibold text-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 appearance-none cursor-pointer" 
-              value={milkFilter}
-              onChange={e => setMilkFilter(e.target.value)}
-            >
-              <option value="all" className="text-slate-900">All Milk</option>
-              <option value="cow" className="text-slate-900">Cow Milk</option>
-              <option value="buffalo" className="text-slate-900">Buffalo Milk</option>
             </select>
             <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
           </div>

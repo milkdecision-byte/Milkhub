@@ -130,29 +130,10 @@ const DEFAULTS = {
   sediment_pass: 'clean',
 }
 
-const BUFFALO_DEFAULTS = {
-  fat_min: '6.0', fat_max: '8.5',
-  snf_min: '8.5', snf_max: '10.5',
-  ph_min: '6.5', ph_max: '6.9',
-  acidity_min: '0.13', acidity_max: '0.18',
-  temp_ideal: '4', temp_acceptable: '10',
-  raw_milk_temp_min: '25', raw_milk_temp_max: '37',
-  sg_min: '1.028', sg_max: '1.034',
-  mbrt_good: '300', mbrt_check: '240',
-  cob_pass: 'negative',
-  alcohol_pass: 'negative',
-  organoleptic_pass: 'normal',
-  sediment_pass: 'clean',
-}
-
 export default function SettingsPage() {
-  // Pre-populate both cow defaults and buffalo defaults into initial state
-  const buffaloInit = {}
-  Object.entries(BUFFALO_DEFAULTS).forEach(([k, v]) => { buffaloInit[`buffalo_${k}`] = v })
-  const [settings, setSettings] = useState({ ...DEFAULTS, ...buffaloInit })
+  const [settings, setSettings] = useState({ ...DEFAULTS })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState('cow')
   const [retraining, setRetraining] = useState(false)
 
   useEffect(() => {
@@ -187,26 +168,16 @@ export default function SettingsPage() {
   }
 
   const handleReset = () => {
-    if (activeTab === 'cow') {
-      setSettings(p => ({ ...p, ...DEFAULTS }))
-    } else if (activeTab === 'buffalo') {
-      const buffSettings = {}
-      Object.entries(BUFFALO_DEFAULTS).forEach(([k, v]) => {
-        buffSettings[`buffalo_${k}`] = v
-      })
-      setSettings(p => ({ ...p, ...buffSettings }))
-    }
-    toast(`Settings reset to standard values for ${activeTab}`, { icon: '↩️' })
+    setSettings(p => ({ ...p, ...DEFAULTS }))
+    toast(`Settings reset to standard values`, { icon: '↩️' })
   }
 
   const updateField = (k, v) => {
-    const key = activeTab === 'buffalo' && k !== 'company_name' && k !== 'fraud_threshold' ? `buffalo_${k}` : k;
-    setSettings(p => ({ ...p, [key]: v }))
+    setSettings(p => ({ ...p, [k]: v }))
   }
 
   const getValue = (k) => {
-    const key = activeTab === 'buffalo' && k !== 'company_name' && k !== 'fraud_threshold' ? `buffalo_${k}` : k;
-    return settings[key] ?? (activeTab === 'buffalo' ? BUFFALO_DEFAULTS[k] : DEFAULTS[k]) ?? '';
+    return settings[k] ?? DEFAULTS[k] ?? '';
   }
 
   if (loading) return (
@@ -259,22 +230,6 @@ export default function SettingsPage() {
             {saving ? 'Synchronizing…' : 'Save Settings'}
           </button>
         </div>
-      </div>
-
-      {/* ── Tabs ── */}
-      <div className="grid grid-cols-2 lg:flex gap-4 border-b border-slate-200 dark:border-white/10 pb-4 w-full">
-        <button
-          onClick={() => setActiveTab('cow')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'cow' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-700 hover:bg-slate-100'}`}
-        >
-          <span>🐄</span> Cow Standards
-        </button>
-        <button
-          onClick={() => setActiveTab('buffalo')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'buffalo' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-700 hover:bg-slate-100'}`}
-        >
-          <span>🐃</span> Buffalo Standards
-        </button>
       </div>
 
       {/* ── Groups ── */}

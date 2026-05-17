@@ -140,7 +140,6 @@ export default function UploadHistoryPage() {
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">File Name</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Date</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Shift</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Milk Type</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Records</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Quality Status</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Uploaded By</th>
@@ -174,7 +173,6 @@ export default function UploadHistoryPage() {
                   <td className="px-8 py-5 text-slate-700 text-[10px] font-bold truncate max-w-[180px]" title={b.file_name}>{b.file_name || 'Direct Laboratory Entry'}</td>
                   <td className="px-8 py-5 text-slate-700 text-[10px] font-bold whitespace-nowrap">{b.upload_date}</td>
                   <td className="px-8 py-5 text-slate-600 capitalize text-[10px] font-black tracking-widest">{b.shift}</td>
-                  <td className="px-8 py-5 text-slate-600 capitalize text-[10px] font-black tracking-widest">{b.milk_type || 'cow'}</td>
                   <td className="px-8 py-5 text-[#1E1B4B] font-black text-xs font-mono">{b.total_records}</td>
                   <td className="px-8 py-5">
                     <div className="flex gap-2">
