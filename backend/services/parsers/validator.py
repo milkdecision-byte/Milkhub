@@ -35,7 +35,7 @@ INTELLIGENT_MAP: Dict[str, str] = {
     # Raw Milk Temp
     "rawmilktemperature": "raw_milk_temp", "rawmilktemp": "raw_milk_temp", "rawtemp": "raw_milk_temp", "milktemp": "raw_milk_temp",
     # Quantity
-    "quantity": "quantity", "qty": "quantity", "volume": "quantity", "yield": "quantity", "milkquantity": "quantity",
+    "quantity": "quantity", "qty": "quantity", "volume": "quantity", "yield": "quantity", "milkquantity": "quantity", "quantityl": "quantity",
     # Identity (The focus of this fix)
     "farmername": "farmer_name", "name": "farmer_name", "suppliername": "farmer_name", "farmer": "farmer_name", 
     "provider": "farmer_name", "providername": "farmer_name", "vendor": "farmer_name", "vendorname": "farmer_name",

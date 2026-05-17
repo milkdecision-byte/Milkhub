@@ -156,7 +156,7 @@ class MilkRecord(db.Model):
         ENUM("clean", "dirty", name="sediment_test_enum", create_type=False),
         default="clean",
     )
-    mbrt = db.Column(db.Numeric(4, 2))
+    mbrt = db.Column(db.Numeric(5, 2))
     raw_milk_temp = db.Column(db.Numeric(5, 2))
     quantity = db.Column(db.Numeric(10, 2))
 
@@ -174,7 +174,6 @@ class MilkRecord(db.Model):
     ml_confidence = db.Column(db.Numeric(5, 4))
     
     # New ML fields
-    milk_type = db.Column(db.String(20), default="cow")
     model_version = db.Column(db.String(20))
     ml_score = db.Column(db.Numeric(5, 4))
 
@@ -216,7 +215,6 @@ class MilkRecord(db.Model):
             "fraud_risk": self.fraud_risk,
             "ml_prediction": self.ml_prediction,
             "ml_confidence": float(self.ml_confidence) if self.ml_confidence else None,
-            "milk_type": self.milk_type,
             "model_version": self.model_version,
             "ml_score": float(self.ml_score) if self.ml_score else None,
             "entry_type": self.entry_type,
