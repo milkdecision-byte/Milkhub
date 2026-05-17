@@ -55,6 +55,10 @@ def get_records():
         elif session == "manual":
             q = q.filter(MilkRecord.entry_type == "manual")
 
+    shift = request.args.get("shift")
+    if shift:
+        q = q.filter(MilkRecord.shift == shift)
+
     if batch_id:
         q = q.filter(MilkRecord.batch_id == batch_id)
     if date_from and not date_to:

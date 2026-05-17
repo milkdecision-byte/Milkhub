@@ -153,7 +153,7 @@ function ResultCard({ result }) {
   if (!result) return null
   
   const states = {
-    pending: { bg: 'bg-[#F5F3FF]/80 border-[#C4B5FD]/20', text: 'text-purple-400', icon: Database, label: 'READY FOR ENTRY', glow: 'shadow-purple-500/5' },
+    pending: { bg: 'bg-[#F5F3FF]/80 border-[#C4B5FD]/20', text: 'text-[#7C3AED]', icon: Database, label: 'READY FOR ENTRY', glow: 'shadow-purple-500/5' },
     accept: { bg: 'bg-emerald-500/5 border-emerald-500/20', text: 'text-emerald-600', icon: CheckCircle2, label: 'ACCEPTED', glow: 'shadow-emerald-500/20' },
     reject: { bg: 'bg-rose-500/5 border-rose-500/20', text: 'text-rose-600', icon: XCircle, label: 'REJECTED', glow: 'shadow-rose-500/20' },
   }
@@ -180,7 +180,7 @@ function ResultCard({ result }) {
       <Icon size={200} className={`absolute -right-16 -bottom-16 opacity-[0.03] ${cfg.text} transition-transform duration-700`}/>
 
       <div className="flex items-start gap-8 mb-8 relative z-10">
-        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-white dark:bg-white/5 shadow-2xl border border-white/40 transition-all duration-500`}>
+        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center bg-white dark:bg-white/10 shadow-2xl border border-white/40 transition-all duration-500`}>
           <Icon size={40} className={cfg.text}/>
         </div>
         <div className="flex-1">
@@ -196,27 +196,27 @@ function ResultCard({ result }) {
       {/* ML Intelligence Panel — only shown after server submission */}
       {isServerResult && (
         <div className="grid grid-cols-3 gap-4 mb-8 relative z-10">
-          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
-            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Confidence</p>
+          <div className="bg-white/70 dark:bg-white/10 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest mb-1">Confidence</p>
             <p className="text-2xl font-black text-[#7C3AED]">{result.confidence_score ?? result.ml_confidence ?? 0}%</p>
           </div>
-          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
-            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Anomaly</p>
+          <div className="bg-white/70 dark:bg-white/10 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest mb-1">Anomaly</p>
             <p className={`text-2xl font-black ${result.anomaly_score > 50 ? 'text-rose-600' : 'text-emerald-600'}`}>{result.anomaly_score ?? 0}%</p>
           </div>
-          <div className="bg-white/70 dark:bg-white/5 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
-            <p className="text-[9px] font-bold text-purple-400 uppercase tracking-widest mb-1">Fraud Risk</p>
+          <div className="bg-white/70 dark:bg-white/10 rounded-2xl p-4 text-center border border-[#C4B5FD]/20">
+            <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest mb-1">Fraud Risk</p>
             <p className={`text-lg font-black uppercase ${fraudColor}`}>{result.fraud_risk || 'Low'}</p>
           </div>
         </div>
       )}
 
       <div className="space-y-5 mb-10 relative z-10">
-        <p className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Quality Result Details</p>
+        <p className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender uppercase tracking-widest ml-1">Quality Result Details</p>
         {result.reasons?.length === 0 ? (
-          <div className="bg-white/60 dark:bg-white/5 p-6 rounded-3xl border border-[#C4B5FD]/20 flex items-center gap-4 group">
-             <ShieldCheck size={22} className="text-purple-300 group-hover:text-purple-500 transition-colors" />
-             <p className="text-xs font-bold text-purple-900/40">Waiting for milk quality data...</p>
+          <div className="bg-white/60 dark:bg-white/10 p-6 rounded-3xl border border-[#C4B5FD]/20 flex items-center gap-4 group">
+             <ShieldCheck size={22} className="text-[#7C3AED] group-hover:text-purple-500 transition-colors" />
+             <p className="text-xs font-bold text-slate-700">Waiting for milk quality data...</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -225,12 +225,12 @@ function ResultCard({ result }) {
                 key={i} 
                 initial={{ x: -10, opacity: 0 }} 
                 animate={{ x: 0, opacity: 1 }}
-                className="flex items-center gap-4 bg-white/80 dark:bg-white/5 p-4 rounded-2xl border border-white/60 shadow-sm"
+                className="flex items-center gap-4 bg-white/80 dark:bg-white/10 p-4 rounded-2xl border border-white/60 shadow-sm"
               >
                 <div className={`p-1.5 rounded-lg ${cfg.bg} border border-current opacity-30`}>
                   <AlertTriangle size={14} className={cfg.text}/>
                 </div>
-                <span className="text-xs font-bold text-[#1E1B4B] dark:text-slate-300">{r}</span>
+                <span className="text-xs font-bold text-[#374151]">{r}</span>
               </motion.div>
             ))}
           </div>
@@ -239,14 +239,14 @@ function ResultCard({ result }) {
 
       {result.parameter_flags && Object.keys(result.parameter_flags).length > 0 && (
         <div className="relative z-10">
-          <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1 mb-4">Test Results Summary</p>
+          <p className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1 mb-4">Test Results Summary</p>
           <div className="flex flex-wrap gap-3">
             {Object.entries(result.parameter_flags).map(([k, v]) => {
               const c = { 
                 pass: 'bg-emerald-500/5 text-emerald-600 border-emerald-500/20 shadow-emerald-500/5', 
                 fail: 'bg-rose-500/5 text-rose-600 border-rose-500/20 shadow-rose-500/5', 
                 warning: 'bg-orange-500/5 text-orange-600 border-orange-500/20 shadow-orange-500/5', 
-              }[v] || 'bg-white/50 text-purple-300 border-[#C4B5FD]/20'
+              }[v] || 'bg-white/100 text-[#7C3AED] border-[#C4B5FD]/20'
               return (
                 <motion.span 
                   key={k} 
@@ -263,9 +263,9 @@ function ResultCard({ result }) {
 
       {isServerResult && result.model_version && (
         <div className="mt-6 relative z-10 flex items-center gap-2">
-          <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest">Model: {result.model_version}</span>
-          <span className="text-purple-200">•</span>
-          <span className="text-[9px] font-bold text-purple-300 uppercase tracking-widest capitalize">{result.milk_type} Milk Standards</span>
+          <span className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest">Model: {result.model_version}</span>
+          <span className="text-[#7C3AED]">•</span>
+          <span className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-widest capitalize">{result.milk_type} Milk Standards</span>
         </div>
       )}
     </motion.div>
@@ -340,7 +340,7 @@ export default function ManualEntryPage() {
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+        <h2 className="text-xs font-bold text-[#111827] uppercase tracking-[0.2em] flex items-center gap-3">
           <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Manual Milk Quality Entry
         </h2>
       </div>
@@ -350,28 +350,28 @@ export default function ManualEntryPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-7 space-y-10">
           <div className="card-premium p-10 space-y-10 border-[#C4B5FD]/20 shadow-xl">
             <div className="flex items-center justify-between border-b border-[#C4B5FD]/20 pb-8">
-              <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white flex items-center gap-5 uppercase tracking-widest">
+              <h3 className="text-sm font-bold text-[#111827] flex items-center gap-5 uppercase tracking-widest">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#8B5CF6] text-white flex items-center justify-center shadow-xl shadow-purple-500/20"><Microscope size={24}/></div>
                 Manual Entry
               </h3>
-              <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">System: <span className="text-orange-500">Live Feedback</span></div>
+              <div className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">System: <span className="text-orange-500">Live Feedback</span></div>
             </div>
             
             {/* Milk Type Selector */}
             <div className="flex gap-6 mt-6 mb-10">
               <div 
-                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
                 onClick={() => setMilkType('cow')}
               >
                 <span className="text-3xl">🐄</span>
-                <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Cow Milk</span>
+                <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Cow Milk</span>
               </div>
               <div 
-                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+                className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
                 onClick={() => setMilkType('buffalo')}
               >
                 <span className="text-3xl">🐃</span>
-                <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Buffalo Milk</span>
+                <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Buffalo Milk</span>
               </div>
             </div>
             
@@ -385,8 +385,8 @@ export default function ManualEntryPage() {
                 { id: 'mbrt', label: 'MBRT (min)', icon: Clock },
               ].map(field => (
                 <div key={field.id} className="space-y-3">
-                  <label className="text-[10px] font-bold text-purple-400 dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-[#7C3AED]/70 dark:text-white"><field.icon size={12} /> {field.label}</span>
+                  <label className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-[#7C3AED] dark:text-white"><field.icon size={12} /> {field.label}</span>
                     {displayResult?.parameter_flags?.[field.id] === 'fail' && <AlertTriangle size={12} className="text-rose-500 animate-pulse" />}
                     {displayResult?.parameter_flags?.[field.id] === 'pass' && <CheckCircle2 size={12} className="text-emerald-500" />}
                   </label>
@@ -394,27 +394,27 @@ export default function ManualEntryPage() {
                     type="number" 
                     step="0.001" 
                     style={{ backgroundImage: gradients[field.id] }}
-                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] ${getBorderColor(field.id)}`} 
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] placeholder:text-[#6B7280] outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] ${getBorderColor(field.id)}`} 
                     {...register(field.id, { required: true })} 
                     placeholder="0.000"
                   />
                 </div>
               ))}
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-purple-400 dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-[#7C3AED]/70 dark:text-white"><ShieldCheck size={12} /> COB Test</span>
+                <label className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-[#7C3AED] dark:text-white"><ShieldCheck size={12} /> COB Test</span>
                 </label>
                 <div className="relative">
                   <select 
                     style={{ backgroundImage: gradients.cob_test }}
-                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
                     {...register('cob_test', { required: true })}
                   >
                     <option value="">Test Result</option>
                     <option value="negative">Negative</option>
                     <option value="positive">Positive</option>
                   </select>
-                  <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -424,13 +424,13 @@ export default function ManualEntryPage() {
             <button 
               type="button" 
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="w-full p-10 flex items-center justify-between hover:bg-[#F5F3FF]/50 dark:hover:bg-white/5 transition-all duration-500 group"
+              className="w-full p-10 flex items-center justify-between hover:bg-[#F5F3FF]/70 dark:hover:bg-white/10 transition-all duration-500 group"
             >
-              <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white flex items-center gap-5 uppercase tracking-widest">
-                <div className="w-12 h-12 rounded-[1.5rem] bg-[#F5F3FF] dark:bg-white/10 flex items-center justify-center text-purple-400 shadow-inner group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-500"><Database size={24}/></div>
+              <h3 className="text-sm font-bold text-[#111827] flex items-center gap-5 uppercase tracking-widest">
+                <div className="w-12 h-12 rounded-[1.5rem] bg-[#F5F3FF] dark:bg-white/10 flex items-center justify-center text-[#7C3AED] shadow-inner group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-500"><Database size={24}/></div>
                 Additional Farmer Details
               </h3>
-              <div className={`p-3 rounded-xl bg-[#F5F3FF] dark:bg-white/5 text-purple-400 transition-transform duration-500 ${showAdvanced ? 'rotate-180 bg-[#7C3AED] text-white shadow-lg shadow-purple-500/30' : ''}`}>
+              <div className={`p-3 rounded-xl bg-[#F5F3FF] dark:bg-white/10 text-[#7C3AED] transition-transform duration-500 ${showAdvanced ? 'rotate-180 bg-[#7C3AED] text-white shadow-lg shadow-purple-500/30' : ''}`}>
                 <ChevronDown size={22} />
               </div>
             </button>
@@ -445,31 +445,31 @@ export default function ManualEntryPage() {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-purple-400 dark:text-lavender uppercase tracking-widest ml-1">Farmer Name</label>
-                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_name')} placeholder="Farmer Name"/>
+                      <label className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender uppercase tracking-widest ml-1">Farmer Name</label>
+                      <input className="w-full bg-indigo-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-[#111827] placeholder:text-[#6B7280] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_name')} placeholder="Farmer Name"/>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Farmer ID</label>
-                      <input className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_code')} placeholder="FARMER-000"/>
+                      <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Farmer ID</label>
+                      <input className="w-full bg-indigo-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-[#111827] placeholder:text-[#6B7280] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('farmer_code')} placeholder="FARMER-000"/>
                     </div>
                     <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-8">
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Date</label>
-                        <input type="date" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-purple-800 dark:text-slate-300 outline-none focus:ring-4 focus:ring-orange-500/10" {...register('date')} />
+                        <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Date</label>
+                        <input type="date" className="w-full bg-violet-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-[#111827] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('date')} />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Shift</label>
+                        <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Shift</label>
                         <div className="relative">
-                          <select className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10 appearance-none cursor-pointer" {...register('shift')}>
+                          <select className="w-full bg-violet-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-[#111827] outline-none focus:ring-4 focus:ring-orange-500/10 appearance-none cursor-pointer" {...register('shift')}>
                             <option value="morning">Morning</option>
                             <option value="evening">Evening</option>
                           </select>
-                          <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                          <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Quantity (L)</label>
-                        <input type="number" step="0.1" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-orange-500/10" {...register('quantity')} placeholder="0.0"/>
+                        <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Quantity (L)</label>
+                        <input type="number" step="0.1" className="w-full bg-emerald-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-6 py-4 rounded-2xl text-sm font-bold text-[#111827] placeholder:text-[#6B7280] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('quantity')} placeholder="0.0"/>
                       </div>
                     </div>
                   </div>
@@ -481,19 +481,19 @@ export default function ManualEntryPage() {
                       { id: 'sediment_test', label: 'Sediment Test', options: [{v:'clean', l:'Clean'}, {v:'dirty', l:'Dirt'}] },
                     ].map(f => (
                       <div key={f.id} className="space-y-3">
-                        <label className="text-[9px] font-bold text-purple-400 tracking-[0.2em] ml-1">{f.label}</label>
+                        <label className="text-[9px] font-bold text-[#7C3AED] tracking-[0.2em] ml-1">{f.label}</label>
                         <div className="relative">
-                          <select className={`w-full bg-[#F5F3FF]/50 dark:bg-white/5 border px-5 py-3.5 rounded-2xl text-xs font-bold text-purple-800 dark:text-slate-300 outline-none appearance-none cursor-pointer transition-all duration-500 ${getBorderColor(f.id)}`} {...register(f.id)}>
+                          <select className={`w-full ${f.id === 'alcohol_test' ? 'bg-blue-50/70' : f.id === 'organoleptic' ? 'bg-amber-50/70' : 'bg-rose-50/70'} dark:bg-white/10 border px-5 py-3.5 rounded-2xl text-xs font-bold text-[#111827] outline-none appearance-none cursor-pointer transition-all duration-500 ${getBorderColor(f.id)}`} {...register(f.id)}>
                             <option value="">Status</option>
                             {f.options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                           </select>
-                          <ChevronDown size={12} className="absolute right-5 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                          <ChevronDown size={12} className="absolute right-5 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
                         </div>
                       </div>
                     ))}
                     <div className="space-y-3">
-                      <label className="text-[9px] font-black text-purple-400 uppercase tracking-widest ml-1 whitespace-nowrap">Raw Temp (°C)</label>
-                      <input type="number" step="0.1" className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-5 py-3.5 rounded-2xl text-xs font-bold text-purple-800 dark:text-slate-300 outline-none focus:ring-4 focus:ring-orange-500/10" {...register('raw_milk_temp')} placeholder="0.0"/>
+                      <label className="text-[9px] font-black text-[#7C3AED] uppercase tracking-widest ml-1 whitespace-nowrap">Raw Temp (°C)</label>
+                      <input type="number" step="0.1" className="w-full bg-orange-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-5 py-3.5 rounded-2xl text-xs font-bold text-[#111827] placeholder:text-[#6B7280] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('raw_milk_temp')} placeholder="0.0"/>
                     </div>
                   </div>
                 </motion.div>
@@ -505,7 +505,7 @@ export default function ManualEntryPage() {
             <button
               type="submit"
               disabled={loading || !displayResult?.isComplete}
-              className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
+              className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-[#7C3AED]"
             >
               {loading ? <Loader2 size={20} className="animate-spin"/> : <Send size={18}/>}
               {loading ? 'Transmitting Data…' : 'Save Quality Record'}
@@ -513,7 +513,7 @@ export default function ManualEntryPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="px-10 rounded-[2rem] bg-white dark:bg-white/5 border border-[#C4B5FD]/40 text-purple-500 hover:text-orange-600 hover:bg-orange-500/5 transition-all shadow-xl shadow-purple-500/5"
+              className="px-10 rounded-[2rem] bg-white dark:bg-white/10 border border-[#C4B5FD]/40 text-purple-500 hover:text-orange-600 hover:bg-orange-500/5 transition-all shadow-xl shadow-purple-500/5"
               title="Reset Terminal"
             >
               <RotateCcw size={24}/>
@@ -526,7 +526,7 @@ export default function ManualEntryPage() {
           <ResultCard result={displayResult}/>
 
           <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl">
-            <h4 className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-10 flex items-center gap-4">
+            <h4 className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest mb-10 flex items-center gap-4">
               <ShieldCheck size={20} className="text-[#F97316]"/> Milk Quality Standards
             </h4>
             <div className="space-y-6">
@@ -540,19 +540,19 @@ export default function ManualEntryPage() {
               ].map(([k, v, Icon]) => (
                 <div key={k} className="flex justify-between items-center group">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] dark:bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-500 shadow-inner">
+                    <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] dark:bg-white/10 flex items-center justify-center text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-500 shadow-inner">
                       <Icon size={16} />
                     </div>
-                    <span className="text-[11px] font-bold text-purple-900/60 uppercase tracking-widest group-hover:text-[#7C3AED] transition-colors">{k}</span>
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-widest group-hover:text-[#7C3AED] transition-colors">{k}</span>
                   </div>
-                  <span className="text-[11px] font-bold text-[#1E1B4B] dark:text-white bg-[#F5F3FF] dark:bg-white/10 px-4 py-2 rounded-2xl border border-[#C4B5FD]/30 min-w-[90px] text-center shadow-sm">
+                  <span className="text-[11px] font-bold text-[#111827] bg-[#F5F3FF] dark:bg-white/10 px-4 py-2 rounded-2xl border border-[#C4B5FD]/30 min-w-[90px] text-center shadow-sm">
                     {v}
                   </span>
                 </div>
               )) : (
                 <div className="py-12 flex flex-col items-center gap-5">
                   <Loader2 size={40} className="animate-spin text-[#7C3AED]" />
-                  <p className="text-[11px] font-bold text-purple-300 uppercase tracking-widest">Loading Standards...</p>
+                  <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">Loading Standards...</p>
                 </div>
               )}
             </div>
@@ -561,7 +561,7 @@ export default function ManualEntryPage() {
               <p className="text-[10px] font-bold text-[#F97316] uppercase tracking-widest mb-2 flex items-center gap-3 relative z-10">
                 <Info size={14} /> Quality Assurance Notice
               </p>
-              <p className="text-[10px] text-purple-900/50 font-semibold leading-relaxed relative z-10">
+              <p className="text-[10px] text-slate-700 font-semibold leading-relaxed relative z-10">
                 All data is validated against standard dairy quality benchmarks and stored in the records.
               </p>
             </div>

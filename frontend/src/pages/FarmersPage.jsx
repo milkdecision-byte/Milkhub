@@ -52,7 +52,7 @@ export default function FarmersPage() {
     <div className="space-y-12 pb-20">
       {/* ── Minimal Header ── */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+        <h2 className="text-[15px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#2563EB] to-[#7C3AED] bg-clip-text text-transparent flex items-center gap-3">
           <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Farmer Records
         </h2>
       </div>
@@ -60,9 +60,9 @@ export default function FarmersPage() {
       {/* ── Filters ── */}
       <div className="card-premium p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center border-[#C4B5FD]/20 shadow-xl">
         <div className="relative flex-1 group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-400 group-focus-within:text-orange-500 transition-colors" />
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#7C3AED] group-focus-within:text-orange-500 transition-colors" />
           <input 
-            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-white/50 dark:bg-white/5 border border-[#C4B5FD]/40 text-base font-semibold text-slate-900 dark:text-white focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-base font-semibold text-[#111827] placeholder:text-[#6B7280] focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
             placeholder="Search Farmer Registry by Name or ID…"
             value={search} 
             onChange={e => { setSearch(e.target.value); setPage(1) }} 
@@ -73,7 +73,7 @@ export default function FarmersPage() {
           className={`flex items-center justify-center gap-3 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border text-[10px] sm:text-[11px] font-bold uppercase tracking-widest transition-all duration-500 whitespace-nowrap
             ${fraudOnly
               ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30'
-              : 'bg-[#F5F3FF] dark:bg-white/5 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
+              : 'bg-[#F5F3FF] dark:bg-white/10 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
         >
           <ShieldAlert size={18} />
           High Quality Risk Farmers
@@ -97,12 +97,12 @@ export default function FarmersPage() {
               {loading ? (
                 <tr><td colSpan={7} className="text-center py-48">
                   <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest animate-pulse">Loading Farmer Records...</p>
+                  <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest animate-pulse">Loading Farmer Records...</p>
                 </td></tr>
               ) : farmers.length === 0 ? (
                 <tr><td colSpan={7} className="text-center py-48">
-                  <Users size={56} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
-                  <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">No Farmers Registered</p>
+                  <Users size={56} className="text-[#7C3AED] dark:text-slate-200 mx-auto mb-6" />
+                  <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest">No Farmers Registered</p>
                 </td></tr>
               ) : farmers.map((f, i) => (
                 <motion.tr 
@@ -110,7 +110,7 @@ export default function FarmersPage() {
                   initial={{ opacity: 0, y: 10 }} 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02 }}
-                  className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-all duration-300 cursor-pointer group"
+                  className="hover:bg-[#F5F3FF]/70 dark:hover:bg-white/[0.02] transition-all duration-300 cursor-pointer group"
                   onClick={() => navigate(`/farmers/${f.id}`)}
                 >
                   <td className="px-8 py-7">
@@ -119,13 +119,13 @@ export default function FarmersPage() {
                         {f.full_name[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-purple-700 transition-colors">{f.full_name}</p>
-                        <p className="text-[10px] font-bold text-purple-400 uppercase mt-1">Verified Farmer</p>
+                        <p className="text-sm font-semibold text-[#111827] group-hover:text-purple-700 transition-colors">{f.full_name}</p>
+                        <p className="text-[10px] font-semibold text-[#7C3AED] uppercase mt-1">Verified Farmer</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-7 text-purple-900/50 dark:text-slate-400 font-mono text-[11px] font-bold tracking-tighter">{f.farmer_code}</td>
-                  <td className="px-8 py-7 text-purple-900/60 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+                  <td className="px-8 py-7 text-[#4B5563] font-mono text-[11px] font-medium tracking-tighter">{f.farmer_code}</td>
+                  <td className="px-8 py-7 text-[#6B7280] font-medium text-[10px] uppercase tracking-widest">
                     <div className="flex items-center justify-center gap-2">
                       <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Other Area'}
                     </div>
@@ -136,10 +136,10 @@ export default function FarmersPage() {
                       <div className="flex-1 min-w-[110px] p-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-500 group/stat">
                         <p className="text-[8px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1.5">Accepted</p>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-base font-bold text-emerald-700">{f.total_accepted}</span>
-                          <span className="text-[10px] font-bold text-emerald-600/40 uppercase">Recs</span>
+                          <span className="text-base font-bold text-emerald-800">{f.total_accepted}</span>
+                          <span className="text-[10px] font-bold text-emerald-600/70 uppercase">Recs</span>
                         </div>
-                        <p className="text-[11px] font-bold text-emerald-600 mt-2">
+                        <p className="text-[11px] font-bold text-emerald-700 mt-2">
                           {f.total_submissions > 0 ? ((f.total_accepted / f.total_submissions) * 100).toFixed(0) : 0}%
                         </p>
                       </div>
@@ -148,10 +148,10 @@ export default function FarmersPage() {
                       <div className="flex-1 min-w-[110px] p-4 rounded-3xl bg-rose-500/5 border border-rose-500/10 hover:border-rose-500/30 hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-500 group/stat">
                         <p className="text-[8px] font-bold text-rose-600/60 uppercase tracking-widest mb-1.5">Rejected</p>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-base font-bold text-rose-700">{f.total_rejected}</span>
-                          <span className="text-[10px] font-bold text-rose-600/40 uppercase">Recs</span>
+                          <span className="text-base font-bold text-rose-800">{f.total_rejected}</span>
+                          <span className="text-[10px] font-bold text-rose-600/70 uppercase">Recs</span>
                         </div>
-                        <p className="text-[11px] font-bold text-rose-600 mt-2">
+                        <p className="text-[11px] font-bold text-rose-700 mt-2">
                           {f.total_submissions > 0 ? ((f.total_rejected / f.total_submissions) * 100).toFixed(0) : 0}%
                         </p>
                       </div>
@@ -162,12 +162,12 @@ export default function FarmersPage() {
                     <div className="flex items-center justify-center gap-4">
                       <button
                         onClick={(e) => handleDelete(e, f.id, f.full_name)}
-                        className="p-3 rounded-xl text-purple-300 hover:text-rose-600 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                        className="p-3 rounded-xl text-[#7C3AED] hover:text-rose-600 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
                         title="Remove Farmer"
                       >
                         <Trash2 size={18} />
                       </button>
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-white/10 flex items-center justify-center text-[#7C3AED] group-hover:bg-purple-600 group-hover:text-white transition-all duration-500">
                         <ChevronRight size={20} />
                       </div>
                     </div>
@@ -181,14 +181,14 @@ export default function FarmersPage() {
         {/* ── Pagination ── */}
         {pages > 1 && (
           <div className="px-8 py-10 bg-[#F5F3FF] dark:bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-[#C4B5FD]/20">
-            <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">
               Page <span className="text-white px-3 py-1.5 rounded-lg bg-purple-600 shadow-lg shadow-purple-900/20 mx-2">{page}</span> of {pages}
             </p>
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setPage(p => Math.max(1, p - 1))} 
                 disabled={page === 1}
-                className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:-translate-x-1"
+                className="p-4 rounded-2xl bg-white dark:bg-white/10 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:-translate-x-1"
               >
                 <ChevronLeft size={22} className="text-[#7C3AED]" />
               </button>
@@ -200,7 +200,7 @@ export default function FarmersPage() {
                     <button 
                       key={pg} 
                       onClick={() => setPage(pg)}
-                      className={`w-12 h-12 rounded-2xl text-xs font-bold transition-all duration-500 border ${pg === page ? 'bg-orange-500 border-orange-500 text-white shadow-xl shadow-orange-500/30 scale-110' : 'bg-white dark:bg-white/5 border-[#C4B5FD]/30 text-purple-500 hover:text-orange-500'}`}
+                      className={`w-12 h-12 rounded-2xl text-xs font-bold transition-all duration-500 border ${pg === page ? 'bg-orange-500 border-orange-500 text-white shadow-xl shadow-orange-500/30 scale-110' : 'bg-white dark:bg-white/10 border-[#C4B5FD]/30 text-purple-500 hover:text-orange-500'}`}
                     >
                       {pg}
                     </button>
@@ -210,7 +210,7 @@ export default function FarmersPage() {
               <button 
                 onClick={() => setPage(p => Math.min(pages, p + 1))} 
                 disabled={page === pages}
-                className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:translate-x-1"
+                className="p-4 rounded-2xl bg-white dark:bg-white/10 border border-[#C4B5FD]/30 disabled:opacity-30 transition-all shadow-sm hover:shadow-purple-500/10 hover:translate-x-1"
               >
                 <ChevronRight size={22} className="text-[#7C3AED]" />
               </button>

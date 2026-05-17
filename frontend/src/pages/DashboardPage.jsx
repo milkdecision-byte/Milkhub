@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line
@@ -9,19 +10,23 @@ import {
   Activity, Calendar, Clock, ArrowUpRight, ArrowDownRight,
   FlaskConical, Thermometer, Droplets, Zap, ShieldCheck,
   Microscope, Info, ChevronRight, MoreHorizontal, Search,
-  Filter, Download, LayoutGrid, List, Sun, Moon, ChevronDown
+  Filter, Download, LayoutGrid, List, Sun, Moon, ChevronDown, FileText, File, Printer
 } from 'lucide-react'
 import api from '../utils/api'
 import { useTheme } from '../context/ThemeContext'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
 // --- Main Dashboard ---
 
 export default function DashboardPage() {
   const { theme } = useTheme()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTrendShift, setActiveTrendShift] = useState('fullDay') // morning, evening, fullDay
+  const [showExportDropdown, setShowExportDropdown] = useState(false)
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -135,6 +140,72 @@ export default function DashboardPage() {
     document.body.removeChild(link)
   }
 
+  const handleExportExcel = () => {
+    if (!records || records.length === 0) {
+      alert('No data to export')
+      return
+    }
+    
+    const headers = ['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']
+    const rows = records.map(r => [
+      r.id || '',
+      r.farmer_name || '',
+      r.quantity || '',
+      r.fat || '',
+      r.snf || '',
+      r.decision || '',
+      r.date || ''
+    ])
+    
+    let html = '<table border="1"><thead><tr>'
+    headers.forEach(h => { html += `<th>${h}</th>` })
+    html += '</tr></thead><tbody>'
+    rows.forEach(row => {
+      html += '<tr>'
+      row.forEach(cell => { html += `<td>${cell}</td>` })
+      html += '</tr>'
+    })
+    html += '</tbody></table>'
+    
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'milk_collection_report.xls'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleExportPDF = () => {
+    if (!records || records.length === 0) {
+      alert('No data to export')
+      return
+    }
+    
+    const doc = new jsPDF()
+    doc.text('Milk Collection Report', 14, 15)
+    
+    const headers = [['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']]
+    const data = records.map(r => [
+      r.id || '',
+      r.farmer_name || '',
+      r.quantity || '',
+      r.fat || '',
+      r.snf || '',
+      r.decision || '',
+      r.date || ''
+    ])
+    
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 20,
+    })
+    
+    doc.save('milk_collection_report.pdf')
+  }
+
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
@@ -148,10 +219,29 @@ export default function DashboardPage() {
             <Calendar size={18} />
             <span>Today</span>
           </button>
-          <button onClick={handleExport} className="btn-pro btn-pro-primary">
-            <Download size={18} />
-            <span>Export Report</span>
-          </button>
+          <div className="relative">
+            <button onClick={() => setShowExportDropdown(!showExportDropdown)} className="btn-pro btn-pro-primary">
+              <Download size={18} />
+              <span>Export Report</span>
+              <ChevronDown size={14} className="ml-1" />
+            </button>
+            {showExportDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-white/10 z-50 overflow-hidden">
+                <button onClick={() => { handleExport(); setShowExportDropdown(false); }} className="w-full text-left px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2">
+                  <FileText size={16} className="text-slate-600" />
+                  <span>Export CSV</span>
+                </button>
+                <button onClick={() => { handleExportExcel(); setShowExportDropdown(false); }} className="w-full text-left px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2">
+                  <File size={16} className="text-emerald-500" />
+                  <span>Export Excel</span>
+                </button>
+                <button onClick={() => { handleExportPDF(); setShowExportDropdown(false); }} className="w-full text-left px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2">
+                  <Printer size={16} className="text-rose-500" />
+                  <span>Export PDF</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -205,25 +295,25 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
               <div>
                 <h3 className="text-lg md:text-xl font-black tracking-tight">Milk Collection Trend</h3>
-                <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Shift-wise volume analytics</p>
+                <p className="text-xs font-bold text-slate-600 mt-1 uppercase tracking-widest">Shift-wise volume analytics</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex p-1.5 bg-indigo-50/50 dark:bg-slate-800 rounded-2xl border border-indigo-100/50 dark:border-indigo-500/10">
                   <button 
                     onClick={() => setActiveTrendShift('morning')}
-                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'morning' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'morning' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-indigo-500'}`}
                   >
                     Morning
                   </button>
                   <button 
                     onClick={() => setActiveTrendShift('evening')}
-                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'evening' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'evening' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-indigo-500'}`}
                   >
                     Evening
                   </button>
                   <button 
                     onClick={() => setActiveTrendShift('fullDay')}
-                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'fullDay' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-indigo-500'}`}
+                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all ${activeTrendShift === 'fullDay' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-indigo-500'}`}
                   >
                     Full Day
                   </button>
@@ -302,7 +392,7 @@ export default function DashboardPage() {
                   <span className="text-4xl font-black tracking-tighter text-indigo-600 dark:text-indigo-400">
                     {Math.round((stats.accepted / (stats.total || 1)) * 100)}%
                   </span>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Accepted</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">Accepted</span>
                 </div>
               </div>
 
@@ -334,7 +424,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between px-2 pt-2">
-                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Collection</span>
+                  <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Total Collection</span>
                   <span className="text-lg font-black text-indigo-600 dark:text-indigo-400 whitespace-nowrap">{stats.total || 0} L</span>
                 </div>
               </div>
@@ -351,7 +441,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-xl font-black tracking-tight">Milk Quality Standards</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Real-time laboratory parameters</p>
+                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-0.5">Real-time laboratory parameters</p>
               </div>
             </div>
           </div>
@@ -409,7 +499,7 @@ export default function DashboardPage() {
             <div className="p-4 md:p-8 border-b border-indigo-50 dark:border-indigo-500/10 flex items-center justify-between">
               <div>
                 <h3 className="text-lg md:text-xl font-black tracking-tight">Recent Collection Records</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Live sampling data</p>
+                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">Live sampling data</p>
               </div>
               <button 
                 onClick={() => navigate('/records')}
@@ -438,13 +528,13 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-6 py-5">
                         <p className="text-sm font-black tracking-tight">{r.farmer_name}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{r.farmer_code}</p>
                       </td>
-                      <td className="px-6 py-5 text-right font-black text-indigo-600 dark:text-indigo-400">{r.quantity}L</td>
+                      <td className="px-6 py-5 text-right font-black text-indigo-600 dark:text-indigo-400">{r.quantity ? `${r.quantity} L` : '---'}</td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-black text-slate-700 dark:text-slate-300">Fat: {r.fat}%</span>
-                          <span className="text-[10px] font-bold text-slate-400">SNF: {r.snf}%</span>
+                          <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">Fat: {r.fat}%</span>
+                          <span className="text-[10px] font-bold text-slate-600">SNF: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
@@ -453,7 +543,7 @@ export default function DashboardPage() {
                           {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                      <td className="px-6 py-5 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -493,14 +583,17 @@ export default function DashboardPage() {
                           <p className="text-xs font-black uppercase tracking-wider">{insight.title}</p>
                           <span className="text-[9px] font-black opacity-60">09:30 AM</span>
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed">{insight.desc}</p>
+                        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{insight.desc}</p>
                       </div>
                     </div>
                   </div>
                 )
               })}
             </div>
-            <button className="mt-8 btn-pro btn-pro-primary py-4 rounded-[20px] text-[11px] uppercase tracking-[0.2em]">
+            <button 
+              onClick={() => navigate('/records')}
+              className="mt-8 btn-pro btn-pro-primary py-4 rounded-[20px] text-[11px] uppercase tracking-[0.2em]"
+            >
               View All Intelligence Logs
             </button>
           </div>
@@ -527,7 +620,7 @@ const OverviewCard = ({ title, total, accepted, rejected, acceptance, icon: Icon
     purple: { 
       grad: 'from-purple-500 to-pink-500', 
       soft: 'bg-purple-50/50 dark:bg-purple-900/10',
-      text: 'text-purple-600 dark:text-purple-400',
+      text: 'text-purple-600 dark:text-[#7C3AED]',
       glow: 'glow-purple'
     },
   }
@@ -545,7 +638,7 @@ const OverviewCard = ({ title, total, accepted, rejected, acceptance, icon: Icon
           <Icon size={24} strokeWidth={2.5} />
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{title}</p>
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">{title}</p>
           <h2 className={`text-3xl font-black tracking-tighter ${c.text}`}>{(total || 0).toLocaleString()}L</h2>
         </div>
       </div>
@@ -567,7 +660,7 @@ const OverviewCard = ({ title, total, accepted, rejected, acceptance, icon: Icon
             <TrendingUp size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Acceptance</p>
+            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Acceptance</p>
             <p className="text-sm font-black text-emerald-500">{acceptance}%</p>
           </div>
         </div>
@@ -613,16 +706,16 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
       className="card-pro group p-5 flex flex-col items-center gap-4 hover:border-indigo-500/30"
       style={{ backgroundImage: gradientMap[label.toLowerCase()] || 'none' }}
     >
-      <div className={`w-12 h-12 rounded-2xl bg-white/50 dark:bg-white/10 flex items-center justify-center ${colorMap[color]} group-hover:scale-110 transition-transform duration-300`}>
+      <div className={`w-12 h-12 rounded-2xl bg-white/100 dark:bg-white/10 flex items-center justify-center ${colorMap[color]} group-hover:scale-110 transition-transform duration-300`}>
         <Icon size={24} strokeWidth={2.5} />
       </div>
       <div className="text-center">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">{label}</p>
         <h4 className={`text-lg font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
       </div>
       <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">
         <div className="flex flex-col items-center">
-          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Normal Range</span>
+          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Normal Range</span>
           <span className="text-[10px] font-black text-indigo-500">{range}</span>
         </div>
         <div className={`status-badge ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>

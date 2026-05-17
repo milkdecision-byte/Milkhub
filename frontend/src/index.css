@@ -32,6 +32,7 @@
 
   html, body {
     @apply bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300;
+    color: #111827;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -58,12 +59,40 @@
   }
 
   input, select, textarea {
-    @apply bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 text-sm font-medium placeholder:text-gray-400 outline-none transition-all duration-300;
+    @apply bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 text-sm font-medium placeholder:text-[#9CA3AF] text-[#111827] outline-none transition-all duration-300;
     font-family: 'Inter', sans-serif;
   }
 
   input:focus, select:focus, textarea:focus {
     @apply border-[#2563EB] ring-4 ring-[#2563EB]/5;
+  }
+
+  .table-header-enterprise {
+    @apply px-6 py-5 text-[10px] font-black uppercase tracking-[0.18em] text-white bg-[#0F172A] border-b border-[#E5E7EB];
+  }
+
+  .text-primary {
+    color: #111827;
+  }
+
+  .text-secondary {
+    color: #374151;
+  }
+
+  .text-muted {
+    color: #6B7280;
+  }
+
+  .text-placeholder {
+    color: #9CA3AF;
+  }
+
+  .bg-input {
+    background: #F8FAFC;
+  }
+
+  .bg-card-contrast {
+    background: #FFFFFF;
   }
 
   .card-pro:hover, .card-premium:hover {
@@ -88,6 +117,10 @@
 
   .table-header-pro {
     @apply px-6 py-5 text-[10px] font-black text-indigo-400 uppercase tracking-[0.15em] border-b border-[var(--border-light)];
+  }
+
+  .table-header-enterprise {
+    @apply px-6 py-5 text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-[0.18em] border-b border-[var(--border-light)];
   }
 
   .btn-pro {

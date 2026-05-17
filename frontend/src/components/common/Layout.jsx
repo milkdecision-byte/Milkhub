@@ -187,7 +187,7 @@ export default function Layout() {
                       <div className="p-1 space-y-1">
                         <button 
                           onClick={() => { setProfileOpen(false); navigate('/settings') }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all"
                         >
                           <Settings size={18} strokeWidth={2.5} className="text-indigo-400" />
                           Settings
@@ -226,11 +226,11 @@ export default function Layout() {
 
       {/* Mobile Bottom Action Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-[var(--border-light)] px-6 py-3 flex items-center justify-between z-50 shadow-lg">
-        <NavLink to="/dashboard" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+        <NavLink to="/dashboard" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600'}`}>
           <LayoutDashboard size={22} strokeWidth={2.5} />
           <span className="text-[10px] font-black uppercase tracking-wider">Dashboard</span>
         </NavLink>
-        <NavLink to="/upload" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+        <NavLink to="/upload" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600'}`}>
           <Upload size={22} strokeWidth={2.5} />
           <span className="text-[10px] font-black uppercase tracking-wider">Upload</span>
         </NavLink>
@@ -243,11 +243,11 @@ export default function Layout() {
           <Plus size={24} strokeWidth={3} />
         </button>
         
-        <NavLink to="/reports" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+        <NavLink to="/reports" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600'}`}>
           <BarChart3 size={22} strokeWidth={2.5} />
           <span className="text-[10px] font-black uppercase tracking-wider">Reports</span>
         </NavLink>
-        <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+        <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600'}`}>
           <Settings size={22} strokeWidth={2.5} />
           <span className="text-[10px] font-black uppercase tracking-wider">Settings</span>
         </NavLink>

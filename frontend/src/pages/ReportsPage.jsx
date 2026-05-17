@@ -18,7 +18,7 @@ function StatMiniCard({ label, value, icon: Icon, colorClass }) {
         <Icon size={24} className="text-white"/>
       </div>
       <div>
-        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest mb-1">{label}</p>
         <p className="text-2xl font-bold text-[#1E1B4B] tracking-tighter">{value.toLocaleString()}</p>
       </div>
     </div>
@@ -39,14 +39,14 @@ function ExportCard({ icon: Icon, title, desc, colorClass, onClick, loading, var
         {loading ? <Loader2 size={24} className="animate-spin text-white"/> : <Icon size={24} className="text-white"/>}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className={`font-bold text-[#1E1B4B] dark:text-white tracking-tight group-hover:text-[#7C3AED] transition-colors ${isCompact ? 'text-lg' : 'text-xl'}`}>
+        <h4 className={`font-bold text-[#111827] tracking-tight group-hover:text-[#7C3AED] transition-colors ${isCompact ? 'text-lg' : 'text-xl'}`}>
           {title}
         </h4>
-        <p className="text-[10px] text-purple-900/40 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">
+        <p className="text-[10px] text-[#374151] font-semibold leading-relaxed mt-1">
           {desc}
         </p>
       </div>
-      <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] dark:bg-white/5 flex items-center justify-center text-purple-400 group-hover:bg-[#7C3AED] group-hover:text-white transition-all">
+      <div className="w-10 h-10 rounded-xl bg-[#F5F3FF] dark:bg-white/10 flex items-center justify-center text-[#7C3AED] group-hover:bg-[#7C3AED] group-hover:text-white transition-all">
         <Download size={18} />
       </div>
     </motion.button>
@@ -142,7 +142,7 @@ export default function ReportsPage() {
     <div className="max-w-[1600px] mx-auto space-y-12 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.3em] flex items-center gap-4">
+        <h2 className="text-[15px] font-bold uppercase tracking-[0.25em] bg-gradient-to-r from-[#2563EB] to-[#7C3AED] bg-clip-text text-transparent flex items-center gap-4">
           <span className="w-5 h-5 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg shadow-purple-500/20" /> 
           Download Quality Reports
         </h2>
@@ -166,7 +166,7 @@ export default function ReportsPage() {
       )}
 
       {/* ── Master Filter Matrix ── */}
-      <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl bg-white/50 dark:bg-black/20 backdrop-blur-md">
+      <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl bg-white/100 dark:bg-black/20 backdrop-blur-md">
         <div className="flex items-center justify-between border-b border-[#C4B5FD]/10 pb-8 mb-8">
           <h3 className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.3em] flex items-center gap-4">
             <Filter size={18} /> Filter by Date and Shift
@@ -182,10 +182,10 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Date Picker */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Date Selection</label>
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Date Selection</label>
             <input 
               type="date" 
-              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
+              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
               value={filters.date_from}
               max={new Date().toISOString().split('T')[0]}
               onChange={e => setFilter('date_from', e.target.value)}
@@ -194,9 +194,9 @@ export default function ReportsPage() {
 
           {/* Decision Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Quality Result</label>
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Quality Result</label>
             <select 
-              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.decision}
               onChange={e => setFilter('decision', e.target.value)}
             >
@@ -208,9 +208,9 @@ export default function ReportsPage() {
 
           {/* Fraud Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Risk Level</label>
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Risk Level</label>
             <select 
-              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.fraud_risk}
               onChange={e => setFilter('fraud_risk', e.target.value)}
             >
@@ -224,9 +224,9 @@ export default function ReportsPage() {
 
           {/* Session Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-purple-400 uppercase tracking-widest ml-1">Entry Source</label>
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Entry Source</label>
             <select 
-              className="w-full bg-white dark:bg-white/5 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
               value={filters.session}
               onChange={e => setFilter('session', e.target.value)}
             >
@@ -275,19 +275,19 @@ export default function ReportsPage() {
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
                     <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
+                    <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
                   </td>
                 </tr>
               ) : displayedRecords.length === 0 ? (
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
-                    <Database size={64} className="text-purple-200 dark:text-white/10 mx-auto mb-6" />
+                    <Database size={64} className="text-[#7C3AED] dark:text-slate-200 mx-auto mb-6" />
                     <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records available for selected date</h3>
-                    <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
+                    <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
                   </td>
                 </tr>
               ) : displayedRecords.map((r, i) => (
-                <tr key={r.id} className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-colors group">
+                <tr key={r.id} className="hover:bg-[#F5F3FF]/70 dark:hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-5 sticky left-0 bg-white dark:bg-[#111827] z-10">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-lg shadow-purple-500/20">
@@ -295,14 +295,14 @@ export default function ReportsPage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-[#1E1B4B] dark:text-white truncate max-w-[150px]">{r.farmer_name}</p>
-                        <p className="text-[9px] font-bold text-purple-400 dark:text-purple-200 uppercase tracking-widest">{r.entry_type === 'manual' ? 'Manual Entry' : 'Bulk Upload'}</p>
+                        <p className="text-[9px] font-bold text-[#7C3AED] dark:text-[#7C3AED] uppercase tracking-widest">{r.entry_type === 'manual' ? 'Manual Entry' : 'Bulk Upload'}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-5 text-[11px] font-bold text-slate-700 uppercase tracking-widest">{r.farmer_code || '---'}</td>
                   <td className="px-6 py-5">
                     <p className="text-xs font-bold text-[#1E1B4B] dark:text-white">{r.date}</p>
-                    <p className="text-[10px] font-bold text-purple-400 dark:text-purple-300 uppercase tracking-widest">{r.shift}</p>
+                    <p className="text-[10px] font-bold text-[#7C3AED] dark:text-[#7C3AED] uppercase tracking-widest">{r.shift}</p>
                   </td>
                   <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.fat?.toFixed(2)}</td>
                   <td className="px-6 py-5 text-sm font-bold text-slate-700">{r.snf?.toFixed(2)}</td>
@@ -349,14 +349,14 @@ export default function ReportsPage() {
         {/* Pagination */}
         {total > 20 && (
           <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-black/40 border-t border-[#C4B5FD]/10 flex items-center justify-between">
-            <p className="text-[11px] font-bold text-purple-400 uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">
               Showing <span className="text-[#7C3AED]">{records.length}</span> of <span className="text-[#7C3AED]">{total}</span> Milk Records
             </p>
             <div className="flex items-center gap-4">
               <button 
                 disabled={page === 1}
                 onClick={() => setPage(p => p - 1)}
-                className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
+                className="w-12 h-12 rounded-xl bg-white dark:bg-white/10 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
               >
                 <ArrowRight className="rotate-180" size={18} />
               </button>
@@ -364,7 +364,7 @@ export default function ReportsPage() {
               <button 
                 disabled={page * 20 >= total}
                 onClick={() => setPage(p => p + 1)}
-                className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
+                className="w-12 h-12 rounded-xl bg-white dark:bg-white/10 border border-[#C4B5FD]/20 flex items-center justify-center text-purple-600 disabled:opacity-30 hover:bg-purple-50 transition-all"
               >
                 <ArrowRight size={18} />
               </button>
@@ -378,21 +378,21 @@ export default function ReportsPage() {
         <ExportCard
           icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-[#059669] to-[#10B981]"
           title="Full Excel Report"
-          desc="Download all filtered records in Excel"
+          desc={<span>Download all filtered records in <span className="text-[#7C3AED] font-bold">EXCEL</span></span>}
           loading={loadingKey === 'excel'}
           onClick={() => downloadReport('excel', '/export/excel')}
         />
         <ExportCard
           icon={FileText} colorClass="bg-gradient-to-br from-[#7C3AED] to-indigo-700"
           title="Summary PDF Report"
-          desc="Professional summary for quality review"
+          desc={<span>Professional summary for <span className="text-[#7C3AED] font-bold">QUALITY REVIEW</span></span>}
           loading={loadingKey === 'pdf'}
           onClick={() => downloadReport('pdf', '/export/pdf')}
         />
         <ExportCard
           icon={FileSpreadsheet} colorClass="bg-gradient-to-br from-slate-700 to-slate-900"
           title="Filtered CSV Data"
-          desc="Download records in simple CSV format"
+          desc={<span>Download records in simple <span className="text-[#7C3AED] font-bold">CSV FORMAT</span></span>}
           loading={loadingKey === 'csv'}
           onClick={() => downloadReport('csv', '/export/csv')}
         />

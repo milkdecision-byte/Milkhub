@@ -12,8 +12,8 @@ import toast from 'react-hot-toast'
 
 function FeaturePill({ icon: Icon, label }) {
   return (
-    <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-purple-600/10 dark:bg-white/5 border border-purple-600/20 dark:border-white/10 shadow-sm transition-all hover:scale-105">
-      <Icon size={14} className="text-purple-600 dark:text-purple-400" />
+    <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-purple-600/10 dark:bg-white/10 border border-purple-600/20 dark:border-white/10 shadow-sm transition-all hover:scale-105">
+      <Icon size={14} className="text-purple-600 dark:text-[#7C3AED]" />
       <span className="text-[10px] font-black text-purple-900 dark:text-white uppercase tracking-widest">{label}</span>
     </div>
   )
@@ -58,7 +58,7 @@ export default function LoginPage() {
       {/* ── Theme Toggle ── */}
       <button
         onClick={toggleTheme}
-        className="fixed top-6 right-6 p-3 rounded-2xl bg-white/5 dark:bg-white/5 border border-purple-500/10 dark:border-white/10 text-purple-600 dark:text-white/40 hover:scale-110 transition-all z-50 shadow-xl"
+        className="fixed top-6 right-6 p-3 rounded-2xl bg-white/10 dark:bg-white/10 border border-purple-500/10 dark:border-white/10 text-purple-600 dark:text-white/40 hover:scale-110 transition-all z-50 shadow-xl"
       >
         {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
       </button>
@@ -75,7 +75,7 @@ export default function LoginPage() {
           animate={{ opacity: 1, x: 0 }}
           className="lg:w-1/2 space-y-4 lg:space-y-8 text-center lg:text-left"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-600/10 border border-purple-600/30 text-purple-700 dark:text-purple-400 font-black uppercase tracking-[0.3em] text-[8px] sm:text-[10px] mb-1 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-600/10 border border-purple-600/30 text-purple-700 dark:text-[#7C3AED] font-black uppercase tracking-[0.3em] text-[8px] sm:text-[10px] mb-1 shadow-sm">
             <Sparkles size={10} /> Milk Quality Monitoring
           </div>
           
@@ -103,11 +103,11 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-1.5">
-                <label className={`text-[10px] font-black ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
+                <label className={`text-[10px] font-black ${theme === 'dark' ? 'text-[#7C3AED]' : 'text-purple-700'} uppercase tracking-[0.4em] ml-4 flex items-center gap-2`}>
                   <User size={12} /> Admin ID
                 </label>
                 <input
-                  className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-purple-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-purple-600/10 outline-none transition-all text-sm shadow-sm`}
+                  className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-purple-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-[#9CA3AF] dark:placeholder:text-slate-600 focus:ring-4 focus:ring-purple-600/10 outline-none transition-all text-sm shadow-sm`}
                   placeholder="Enter Admin ID"
                   value={form.username}
                   onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 </label>
                 <div className="relative group">
                   <input
-                    className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-blue-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-slate-500 dark:placeholder:text-white/20 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all text-sm tracking-widest shadow-sm`}
+                    className={`w-full bg-white/60 dark:bg-white/[0.04] border ${theme === 'dark' ? 'border-white/10' : 'border-blue-600/20'} px-6 py-4 rounded-[1.5rem] ${theme === 'dark' ? 'text-white' : 'text-[#1E1B4B]'} font-black placeholder:text-[#9CA3AF] dark:placeholder:text-slate-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all text-sm tracking-widest shadow-sm`}
                     type={showPass ? 'text' : 'password'}
                     placeholder="Enter Admin Password"
                     value={form.password}
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPass(p => !p)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-purple-900/20 dark:text-white/20 hover:text-purple-600 transition-colors"
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-purple-700 dark:text-white/80 hover:text-purple-600 transition-colors"
                   >
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>

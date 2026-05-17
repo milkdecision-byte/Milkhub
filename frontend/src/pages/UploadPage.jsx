@@ -110,7 +110,7 @@ export default function UploadPage() {
     <div className="max-w-6xl mx-auto space-y-12 pb-24">
       {/* ── Minimal Header ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <h2 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+        <h2 className="text-xs font-bold text-[#111827] uppercase tracking-[0.2em] flex items-center gap-3">
           <span className="w-4 h-4 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#F97316] shadow-lg" /> Sample Upload Center
         </h2>
         
@@ -135,18 +135,18 @@ export default function UploadPage() {
           {/* Milk Type Selector */}
           <div className="flex gap-6 mb-10">
             <div 
-              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'cow' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
               onClick={() => setMilkType('cow')}
             >
               <span className="text-3xl">🐄</span>
-              <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Cow Milk</span>
+              <span className={`font-bold text-sm ${milkType === 'cow' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Cow Milk</span>
             </div>
             <div 
-              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/5'}`}
+              className={`flex-1 p-6 rounded-3xl border-2 cursor-pointer transition-all flex items-center justify-center gap-3 ${milkType === 'buffalo' ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-lg shadow-purple-500/10' : 'border-[#C4B5FD]/20 bg-white dark:bg-white/10'}`}
               onClick={() => setMilkType('buffalo')}
             >
               <span className="text-3xl">🐃</span>
-              <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-purple-900/60'}`}>Buffalo Milk</span>
+              <span className={`font-bold text-sm ${milkType === 'buffalo' ? 'text-[#7C3AED]' : 'text-slate-700'}`}>Buffalo Milk</span>
             </div>
           </div>
 
@@ -162,7 +162,7 @@ export default function UploadPage() {
             <input {...getInputProps()}/>
             <div className="flex flex-col items-center gap-10 relative z-10">
               <div className={`w-28 h-28 rounded-[2.5rem] flex items-center justify-center transition-all duration-700 shadow-2xl border border-white/40
-                ${isDragActive ? 'bg-orange-500 text-white scale-110 rotate-12' : 'bg-[#F5F3FF] dark:bg-white/5 text-purple-400 group-hover:rotate-6 shadow-inner'}`}>
+                ${isDragActive ? 'bg-orange-500 text-white scale-110 rotate-12' : 'bg-[#F5F3FF] dark:bg-white/10 text-[#7C3AED] group-hover:rotate-6 shadow-inner'}`}>
                 {file
                   ? <FileSpreadsheet size={44} className="text-[#7C3AED]"/>
                   : <Upload size={44} className={isDragActive ? 'text-white' : 'text-[#7C3AED] group-hover:text-orange-500'}/>
@@ -178,8 +178,8 @@ export default function UploadPage() {
                 </div>
               ) : (
                 <div className="max-w-md">
-                  <h3 className="text-3xl font-bold text-[#1E1B4B] dark:text-white tracking-tight">Upload Quality Data</h3>
-                  <p className="text-[11px] text-purple-400 mt-5 font-bold uppercase tracking-[0.25em] leading-relaxed">
+                  <h3 className="text-3xl font-bold text-[#111827] tracking-tight">Upload Quality Data</h3>
+                  <p className="text-[11px] text-[#6B7280] mt-5 font-bold uppercase tracking-[0.25em] leading-relaxed">
                     Drag and Drop or Click to Upload
                   </p>
                 </div>
@@ -198,12 +198,12 @@ export default function UploadPage() {
               className="space-y-10"
             >
               <div className="card-premium p-10 shadow-xl border-[#C4B5FD]/20">
-                <label className="text-[11px] font-bold text-purple-400 uppercase tracking-widest ml-1 mb-4 block flex items-center gap-3">
+                <label className="text-[11px] font-bold text-[#111827] tracking-wide uppercase ml-1 mb-4 block flex items-center gap-3">
                   <Share2 size={16} className="text-[#7C3AED]" /> Collection Details (Session Name)
                 </label>
                 <input 
                   type="text" 
-                  className="w-full bg-[#F5F3FF]/50 dark:bg-white/5 border border-[#C4B5FD]/40 px-8 py-5 rounded-[2rem] text-[#1E1B4B] dark:text-white font-bold outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all shadow-inner" 
+                  className="w-full bg-[#F5F3FF]/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-8 py-5 rounded-[2rem] text-[#111827] font-bold outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 transition-all shadow-inner" 
                   placeholder="e.g. Milk Collection - Morning Batch" 
                   value={sessionName} 
                   onChange={e => setSessionName(e.target.value)}
@@ -214,7 +214,7 @@ export default function UploadPage() {
                 <button 
                   onClick={() => executePipeline(true)} 
                   disabled={uploading} 
-                  className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
+                  className="flex-1 flex items-center justify-center gap-3 bg-[#7C3AED] text-white py-5 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-[#7C3AED]"
                 >
                   {uploading ? <Loader2 size={20} className="animate-spin"/> : <Zap size={18}/>}
                   {uploading ? 'Processing Data…' : 'Verify Quality Data'}
@@ -275,8 +275,8 @@ export default function UploadPage() {
                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${s.g} flex items-center justify-center mx-auto mb-4 text-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                      <s.icon size={22} />
                    </div>
-                   <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">{s.label}</p>
-                   <p className="text-3xl font-black text-[#1E1B4B] dark:text-white tracking-tighter">{s.value}</p>
+                   <p className="text-[9px] font-black text-[#4B5563] uppercase tracking-widest mb-1">{s.label}</p>
+                   <p className="text-3xl font-bold text-[#111827] tracking-tighter">{s.value}</p>
                 </div>
               ))}
             </div>
@@ -317,8 +317,8 @@ export default function UploadPage() {
 
             {/* Ingestion Table */}
             <div className="card-premium overflow-hidden border-[#C4B5FD]/20 shadow-xl">
-              <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-white/5 border-b border-[#C4B5FD]/20 flex items-center justify-between">
-                <h3 className="text-xs font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest flex items-center gap-4">
+              <div className="px-10 py-8 bg-[#F5F3FF] dark:bg-white/10 border-b border-[#C4B5FD]/20 flex items-center justify-between">
+                <h3 className="text-xs font-bold text-[#111827] tracking-wide uppercase flex items-center gap-4">
                   <Activity size={20} className="text-[#7C3AED]"/> 
                   {isConfirmed ? `Batch ID: ${result.batch_id.slice(0,12)}…` : 'Quality Data Preview'}
                 </h3>
@@ -330,7 +330,7 @@ export default function UploadPage() {
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse min-w-[1000px]">
                   <thead>
-                    <tr className="bg-white/50 dark:bg-black/40 border-b border-[#C4B5FD]/20">
+                    <tr className="bg-white/100 dark:bg-black/40 border-b border-[#C4B5FD]/20">
                       {['Entity Node', 'Registry ID', 'Timestamp', 'Operations', 'Quality Result', 'Security Profile', 'Laboratory Observations'].map(h => (
                         <th key={h} className="table-header-enterprise">{h}</th>
                       ))}
@@ -338,18 +338,18 @@ export default function UploadPage() {
                   </thead>
                   <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
                     {result.rows?.slice(0, 15).map((row, i) => (
-                      <tr key={i} className="hover:bg-[#F5F3FF]/50 dark:hover:bg-white/[0.02] transition-all duration-300 group">
-                        <td className="px-8 py-6 text-sm font-bold text-[#1E1B4B] dark:text-white group-hover:text-[#7C3AED] max-w-[200px] truncate">{row.farmer_name}</td>
-                        <td className="px-8 py-6 text-[11px] font-bold text-purple-900/40 font-mono tracking-tighter">{row.farmer_code}</td>
-                        <td className="px-8 py-6 text-[10px] font-bold text-slate-500">{row.date}</td>
-                        <td className="px-8 py-6 text-[10px] font-bold text-purple-400 uppercase tracking-widest">{row.shift} Node</td>
+                      <tr key={i} className="hover:bg-[#F5F3FF]/70 dark:hover:bg-white/[0.02] transition-all duration-300 group">
+                        <td className="px-8 py-6 text-sm font-bold text-[#111827] group-hover:text-[#7C3AED] max-w-[200px] truncate">{row.farmer_name}</td>
+                        <td className="px-8 py-6 text-[11px] font-bold text-[#111827] font-mono tracking-tighter">{row.farmer_code}</td>
+                        <td className="px-8 py-6 text-[10px] font-bold text-[#4B5563]">{row.date}</td>
+                        <td className="px-8 py-6 text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">{row.shift}</td>
                         <td className="px-8 py-6"><StatusPill decision={row.decision}/></td>
                         <td className="px-8 py-6">
                           <span className={`text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-lg ${
-                            row.fraud_risk === 'high' ? 'bg-rose-500/10 text-rose-600 border border-rose-500/20 shadow-sm' : 'text-purple-300'
+                            row.fraud_risk === 'high' ? 'bg-rose-500/10 text-rose-600 border border-rose-500/20 shadow-sm' : 'text-[#7C3AED]'
                           }`}>{row.fraud_risk || 'Verified'}</span>
                         </td>
-                        <td className="px-8 py-6 text-[10px] font-bold text-purple-900/60 uppercase italic truncate max-w-[250px]">
+                        <td className="px-8 py-6 text-[10px] font-bold text-[#4B5563] uppercase italic truncate max-w-[250px]">
                           {row.reasons?.[0] || 'Meets Quality Standards'}
                         </td>
                       </tr>
@@ -371,7 +371,7 @@ export default function UploadPage() {
                   <button 
                     onClick={() => executePipeline(false)} 
                     disabled={uploading}
-                    className="flex items-center gap-3 bg-[#7C3AED] text-white px-12 py-4 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-purple-400"
+                    className="flex items-center gap-3 bg-[#7C3AED] text-white px-12 py-4 rounded-full text-sm font-bold shadow-lg shadow-purple-500/20 hover:bg-[#6D28D9] hover:shadow-purple-500/30 transition-all duration-300 disabled:bg-purple-200 disabled:text-[#7C3AED]"
                   >
                     {uploading ? <Loader2 size={20} className="animate-spin"/> : <ShieldCheck size={18}/>}
                     {uploading ? 'Saving Data…' : 'Save to Records'}
@@ -402,14 +402,14 @@ export default function UploadPage() {
              <Info size={32}/>
            </div>
            <div>
-              <h4 className="text-xl font-bold text-[#1E1B4B] dark:text-white uppercase tracking-widest">Ingestion Protocol Architecture</h4>
-              <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mt-2">Nomenclature Standards & Molecular Vectors</p>
+               <h4 className="text-xl font-bold text-[#111827] tracking-wide uppercase">Ingestion Protocol Architecture</h4>
+               <p className="text-[10px] font-medium text-[#4B5563] uppercase tracking-widest mt-2">Nomenclature Standards & Molecular Vectors</p>
            </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
           <div className="space-y-6">
-            <p className="text-[11px] font-bold text-rose-600 uppercase tracking-[0.25em] flex items-center gap-3">
+            <p className="text-[11px] font-bold text-rose-700 uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_10px_rgba(225,29,72,0.5)] animate-pulse"></span>
               Required Quality Fields
             </p>
@@ -434,12 +434,12 @@ export default function UploadPage() {
         </div>
 
         <div className="pt-10 border-t border-[#C4B5FD]/20 relative z-10">
-          <p className="text-[12px] text-purple-900/60 dark:text-slate-400 font-semibold uppercase tracking-widest leading-relaxed">
-            <b className="text-[#1E1B4B] dark:text-white">Automatic Data Matching:</b> The system automatically matches your column names. 
+          <p className="text-[12px] text-[#374151] font-bold uppercase tracking-wide leading-relaxed">
+            <b className="text-[#111827]">Automatic Data Matching:</b> The system automatically matches your column names. 
             Missing values are checked against standard dairy quality rules.
           </p>
         </div>
-        <Search size={300} className="absolute -right-24 -top-24 text-purple-400 opacity-[0.03] rotate-12 group-hover:rotate-6 transition-transform duration-1000" />
+        <Search size={300} className="absolute -right-24 -top-24 text-[#7C3AED] opacity-[0.03] rotate-12 group-hover:rotate-6 transition-transform duration-1000" />
       </div>
     </div>
   )
