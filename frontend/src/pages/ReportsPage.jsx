@@ -69,8 +69,46 @@ export default function ReportsPage() {
   const [loadingKey, setLoadingKey] = useState(null)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [milkFilter, setMilkFilter] = useState('all')
 
   const displayedRecords = records.filter(r => !filters.date_from || r.date === filters.date_from)
+
+  const filteredData = displayedRecords.filter((item) => {
+    const matchesSearch =
+      item.farmer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.farmer_code?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesMilk =
+      milkFilter === "all" ||
+      item.milk_type?.toLowerCase() === milkFilter.toLowerCase();
+
+    return matchesSearch && matchesMilk;
+  });
+
+  const downloadCSV = () => {
+    const headers = ['Farmer', 'ID', 'Date', 'Shift', 'Fat', 'SNF', 'Status']
+    const csvData = filteredData.map(r => [
+      r.farmer_name || '',
+      r.farmer_code || '',
+      r.date || '',
+      r.shift || '',
+      r.fat || '',
+      r.snf || '',
+      r.decision || ''
+    ])
+    
+    let filename = "milk_records.csv";
+    if (milkFilter === "cow") filename = "cow_milk_records.csv";
+    if (milkFilter === "buffalo") filename = "buffalo_milk_records.csv";
+
+    const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = filename
+    link.click()
+  }
 
   const fetchReportsData = useCallback(async () => {
     setLoading(true)
@@ -179,6 +217,34 @@ export default function ReportsPage() {
           </button>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Search Farmer</label>
+            <div className="relative group">
+              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#7C3AED] group-focus-within:text-orange-500 transition-colors" />
+              <input 
+                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white dark:bg-white/10 border border-[#C4B5FD] text-sm font-bold text-purple-900 focus:ring-4 focus:ring-purple-600/5 outline-none transition-all" 
+                placeholder="Search Farmer Name or ID…"
+                value={searchTerm} 
+                onChange={e => setSearchTerm(e.target.value)} 
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Milk Type</label>
+            <select 
+              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              value={milkFilter}
+              onChange={e => setMilkFilter(e.target.value)}
+            >
+              <option value="all">All Milk</option>
+              <option value="cow">Cow Milk</option>
+              <option value="buffalo">Buffalo Milk</option>
+            </select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Date Picker */}
           <div className="space-y-3">
@@ -245,6 +311,9 @@ export default function ReportsPage() {
             <button onClick={() => downloadReport('pdf', '/export/pdf')} className="flex-1 py-4 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center gap-2 hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/20 text-xs font-bold uppercase tracking-widest">
               <FileText size={16} /> PDF
             </button>
+            <button onClick={downloadCSV} className="flex-1 py-4 rounded-2xl bg-[#3B82F6] text-white flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 text-xs font-bold uppercase tracking-widest">
+              <Download size={16} /> CSV
+            </button>
           </div>
         </div>
       </div>
@@ -278,15 +347,15 @@ export default function ReportsPage() {
                     <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
                   </td>
                 </tr>
-              ) : displayedRecords.length === 0 ? (
+              ) : filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={13} className="py-48 text-center">
                     <Database size={64} className="text-[#7C3AED] dark:text-slate-200 mx-auto mb-6" />
-                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records available for selected date</h3>
-                    <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
+                    <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No matching milk records found</h3>
+                    <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">Adjust your search and filters to view records.</p>
                   </td>
                 </tr>
-              ) : displayedRecords.map((r, i) => (
+              ) : filteredData.map((r, i) => (
                 <tr key={r.id} className="hover:bg-[#F5F3FF]/70 dark:hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-5 sticky left-0 bg-white dark:bg-[#111827] z-10">
                     <div className="flex items-center gap-4">

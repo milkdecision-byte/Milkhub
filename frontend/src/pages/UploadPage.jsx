@@ -197,7 +197,7 @@ export default function UploadPage() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-10"
             >
-              <div className="card-premium p-10 shadow-xl border-[#C4B5FD]/20">
+              <div className="card-premium p-4 sm:p-6 md:p-10 shadow-xl border-[#C4B5FD]/20">
                 <label className="text-[11px] font-bold text-[#111827] tracking-wide uppercase ml-1 mb-4 block flex items-center gap-3">
                   <Share2 size={16} className="text-[#7C3AED]" /> Collection Details (Session Name)
                 </label>
@@ -234,7 +234,7 @@ export default function UploadPage() {
       {/* ── Progress Pipeline ── */}
       <AnimatePresence>
         {uploading && (
-          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="card-premium p-12 bg-gradient-to-r from-[#1E1B4B] to-[#4C1D95] text-white overflow-hidden relative shadow-2xl border-none">
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="card-premium p-4 sm:p-6 md:p-12 bg-gradient-to-r from-[#1E1B4B] to-[#4C1D95] text-white overflow-hidden relative shadow-2xl border-none">
             <div className="flex justify-between items-end mb-8 relative z-10">
               <div>
                 <p className="text-[11px] font-bold text-orange-400 uppercase tracking-[0.3em] mb-3">Data Processing in Progress</p>
@@ -263,7 +263,7 @@ export default function UploadPage() {
             className="space-y-12"
           >
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[
                 { label: 'Total Records',  value: result.total_rows,    icon: Database, g: 'from-purple-500 to-indigo-600' },
                 { label: 'Passed',         value: result.accepted,      icon: CheckCircle, g: 'from-emerald-400 to-teal-500' },
@@ -271,7 +271,7 @@ export default function UploadPage() {
                 { label: 'Rejected',       value: result.rejected,      icon: XCircle, g: 'from-rose-500 to-red-700' },
                 { label: 'Quality Alerts', value: result.fraud_alerts, icon: ShieldAlert, g: 'from-orange-400 to-rose-600' },
               ].map(s => (
-                <div key={s.label} className="card-premium p-8 text-center group hover:border-[#C4B5FD]/60 transition-all duration-500 shadow-xl border-[#C4B5FD]/20">
+                <div key={s.label} className="card-premium p-4 sm:p-6 md:p-8 text-center group hover:border-[#C4B5FD]/60 transition-all duration-500 shadow-xl border-[#C4B5FD]/20">
                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${s.g} flex items-center justify-center mx-auto mb-4 text-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                      <s.icon size={22} />
                    </div>
@@ -394,7 +394,7 @@ export default function UploadPage() {
  
 
       {/* ── Protocol Architecture ── */}
-      <div className="card-premium p-12 space-y-12 relative overflow-hidden border-[#C4B5FD]/20 shadow-xl group">
+      <div className="card-premium p-4 sm:p-6 md:p-12 space-y-12 relative overflow-hidden border-[#C4B5FD]/20 shadow-xl group">
         <div className="absolute inset-0 bg-gradient-to-br from-[#F5F3FF] to-transparent opacity-50" />
         
         <div className="flex items-center gap-6 relative z-10">
@@ -407,27 +407,27 @@ export default function UploadPage() {
            </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
-          <div className="space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6 relative z-10">
+          <div className="space-y-6 flex-1">
             <p className="text-[11px] font-bold text-rose-700 uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_10px_rgba(225,29,72,0.5)] animate-pulse"></span>
               Required Quality Fields
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
               {['Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'COB Test', 'MBRT'].map(h => (
-                <span key={h} className="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[11px] font-bold font-mono border border-rose-600 tracking-widest hover:bg-rose-600 transition-colors shadow-md shadow-rose-500/10">{h}</span>
+                <span key={h} className="h-14 w-full bg-rose-500 text-white rounded-2xl flex items-center justify-center text-center text-sm font-semibold tracking-wide leading-none border border-rose-600 hover:bg-rose-600 transition-colors shadow-md shadow-rose-500/10">{h}</span>
               ))}
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 flex-1">
             <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.25em] flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.5)]"></span>
               Optional Quality Fields
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
               {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Temp', 'Quantity'].map(h => (
-                <span key={h} className="px-5 py-2.5 bg-[#7C3AED] text-white rounded-xl text-[11px] font-bold font-mono border border-purple-600 tracking-widest hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/10">{h}</span>
+                <span key={h} className="h-14 w-full bg-[#7C3AED] text-white rounded-2xl flex items-center justify-center text-center text-sm font-semibold tracking-wide leading-none border border-purple-600 hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/10">{h}</span>
               ))}
             </div>
           </div>

@@ -116,11 +116,10 @@ export default function DashboardPage() {
       return
     }
     
-    const headers = ['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']
+    const headers = ['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']
     const csvData = records.map(r => [
       r.id || '',
       r.farmer_name || '',
-      r.quantity || '',
       r.fat || '',
       r.snf || '',
       r.decision || '',
@@ -146,11 +145,10 @@ export default function DashboardPage() {
       return
     }
     
-    const headers = ['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']
+    const headers = ['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']
     const rows = records.map(r => [
       r.id || '',
       r.farmer_name || '',
-      r.quantity || '',
       r.fat || '',
       r.snf || '',
       r.decision || '',
@@ -186,11 +184,10 @@ export default function DashboardPage() {
     const doc = new jsPDF()
     doc.text('Milk Collection Report', 14, 15)
     
-    const headers = [['ID', 'Farmer', 'Qty', 'Fat', 'SNF', 'Status', 'Time']]
+    const headers = [['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']]
     const data = records.map(r => [
       r.id || '',
       r.farmer_name || '',
-      r.quantity || '',
       r.fat || '',
       r.snf || '',
       r.decision || '',
@@ -446,7 +443,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <ParameterCard 
               label="Fat (%)" value={stats.avg_fat || 0} 
               range={`${data?.standards?.fat?.min}-${data?.standards?.fat?.max}`} 
@@ -514,10 +511,9 @@ export default function DashboardPage() {
                   <tr>
                     <th className="table-header-pro">ID</th>
                     <th className="table-header-pro">Farmer</th>
-                    <th className="table-header-pro text-right">Qty</th>
                     <th className="table-header-pro text-center">Quality</th>
                     <th className="table-header-pro text-center">Status</th>
-                    <th className="table-header-pro text-right">Time</th>
+                    <th className="table-header-pro text-center">DATE</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-indigo-50 dark:divide-indigo-500/10">
@@ -530,11 +526,10 @@ export default function DashboardPage() {
                         <p className="text-sm font-black tracking-tight">{r.farmer_name}</p>
                         <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{r.farmer_code}</p>
                       </td>
-                      <td className="px-6 py-5 text-right font-black text-indigo-600 dark:text-indigo-400">{r.quantity ? `${r.quantity} L` : '---'}</td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">Fat: {r.fat}%</span>
-                          <span className="text-[10px] font-bold text-slate-600">SNF: {r.snf}%</span>
+                          <span className="text-[11px] font-bold text-[#111827]">Fat: {r.fat}%</span>
+                          <span className="text-[10px] font-medium text-[#4B5563]">SNF: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
@@ -543,7 +538,7 @@ export default function DashboardPage() {
                           {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                      <td className="px-6 py-5 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -581,9 +576,9 @@ export default function DashboardPage() {
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs font-black uppercase tracking-wider">{insight.title}</p>
-                          <span className="text-[9px] font-black opacity-60">09:30 AM</span>
+                          <span className="text-[9px] font-black text-[#6B7280]">09:30 AM</span>
                         </div>
-                        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{insight.desc}</p>
+                        <p className="text-[11px] font-bold text-[#374151] leading-relaxed">{insight.desc}</p>
                       </div>
                     </div>
                   </div>
