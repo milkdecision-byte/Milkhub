@@ -188,34 +188,37 @@ export default function RecordsPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-10 pt-10 border-t border-indigo-800">
-          <div className="flex items-center gap-5">
-             <Calendar size={20} className="text-indigo-300" />
-             <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-6 pt-10 border-t border-indigo-800">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+             <div className="flex items-center gap-2">
+               <Calendar size={20} className="text-indigo-300" />
+               <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest sm:hidden">Date Range</span>
+             </div>
+             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                <input 
                 type="date" 
-                className="bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
+                className="w-full sm:w-auto bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
                 value={filters.date_from}
                 onChange={e => setFilter('date_from', e.target.value)} 
                />
                <span className="text-indigo-300 font-bold uppercase text-[10px]">to</span>
                <input 
                 type="date" 
-                className="bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
+                className="w-full sm:w-auto bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
                 value={filters.date_to}
                 onChange={e => setFilter('date_to', e.target.value)} 
                />
              </div>
           </div>
           <div className="h-8 w-px bg-[#C4B5FD]/30 hidden xl:block" />
-          <div className="flex items-center gap-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
              <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">Shift</span>
-             <div className="flex bg-[#F5F3FF] dark:bg-white/10 p-1.5 rounded-2xl border border-[#C4B5FD]/20">
+             <div className="flex flex-col sm:flex-row bg-[#F5F3FF] dark:bg-white/10 p-1.5 rounded-2xl border border-[#C4B5FD]/20 w-full sm:w-auto">
                {['all', 'morning', 'evening'].map(s => (
                  <button 
                   key={s}
                   onClick={() => setFilter('shift', s === 'all' ? '' : s)}
-                  className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${((s === 'all' && !filters.shift) || filters.shift === s) ? 'bg-white dark:bg-white/10 text-orange-600 shadow-lg shadow-orange-500/10' : 'text-[#7C3AED] hover:text-purple-600'}`}
+                  className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-500 w-full sm:w-auto ${((s === 'all' && !filters.shift) || filters.shift === s) ? 'bg-white dark:bg-white/10 text-orange-600 shadow-lg shadow-orange-500/10' : 'text-[#7C3AED] hover:text-purple-600'}`}
                  >
                    {s}
                  </button>
