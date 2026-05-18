@@ -13,6 +13,7 @@ import {
   Filter, Download, LayoutGrid, List, Sun, Moon, ChevronDown, FileText, File, Printer
 } from 'lucide-react'
 import api from '../utils/api'
+import { PARAMETER_LABELS } from '../utils/parameters'
 import { useTheme } from '../context/ThemeContext'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
@@ -116,7 +117,7 @@ export default function DashboardPage() {
       return
     }
     
-    const headers = ['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']
+    const headers = ['ID', 'Farmer', PARAMETER_LABELS.fat, PARAMETER_LABELS.snf, 'Status', 'DATE']
     const csvData = records.map(r => [
       r.id || '',
       r.farmer_name || '',
@@ -145,7 +146,7 @@ export default function DashboardPage() {
       return
     }
     
-    const headers = ['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']
+    const headers = ['ID', 'Farmer', PARAMETER_LABELS.fat, PARAMETER_LABELS.snf, 'Status', 'DATE']
     const rows = records.map(r => [
       r.id || '',
       r.farmer_name || '',
@@ -184,7 +185,7 @@ export default function DashboardPage() {
     const doc = new jsPDF()
     doc.text('Milk Collection Report', 14, 15)
     
-    const headers = [['ID', 'Farmer', 'Fat', 'SNF', 'Status', 'DATE']]
+    const headers = [['ID', 'Farmer', PARAMETER_LABELS.fat, PARAMETER_LABELS.snf, 'Status', 'DATE']]
     const data = records.map(r => [
       r.id || '',
       r.farmer_name || '',
@@ -445,43 +446,43 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <ParameterCard 
-              label="Fat (%)" value={stats.avg_fat || 0} 
+              label={PARAMETER_LABELS.fat} value={stats.avg_fat || 0} 
               range={`${data?.standards?.fat?.min}-${data?.standards?.fat?.max}`} 
               status={stats.avg_fat < (data?.standards?.fat?.min || 3.2) ? 'Critical' : 'Optimal'}
               icon={Droplets} color="amber"
             />
             <ParameterCard 
-              label="SNF (%)" value={stats.avg_snf || 0} 
+              label={PARAMETER_LABELS.snf} value={stats.avg_snf || 0} 
               range={`${data?.standards?.snf?.min}-${data?.standards?.snf?.max}`} 
               status={stats.avg_snf < (data?.standards?.snf?.min || 8.0) ? 'Critical' : 'Optimal'}
               icon={Activity} color="blue"
             />
             <ParameterCard 
-              label="pH" value={stats.avg_ph || 0} 
+              label={PARAMETER_LABELS.ph} value={stats.avg_ph || 0} 
               range={`${data?.standards?.ph?.min}-${data?.standards?.ph?.max}`} 
               status={(stats.avg_ph < (data?.standards?.ph?.min || 6.5) || stats.avg_ph > (data?.standards?.ph?.max || 6.8)) ? 'Warning' : 'Optimal'}
               icon={FlaskConical} color="indigo"
             />
             <ParameterCard 
-              label="MBRT (hrs)" value={stats.avg_mbrt || 0} 
+              label={PARAMETER_LABELS.mbrt} value={stats.avg_mbrt || 0} 
               range={`> ${data?.standards?.mbrt?.min || 3.0}`} 
               status={stats.avg_mbrt < (data?.standards?.mbrt?.min || 3.0) ? 'Critical' : 'Optimal'}
               icon={Clock} color="emerald"
             />
             <ParameterCard 
-              label="Gravity" value={stats.avg_gravity || 0} 
+              label={PARAMETER_LABELS.specific_gravity} value={stats.avg_gravity || 0} 
               range={`${data?.standards?.gravity?.min}-${data?.standards?.gravity?.max}`} 
               status={(stats.avg_gravity < (data?.standards?.gravity?.min || 1.028) || stats.avg_gravity > (data?.standards?.gravity?.max || 1.032)) ? 'Critical' : 'Optimal'}
               icon={Microscope} color="blue"
             />
             <ParameterCard 
-              label="Acidity" value={stats.avg_acidity || 0} 
+              label={PARAMETER_LABELS.acidity} value={stats.avg_acidity || 0} 
               range={`< ${data?.standards?.acidity?.max || 0.16}`} 
               status={stats.avg_acidity > (data?.standards?.acidity?.max || 0.16) ? 'Warning' : 'Optimal'}
               icon={Zap} color="rose"
             />
             <ParameterCard 
-              label="Temp (°C)" value={stats.avg_temp || 0} 
+              label={PARAMETER_LABELS.temperature} value={stats.avg_temp || 0} 
               range={`< ${data?.standards?.temp?.max || 10.0}`} 
               status={stats.avg_temp > (data?.standards?.temp?.max || 10.0) ? 'Critical' : 'Optimal'}
               icon={Thermometer} color="orange"
@@ -528,8 +529,8 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-bold text-[#111827]">Fat: {r.fat}%</span>
-                          <span className="text-[10px] font-medium text-[#4B5563]">SNF: {r.snf}%</span>
+                          <span className="text-[11px] font-bold text-[#111827]">{PARAMETER_LABELS.fat}: {r.fat}%</span>
+                          <span className="text-[10px] font-medium text-[#4B5563]">{PARAMETER_LABELS.snf}: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
@@ -705,7 +706,7 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
         <Icon size={24} strokeWidth={2.5} />
       </div>
       <div className="text-center">
-        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-[9px] font-black text-slate-600 tracking-widest mb-1">{label}</p>
         <h4 className={`text-lg font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
       </div>
       <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">

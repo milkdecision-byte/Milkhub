@@ -75,9 +75,9 @@ def export_excel():
     thin = Side(style="thin", color="CCCCCC")
     bdr = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-    headers = ["ID","Farmer Name","Farmer Code","Date","Shift","FAT %","SNF %","pH","Acidity",
-               "Temp (°C)","Sp. Gravity","COB Test","Alcohol Test","Organoleptic","Sediment",
-               "MBRT (h)","Raw Temp","Qty (L)","Decision","Fraud Risk","Reasons"]
+    headers = ["ID","Farmer Name","Farmer Code","Date","Shift","Fat (%)","SNF (%)","pH","Acidity (% LA)",
+               "Temperature (°C)","Specific Gravity","COB Test","Alcohol Test","Organoleptic","Sediment Test",
+               "MBRT (min)","Raw Milk Temperature","Qty (L)","Decision","Fraud Risk","Reasons"]
 
     ws.append(headers)
     ws.row_dimensions[1].height = 22
@@ -180,8 +180,8 @@ def export_pdf():
     elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#1A3C5E")))
     elements.append(Spacer(1, 4*mm))
 
-    header = ["ID","Farmer","Code","Date","Shift","FAT","SNF","pH","Acid.","Temp",
-              "Sp.G","MBRT","COB","Alc","Org","Sed","Decision","Fraud"]
+    header = ["ID","Farmer","Code","Date","Shift","Fat (%)","SNF (%)","pH","Acidity (% LA)","Temperature (°C)",
+              "Specific Gravity","MBRT (min)","COB Test","Alcohol Test","Organoleptic","Sediment Test","Decision","Fraud"]
     col_w = [10*mm,32*mm,18*mm,20*mm,14*mm,11*mm,11*mm,10*mm,11*mm,12*mm,
              14*mm,11*mm,10*mm,10*mm,10*mm,10*mm,22*mm,14*mm]
 
@@ -257,9 +257,9 @@ def export_csv():
     buf = io.StringIO()
     writer = csv.writer(buf)
     
-    headers = ["ID","Farmer Name","Farmer Code","Date","Shift","FAT %","SNF %","pH","Acidity",
-               "Temp (°C)","Sp. Gravity","COB Test","Alcohol Test","Organoleptic","Sediment",
-               "MBRT (h)","Raw Temp","Qty (L)","Decision","Fraud Risk","Reasons"]
+    headers = ["ID","Farmer Name","Farmer Code","Date","Shift","Fat (%)","SNF (%)","pH","Acidity (% LA)",
+               "Temperature (°C)","Specific Gravity","COB Test","Alcohol Test","Organoleptic","Sediment Test",
+               "MBRT (min)","Raw Milk Temperature","Qty (L)","Decision","Fraud Risk","Reasons"]
     writer.writerow(headers)
     
     def _f(v, fmt="{:.2f}"):

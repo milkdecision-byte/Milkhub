@@ -12,6 +12,7 @@ import {
   Tooltip, ResponsiveContainer, Legend, AreaChart, Area 
 } from 'recharts'
 import api from '../utils/api'
+import { PARAMETER_LABELS } from '../utils/parameters'
 import { useTheme } from '../context/ThemeContext'
 
 function StatusBadge({ decision }) {
@@ -140,7 +141,7 @@ export default function FarmerDetailPage() {
               <TrendingUp size={18} className="text-blue-600"/> Milk Quality Trends
             </h3>
             <div className="flex items-center gap-4">
-               {['Fat', 'SNF', 'pH'].map((key, i) => (
+               {[PARAMETER_LABELS.fat, PARAMETER_LABELS.snf, PARAMETER_LABELS.ph].map((key, i) => (
                  <div key={key} className="flex items-center gap-2">
                    <div className={`w-2 h-2 rounded-full ${['bg-blue-600', 'bg-emerald-500', 'bg-amber-500'][i]}`} />
                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{key}</span>
@@ -248,10 +249,10 @@ export default function FarmerDetailPage() {
               <tr className="bg-slate-50/50 dark:bg-black/20">
                 <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Date</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Shift</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Fat (%)</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">SNF (%)</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">pH</th>
-                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Temp</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">{PARAMETER_LABELS.fat}</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">{PARAMETER_LABELS.snf}</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">{PARAMETER_LABELS.ph}</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">{PARAMETER_LABELS.temperature}</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Risk</th>
                 <th className="px-8 py-4 text-[10px] font-black text-slate-600 uppercase tracking-widest text-right">Result Details</th>

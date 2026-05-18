@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../utils/api'
+import { PARAMETER_LABELS } from '../utils/parameters'
 
 // ── Components ────────────────────────────────────────────────────────────────
 
@@ -377,31 +378,31 @@ export default function RecordsPage() {
                   <h4 className="text-sm font-bold text-[#1E1B4B] mb-4">Scientific Parameters</h4>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Fat</p>
+                      <p className="text-[10px] font-bold text-gray-400">{PARAMETER_LABELS.fat}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.fat?.toFixed(2) || '---'}%</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">SNF</p>
+                      <p className="text-[10px] font-bold text-gray-400">{PARAMETER_LABELS.snf}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.snf?.toFixed(2) || '---'}%</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">pH</p>
+                      <p className="text-[10px] font-bold text-gray-400">{PARAMETER_LABELS.ph}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.ph?.toFixed(2) || '---'}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Acidity</p>
+                      <p className="text-[10px] font-bold text-gray-400">{PARAMETER_LABELS.acidity}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.acidity?.toFixed(3) || '---'}%</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Temp</p>
+                      <p className="text-[10px] font-bold text-gray-400">{PARAMETER_LABELS.temperature}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.temperature?.toFixed(1) || '---'}°C</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">MBRT</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{PARAMETER_LABELS.mbrt}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.mbrt || '---'} min</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Gravity</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{PARAMETER_LABELS.specific_gravity}</p>
                       <p className="text-sm font-bold text-[#1E1B4B]">{selectedRecord.specific_gravity?.toFixed(4) || '---'}</p>
                     </div>
                   </div>
@@ -411,11 +412,11 @@ export default function RecordsPage() {
                   <h4 className="text-sm font-bold text-[#1E1B4B] mb-4">Qualitative Tests</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">Alcohol Test</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{PARAMETER_LABELS.alcohol_test}</p>
                       <p className="text-sm font-bold text-[#1E1B4B] capitalize">{selectedRecord.alcohol_test || '---'}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">COB Test</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">{PARAMETER_LABELS.cob_test}</p>
                       <p className="text-sm font-bold text-[#1E1B4B] capitalize">{selectedRecord.cob_test || '---'}</p>
                     </div>
                   </div>

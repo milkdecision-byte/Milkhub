@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+import { PARAMETER_LABELS } from '../utils/parameters'
 
 const EMPTY = {
   farmer_name: '', farmer_code: '', date: new Date().toISOString().slice(0,10),
@@ -356,8 +357,8 @@ export default function ManualEntryPage() {
                 { id: 'mbrt', label: 'MBRT (min)', icon: Clock },
               ].map(field => (
                 <div key={field.id} className="space-y-3">
-                  <label className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-[#7C3AED] dark:text-white"><field.icon size={12} /> {field.label}</span>
+                  <label className="text-[10px] font-bold text-[#111827] tracking-widest ml-1 flex items-center justify-between opacity-100 visible">
+                    <span className="flex items-center gap-2 text-[#111827]"><field.icon size={12} /> {PARAMETER_LABELS[field.id]}</span>
                     {displayResult?.parameter_flags?.[field.id] === 'fail' && <AlertTriangle size={12} className="text-rose-500 animate-pulse" />}
                     {displayResult?.parameter_flags?.[field.id] === 'pass' && <CheckCircle2 size={12} className="text-emerald-500" />}
                   </label>
@@ -365,20 +366,20 @@ export default function ManualEntryPage() {
                     type="number" 
                     step="0.001" 
                     style={{ backgroundImage: gradients[field.id] }}
-                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] placeholder:text-[#6B7280] outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] ${getBorderColor(field.id)}`} 
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] text-center placeholder:text-[#6B7280] outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] ${getBorderColor(field.id)}`} 
                     {...register(field.id, { required: true })} 
                     placeholder="0.000"
                   />
                 </div>
               ))}
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-[#7C3AED] dark:text-lavender tracking-widest ml-1 flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-[#7C3AED] dark:text-white"><ShieldCheck size={12} /> COB Test</span>
+                <label className="text-[10px] font-bold text-[#111827] tracking-widest ml-1 flex items-center justify-between opacity-100 visible">
+                  <span className="flex items-center gap-2 text-[#111827]"><ShieldCheck size={12} /> {PARAMETER_LABELS.cob_test}</span>
                 </label>
                 <div className="relative">
                   <select 
                     style={{ backgroundImage: gradients.cob_test }}
-                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
+                    className={`w-full border px-6 py-4 rounded-[18px] text-sm font-bold text-[#111827] text-center outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-4 focus:ring-purple-500/20 backdrop-blur-[10px] appearance-none cursor-pointer ${getBorderColor('cob_test')}`} 
                     {...register('cob_test', { required: true })}
                   >
                     <option value="">Test Result</option>
@@ -447,9 +448,9 @@ export default function ManualEntryPage() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-10 border-t border-[#C4B5FD]/20">
                     {[
-                      { id: 'alcohol_test', label: 'Alcohol Test', options: [{v:'negative', l:'Negative'}, {v:'positive', l:'Positive'}] },
-                      { id: 'organoleptic', label: 'Organoleptic', options: [{v:'normal', l:'Normal'}, {v:'abnormal', l:'Off smell'}] },
-                      { id: 'sediment_test', label: 'Sediment Test', options: [{v:'clean', l:'Clean'}, {v:'dirty', l:'Dirt'}] },
+                      { id: 'alcohol_test', label: PARAMETER_LABELS.alcohol_test, options: [{v:'negative', l:'Negative'}, {v:'positive', l:'Positive'}] },
+                      { id: 'organoleptic', label: PARAMETER_LABELS.organoleptic, options: [{v:'normal', l:'Normal'}, {v:'abnormal', l:'Off smell'}] },
+                      { id: 'sediment_test', label: PARAMETER_LABELS.sediment_test, options: [{v:'clean', l:'Clean'}, {v:'dirty', l:'Dirt'}] },
                     ].map(f => (
                       <div key={f.id} className="space-y-3">
                         <label className="text-[9px] font-bold text-[#7C3AED] tracking-[0.2em] ml-1">{f.label}</label>
@@ -463,7 +464,7 @@ export default function ManualEntryPage() {
                       </div>
                     ))}
                     <div className="space-y-3">
-                      <label className="text-[9px] font-black text-[#7C3AED] uppercase tracking-widest ml-1 whitespace-nowrap">Raw Temp (°C)</label>
+                      <label className="text-[9px] font-black text-[#7C3AED] uppercase tracking-widest ml-1 whitespace-nowrap">{PARAMETER_LABELS.raw_milk_temp}</label>
                       <input type="number" step="0.1" className="w-full bg-orange-50/70 dark:bg-white/10 border border-[#C4B5FD]/40 px-5 py-3.5 rounded-2xl text-xs font-bold text-[#111827] placeholder:text-[#6B7280] outline-none focus:ring-4 focus:ring-orange-500/10" {...register('raw_milk_temp')} placeholder="0.0"/>
                     </div>
                   </div>
@@ -502,12 +503,12 @@ export default function ManualEntryPage() {
             </h4>
             <div className="space-y-6">
               {settings ? [
-                ['Fat (%)', `${settings.fat_min} – ${settings.fat_max}%`, Zap],
-                ['SNF (%)', `${settings.snf_min} – ${settings.snf_max}%`, Activity],
-                ['pH', `${settings.ph_min} – ${settings.ph_max}`, Droplets],
-                ['Acidity (% LA)', `≤ ${settings.acidity_max}%`, FlaskConical],
-                ['Temperature (°C)', `≤ ${settings.temp_acceptable}°C`, Thermometer],
-                ['Specific Gravity', `${settings.sg_min} – ${settings.sg_max}`, Database],
+                [PARAMETER_LABELS.fat, `${settings.fat_min} – ${settings.fat_max}%`, Zap],
+                [PARAMETER_LABELS.snf, `${settings.snf_min} – ${settings.snf_max}%`, Activity],
+                [PARAMETER_LABELS.ph, `${settings.ph_min} – ${settings.ph_max}`, Droplets],
+                [PARAMETER_LABELS.acidity, `≤ ${settings.acidity_max}%`, FlaskConical],
+                [PARAMETER_LABELS.temperature, `≤ ${settings.temp_acceptable}°C`, Thermometer],
+                [PARAMETER_LABELS.specific_gravity, `${settings.sg_min} – ${settings.sg_max}`, Database],
               ].map(([k, v, Icon]) => (
                 <div key={k} className="flex justify-between items-center group">
                   <div className="flex items-center gap-4">

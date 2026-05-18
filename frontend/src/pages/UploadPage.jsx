@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+import { PARAMETER_LABELS } from '../utils/parameters'
 
 function StatusPill({ decision }) {
   if (decision === 'accept') {
@@ -114,7 +115,7 @@ export default function UploadPage() {
         
         <button 
           onClick={() => {
-            const csv = "farmer_name,farmer_code,date,shift,fat,snf,ph,quantity\nJohn Doe,F-101,2026-05-12,morning,4.2,8.5,6.7,15.5\nJane Smith,F-102,2026-05-12,evening,3.8,8.2,6.6,12.0"
+            const csv = "Farmer Name,Farmer ID,Date,Shift,Fat (%),SNF (%),pH,Quantity (L)\nJohn Doe,F-101,2026-05-12,morning,4.2,8.5,6.7,15.5\nJane Smith,F-102,2026-05-12,evening,3.8,8.2,6.6,12.0"
             const blob = new Blob([csv], { type: 'text/csv' })
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
@@ -271,7 +272,7 @@ export default function UploadPage() {
                   <div className="flex flex-wrap gap-2">
                     {result.detected_fields?.map(f => (
                       <span key={f} className="px-4 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-500/20">
-                        ✔ {f.replace('_', ' ')}
+                        ✔ {PARAMETER_LABELS[f] || f.replace('_', ' ')}
                       </span>
                     ))}
                   </div>
@@ -284,7 +285,7 @@ export default function UploadPage() {
                   <div className="flex flex-wrap gap-2">
                     {result.missing_fields?.map(f => (
                       <span key={f} className="px-4 py-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-amber-500/20">
-                        ⚠ {f.replace('_', ' ')}
+                        ⚠ {PARAMETER_LABELS[f] || f.replace('_', ' ')}
                       </span>
                     ))}
                   </div>
@@ -394,7 +395,7 @@ export default function UploadPage() {
               Required Quality Fields
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
-              {['Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'COB Test', 'MBRT'].map(h => (
+              {[PARAMETER_LABELS.fat, PARAMETER_LABELS.snf, PARAMETER_LABELS.ph, PARAMETER_LABELS.acidity, PARAMETER_LABELS.cob_test, PARAMETER_LABELS.mbrt].map(h => (
                 <span key={h} className="h-14 w-full bg-rose-500 text-white rounded-2xl flex items-center justify-center text-center text-sm font-semibold tracking-wide leading-none border border-rose-600 hover:bg-rose-600 transition-colors shadow-md shadow-rose-500/10">{h}</span>
               ))}
             </div>

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+import { PARAMETER_LABELS } from '../utils/parameters'
 
 // ── Shared Components ─────────────────────────────────────────────────────────
 
@@ -258,14 +259,14 @@ export default function ReportsPage() {
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest sticky left-0 bg-[#1E1B4B] z-20">Provider Entity</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Registry ID</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Date / Time</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Fat (%)</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">SNF (%)</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">pH</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Acidity (% LA)</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Temp (°C)</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Specific Gravity</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">COB Test</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">MBRT (min)</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.fat}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.snf}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.ph}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.acidity}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.temperature}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.specific_gravity}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.cob_test}</th>
+                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.mbrt}</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Quality Result</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-right pr-10">Risk Status</th>
               </tr>
