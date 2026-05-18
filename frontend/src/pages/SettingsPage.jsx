@@ -242,7 +242,14 @@ export default function SettingsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: gIndex * 0.05 }}
-              className="card-premium p-8 space-y-8"
+              className={`p-8 space-y-8 rounded-[2rem] border transition-all ${
+                group.bg === 'bg-blue-600' ? 'bg-blue-100/50 border-blue-200' :
+                group.bg === 'bg-emerald-600' ? 'bg-emerald-100/50 border-emerald-200' :
+                group.bg === 'bg-amber-600' ? 'bg-amber-100/50 border-amber-200' :
+                group.bg === 'bg-indigo-600' ? 'bg-indigo-100/50 border-indigo-200' :
+                group.bg === 'bg-slate-900' ? 'bg-slate-100/50 border-slate-200' :
+                'bg-rose-100/50 border-rose-200'
+              }`}
             >
               <div className="flex items-center gap-5 border-b border-slate-50 dark:border-white/5 pb-6">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl ${group.bg} shadow-${group.bg.split('-')[1]}-600/20`}>
@@ -260,7 +267,14 @@ export default function SettingsPage() {
                     <label className="text-[10px] font-black text-slate-600 tracking-widest ml-1">{field.label}</label>
                     {field.type === 'select' ? (
                       <select
-                        className="w-full bg-slate-50 dark:bg-white/10 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono appearance-none"
+                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 outline-none transition-all shadow-inner font-mono appearance-none ${
+                          group.bg === 'bg-blue-600' ? 'bg-blue-50 border-blue-300 focus:ring-blue-600/5' :
+                          group.bg === 'bg-emerald-600' ? 'bg-emerald-50 border-emerald-300 focus:ring-emerald-600/5' :
+                          group.bg === 'bg-amber-600' ? 'bg-amber-50 border-amber-300 focus:ring-amber-600/5' :
+                          group.bg === 'bg-indigo-600' ? 'bg-indigo-50 border-indigo-300 focus:ring-indigo-600/5' :
+                          group.bg === 'bg-slate-900' ? 'bg-slate-50 border-slate-300 focus:ring-slate-900/5' :
+                          'bg-rose-50 border-rose-300 focus:ring-rose-600/5'
+                        }`}
                         value={getValue(field.key)}
                         onChange={e => updateField(field.key, e.target.value)}
                       >
@@ -270,7 +284,14 @@ export default function SettingsPage() {
                       </select>
                     ) : (
                       <input
-                        className="w-full bg-slate-50 dark:bg-white/10 border border-slate-200 dark:border-white/10 px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 focus:ring-blue-600/5 outline-none transition-all shadow-inner font-mono"
+                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 outline-none transition-all shadow-inner font-mono ${
+                          group.bg === 'bg-blue-600' ? 'bg-blue-50 border-blue-300 focus:ring-blue-600/5' :
+                          group.bg === 'bg-emerald-600' ? 'bg-emerald-50 border-emerald-300 focus:ring-emerald-600/5' :
+                          group.bg === 'bg-amber-600' ? 'bg-amber-50 border-amber-300 focus:ring-amber-600/5' :
+                          group.bg === 'bg-indigo-600' ? 'bg-indigo-50 border-indigo-300 focus:ring-indigo-600/5' :
+                          group.bg === 'bg-slate-900' ? 'bg-slate-50 border-slate-300 focus:ring-slate-900/5' :
+                          'bg-rose-50 border-rose-300 focus:ring-rose-600/5'
+                        }`}
                         type={field.type || 'number'}
                         step={field.step || '0.01'}
                         value={getValue(field.key)}
@@ -291,7 +312,7 @@ export default function SettingsPage() {
            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-2xl shadow-blue-600/40">
              <LayoutDashboard size={24} />
            </div>
-           <h3 className="text-xl font-black uppercase tracking-widest">How Decisions are Made</h3>
+           <h3 className="text-xl font-black uppercase tracking-widest text-white">How Decisions are Made</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
@@ -300,7 +321,7 @@ export default function SettingsPage() {
               <CheckCircle2 size={20} className="text-emerald-500" />
               <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">Result: ACCEPTED</p>
             </div>
-            <p className="text-[11px] font-bold leading-relaxed text-slate-600 uppercase tracking-widest">
+            <p className="text-[11px] font-bold leading-relaxed text-indigo-200 uppercase tracking-widest">
               Record saved. All quality parameters meet the required standards.
             </p>
           </div>
@@ -310,7 +331,7 @@ export default function SettingsPage() {
               <ShieldAlert size={20} className="text-red-500" />
               <p className="text-xs font-black text-red-500 uppercase tracking-widest">Result: Rejected</p>
             </div>
-            <ul className="text-[10px] font-black text-slate-600 space-y-3 uppercase tracking-widest">
+            <ul className="text-[10px] font-black text-indigo-200 space-y-3 uppercase tracking-widest">
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> COB Positive Detected</li>
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> Low MBRT Result</li>
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-red-500" /> Multiple Quality Issues</li>
@@ -322,7 +343,7 @@ export default function SettingsPage() {
               <Settings2 size={20} className="text-amber-500" />
               <p className="text-xs font-black text-amber-500 uppercase tracking-widest">Result: Observation</p>
             </div>
-            <ul className="text-[10px] font-black text-slate-600 space-y-3 uppercase tracking-widest">
+            <ul className="text-[10px] font-black text-indigo-200 space-y-3 uppercase tracking-widest">
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Slight Temperature Variation</li>
               <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-amber-500" /> Borderline MBRT Result</li>
             </ul>

@@ -58,7 +58,7 @@ export default function RecordsPage() {
       .catch(e => console.error(e))
   }, [])
 
-  const fetchRecords = useCallback(async (pg = page) => {
+  const fetchRecords = useCallback(async (pg) => {
     setLoading(true)
     try {
       const activeFilters = Object.fromEntries(
@@ -74,12 +74,16 @@ export default function RecordsPage() {
     } finally {
       setLoading(false)
     }
-  }, [filters, page])
+  }, [filters])
 
-  useEffect(() => { fetchRecords(1); setPage(1) }, [filters, fetchRecords])
-  useEffect(() => { fetchRecords(page) }, [page, fetchRecords])
+  useEffect(() => {
+    fetchRecords(page)
+  }, [page, fetchRecords])
 
-  const setFilter = (k, v) => setFilters(p => ({ ...p, [k]: v }))
+  const setFilter = (k, v) => {
+    setFilters(p => ({ ...p, [k]: v }))
+    setPage(1)
+  }
 
   const filteredData = records.filter((item) => {
     const matchesSearch =
@@ -119,7 +123,7 @@ export default function RecordsPage() {
         <div className="flex items-center gap-4">
           <button 
             className="btn-commercial btn-commercial-secondary border-[#C4B5FD]/30 flex items-center gap-2"
-            onClick={() => setFilters({ decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: '' })}
+            onClick={() => { setFilters({ decision: '', fraud_risk: '', shift: '', date_from: '', date_to: '', search: '', batch_id: '' }); setPage(1); }}
           >
             <RefreshCcw size={18} />
             <span>Reset Filters</span>
@@ -128,12 +132,12 @@ export default function RecordsPage() {
       </div>
 
       {/* ── Filter Panel ── */}
-      <div className="card-premium p-8 space-y-10 border-[#C4B5FD]/20 shadow-xl">
+      <div className="bg-[#1E1B4B] p-8 space-y-10 rounded-[2rem] shadow-xl text-white">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           <div className="relative group">
-            <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#7C3AED] group-focus-within:text-orange-500 transition-colors" />
+            <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
             <input 
-              className="w-full pl-14 pr-6 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-sm font-semibold text-black focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+              className="w-full pl-14 pr-6 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-sm font-semibold text-white placeholder:text-indigo-300 focus:ring-4 focus:ring-indigo-500/30 outline-none transition-all shadow-sm" 
               placeholder="Search Farmer Name or ID…"
               value={searchTerm} 
               onChange={e => setSearchTerm(e.target.value)} 
@@ -142,62 +146,62 @@ export default function RecordsPage() {
           
           <div className="relative">
             <select 
-              className="w-full px-6 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-sm font-semibold text-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 appearance-none cursor-pointer" 
+              className="w-full px-6 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-sm font-semibold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none cursor-pointer" 
               value={filters.batch_id}
               onChange={e => setFilter('batch_id', e.target.value)}
             >
-              <option value="" className="text-slate-900">Collection Batches</option>
+              <option value="" className="text-white bg-[#1E1B4B]">Collection Batches</option>
               {batchesList.map(b => (
-                <option key={b.batch_id} value={b.batch_id} className="text-slate-900">
+                <option key={b.batch_id} value={b.batch_id} className="text-white bg-[#1E1B4B]">
                   {b.session_name || b.batch_id.split('_').slice(1).join('_')} ({b.total_records} Records)
                 </option>
               ))}
             </select>
-            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" />
           </div>
 
           <div className="relative">
             <select 
-              className="w-full px-6 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-sm font-semibold text-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 appearance-none cursor-pointer" 
+              className="w-full px-6 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-sm font-semibold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none cursor-pointer" 
               value={filters.decision}
               onChange={e => setFilter('decision', e.target.value)}
             >
-              <option value="" className="text-slate-900">Status: All Decisions</option>
-              <option value="accept" className="text-slate-900">Approved</option>
-              <option value="reject" className="text-slate-900">Rejected</option>
+              <option value="" className="text-white bg-[#1E1B4B]">Status: All Decisions</option>
+              <option value="accept" className="text-white bg-[#1E1B4B]">Approved</option>
+              <option value="reject" className="text-white bg-[#1E1B4B]">Rejected</option>
             </select>
-            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" />
           </div>
 
           <div className="relative">
             <select 
-              className="w-full px-6 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-sm font-semibold text-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 appearance-none cursor-pointer" 
+              className="w-full px-6 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-sm font-semibold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none cursor-pointer" 
               value={filters.fraud_risk}
               onChange={e => setFilter('fraud_risk', e.target.value)}
             >
-              <option value="" className="text-slate-900">All Quality Risks</option>
-              <option value="low" className="text-slate-900">Low Risk</option>
-              <option value="medium" className="text-slate-900">Medium Risk</option>
-              <option value="high">High Quality Risk</option>
+              <option value="" className="text-white bg-[#1E1B4B]">All Quality Risks</option>
+              <option value="low" className="text-white bg-[#1E1B4B]">Low Risk</option>
+              <option value="medium" className="text-white bg-[#1E1B4B]">Medium Risk</option>
+              <option value="high" className="text-white bg-[#1E1B4B]">High Quality Risk</option>
             </select>
-            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#7C3AED] pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" />
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-10 pt-10 border-t border-[#C4B5FD]/20">
+        <div className="flex flex-wrap items-center gap-10 pt-10 border-t border-indigo-800">
           <div className="flex items-center gap-5">
-             <Calendar size={20} className="text-[#7C3AED]" />
+             <Calendar size={20} className="text-indigo-300" />
              <div className="flex items-center gap-3">
                <input 
                 type="date" 
-                className="bg-[#F5F3FF] dark:bg-white/10 border border-[#C4B5FD]/30 rounded-xl text-xs font-bold text-black px-5 py-3.5 focus:ring-4 focus:ring-purple-600/5 cursor-pointer outline-none transition-all" 
+                className="bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
                 value={filters.date_from}
                 onChange={e => setFilter('date_from', e.target.value)} 
                />
-               <span className="text-[#7C3AED] font-bold uppercase text-[10px]">to</span>
+               <span className="text-indigo-300 font-bold uppercase text-[10px]">to</span>
                <input 
                 type="date" 
-                className="bg-[#F5F3FF] dark:bg-white/10 border border-[#C4B5FD]/30 rounded-xl text-xs font-bold text-black px-5 py-3.5 focus:ring-4 focus:ring-purple-600/5 cursor-pointer outline-none transition-all" 
+                className="bg-indigo-900/50 border border-indigo-700 rounded-xl text-xs font-bold text-white px-5 py-3.5 focus:ring-4 focus:ring-indigo-500/30 cursor-pointer outline-none transition-all" 
                 value={filters.date_to}
                 onChange={e => setFilter('date_to', e.target.value)} 
                />
@@ -245,7 +249,6 @@ export default function RecordsPage() {
             <thead>
               <tr className="bg-[#F5F3FF] border-b border-[#C4B5FD]/20">
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-700 uppercase tracking-widest">Farmer</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-700 uppercase tracking-widest">ID</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-700 uppercase tracking-widest">Date</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-700 uppercase tracking-widest">Shift</th>
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-700 uppercase tracking-widest text-center">Status</th>
@@ -254,12 +257,12 @@ export default function RecordsPage() {
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
               {loading ? (
-                <tr><td colSpan={6} className="text-center py-48">
+                <tr><td colSpan={5} className="text-center py-48">
                   <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
                   <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest animate-pulse">Loading Records...</p>
                 </td></tr>
               ) : records.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-48">
+                <tr><td colSpan={5} className="text-center py-48">
                   <Search size={56} className="text-[#7C3AED] dark:text-slate-200 mx-auto mb-6" />
                   <p className="text-sm font-bold text-[#7C3AED] uppercase tracking-widest">No Records Found</p>
                 </td></tr>
@@ -273,9 +276,6 @@ export default function RecordsPage() {
                 >
                   <td className="px-6 py-4 text-sm font-bold text-[#1E1B4B]">
                     {r.farmer_name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {r.farmer_code || '---'}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">
                     {r.date}

@@ -273,13 +273,13 @@ export default function ManualEntryPage() {
   const formValues = watch()
 
   const gradients = {
-    fat: 'linear-gradient(135deg, #fff7ed, #ffedd5)',
-    snf: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-    ph: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
-    acidity: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
-    temperature: 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
-    mbrt: 'linear-gradient(135deg, #ecfeff, #cffafe)',
-    cob_test: 'linear-gradient(135deg, #faf5ff, #f3e8ff)',
+    fat: 'linear-gradient(135deg, #fed7aa, #fdba74)',
+    snf: 'linear-gradient(135deg, #bfdbfe, #93c5fd)',
+    ph: 'linear-gradient(135deg, #ddd6fe, #c4b5fd)',
+    acidity: 'linear-gradient(135deg, #fecaca, #fca5a5)',
+    temperature: 'linear-gradient(135deg, #fbcfe8, #f472b6)',
+    mbrt: 'linear-gradient(135deg, #a5f3fc, #67e8f9)',
+    cob_test: 'linear-gradient(135deg, #f5d0fe, #f0abfc)',
   }
 
   useEffect(() => {

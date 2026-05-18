@@ -58,11 +58,11 @@ export default function FarmersPage() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="card-premium p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center border-[#C4B5FD]/20 shadow-xl">
+      <div className="bg-[#1E1B4B] p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center rounded-[2rem] shadow-xl text-white">
         <div className="relative flex-1 group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#7C3AED] group-focus-within:text-orange-500 transition-colors" />
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
           <input 
-            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-white/100 dark:bg-white/10 border border-[#C4B5FD]/40 text-base font-semibold text-[#111827] placeholder:text-[#6B7280] focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all shadow-sm" 
+            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-base font-semibold text-white placeholder:text-indigo-300 focus:ring-4 focus:ring-indigo-500/30 outline-none transition-all shadow-sm" 
             placeholder="Search Farmer Registry by Name or ID…"
             value={search} 
             onChange={e => { setSearch(e.target.value); setPage(1) }} 
@@ -73,7 +73,7 @@ export default function FarmersPage() {
           className={`flex items-center justify-center gap-3 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border text-[10px] sm:text-[11px] font-bold uppercase tracking-widest transition-all duration-500 whitespace-nowrap
             ${fraudOnly
               ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30'
-              : 'bg-[#F5F3FF] dark:bg-white/10 border-[#C4B5FD]/30 text-purple-700 hover:text-rose-600 hover:border-rose-300'}`}
+              : 'bg-indigo-900/50 border-indigo-700 text-indigo-200 hover:text-white hover:border-indigo-500'}`}
         >
           <ShieldAlert size={18} />
           High Quality Risk Farmers
@@ -85,12 +85,12 @@ export default function FarmersPage() {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-[#F5F3FF] dark:bg-black/60 border-b border-[#C4B5FD]/20">
-                <th className="table-header-enterprise text-center">Farmer Name</th>
-                <th className="table-header-enterprise">Farmer ID</th>
-                <th className="table-header-enterprise text-center">Area</th>
-                <th className="table-header-enterprise text-center">Quality History</th>
-                <th className="table-header-enterprise text-center">View</th>
+              <tr className="bg-slate-900 text-white border-b border-indigo-800">
+                <th className="px-6 py-4 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-center">Farmer Name</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Farmer ID</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-center">Area</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-center">Quality History</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-indigo-200 uppercase tracking-widest text-center">View</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">

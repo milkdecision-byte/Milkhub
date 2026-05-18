@@ -110,18 +110,18 @@ export default function Layout() {
       {/* Main Content */}
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-500 ${!isMobile ? (sidebarOpen ? 'ml-[280px]' : 'ml-[80px]') : ''}`}>
         {/* Header */}
-        <header className="h-20 glass sticky top-0 z-40 flex items-center justify-between px-4 md:px-8 mx-0 md:mx-6 my-0 md:my-4 rounded-none md:rounded-3xl">
+        <header className="h-20 bg-[#1E1B4B] text-white sticky top-0 z-40 flex items-center justify-between px-4 md:px-8 mx-0 md:mx-6 my-0 md:my-4 rounded-none md:rounded-3xl shadow-xl shadow-indigo-900/20">
           <div className="flex items-center gap-6 flex-1">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:scale-105 active:scale-95 transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-indigo-900/50 text-indigo-400 hover:scale-105 active:scale-95 transition-all shadow-sm"
             >
               <Menu size={22} strokeWidth={2.5} />
             </button>
 
             {/* Search Bar */}
             <div className="hidden md:flex items-center max-w-md w-full relative group">
-              <Search size={18} strokeWidth={2.5} className="absolute left-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors" />
+              <Search size={18} strokeWidth={2.5} className="absolute left-4 text-indigo-400 group-focus-within:text-indigo-200 transition-colors" />
               <input
                 type="text"
                 placeholder="Search analytics, farmers..."
@@ -131,19 +131,19 @@ export default function Layout() {
                     toast.success(`Searching for: ${e.target.value}`)
                   }
                 }}
-                className="w-full pl-12 pr-4 py-3"
+                className="w-full pl-12 pr-4 py-3 bg-indigo-900/50 text-white placeholder:text-indigo-300 rounded-xl border border-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-8">
             {/* Live Time & Date */}
-            <div className="hidden lg:flex items-center gap-6 px-6 border-x border-indigo-100 dark:border-indigo-500/10 h-10">
-              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+            <div className="hidden lg:flex items-center gap-6 px-6 border-x border-indigo-500/20 h-10">
+              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-200 uppercase tracking-widest">
                 <Clock size={16} strokeWidth={2.5} />
                 <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+              <div className="flex items-center gap-2.5 text-[11px] font-black text-indigo-200 uppercase tracking-widest">
                 <Calendar size={16} strokeWidth={2.5} />
                 <span>{currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
@@ -155,7 +155,7 @@ export default function Layout() {
             <div className="relative">
               <button 
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-4 pl-6 border-l border-indigo-100 dark:border-indigo-500/10 h-10 group"
+                className="flex items-center gap-4 pl-6 border-l border-indigo-500/20 h-10 group"
               >
                 <div className="relative">
                   <div className="w-10 h-10 rounded-2xl bg-[#2563EB] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-[#2563EB]/20">

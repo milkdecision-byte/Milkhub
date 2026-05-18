@@ -58,7 +58,7 @@ function ExportCard({ icon: Icon, title, desc, colorClass, onClick, loading, var
 
 export default function ReportsPage() {
   const [filters, setFilters] = useState({ 
-    date_from: new Date().toISOString().split('T')[0], 
+    date_from: '', 
     date_to: '', 
     decision: '', 
     fraud_risk: '', 
@@ -167,14 +167,14 @@ export default function ReportsPage() {
       )}
 
       {/* ── Master Filter Matrix ── */}
-      <div className="card-premium p-10 border-[#C4B5FD]/20 shadow-xl bg-white/100 dark:bg-black/20 backdrop-blur-md">
-        <div className="flex items-center justify-between border-b border-[#C4B5FD]/10 pb-8 mb-8">
-          <h3 className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.3em] flex items-center gap-4">
+      <div className="bg-[#1E1B4B] p-10 rounded-[2rem] shadow-xl text-white">
+        <div className="flex items-center justify-between border-b border-indigo-800 pb-8 mb-8">
+          <h3 className="text-[11px] font-bold text-orange-500 uppercase tracking-[0.3em] flex items-center gap-4">
             <Filter size={18} /> Filter by Date and Shift
           </h3>
           <button 
             onClick={() => setFilters({ date_from:'', date_to:'', decision:'', fraud_risk:'', session:'' })}
-            className="text-[10px] font-bold text-rose-500 hover:text-rose-700 uppercase tracking-widest transition-all flex items-center gap-2 group"
+            className="text-[10px] font-bold text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-all flex items-center gap-2 group"
           >
             Clear Filters <RotateCcw size={12} className="group-hover:rotate-180 transition-transform" />
           </button>
@@ -183,10 +183,10 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Date Picker */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Date Selection</label>
+            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Date Selection</label>
             <input 
               type="date" 
-              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 transition-all" 
+              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 transition-all" 
               value={filters.date_from}
               max={new Date().toISOString().split('T')[0]}
               onChange={e => setFilter('date_from', e.target.value)}
@@ -195,46 +195,46 @@ export default function ReportsPage() {
 
           {/* Decision Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Quality Result</label>
+            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Quality Result</label>
             <select 
-              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
               value={filters.decision}
               onChange={e => setFilter('decision', e.target.value)}
             >
-              <option value="">All Results</option>
-              <option value="accept">ACCEPTED Only</option>
-              <option value="reject">REJECTED Only</option>
+              <option value="" className="bg-[#1E1B4B]">All Results</option>
+              <option value="accept" className="bg-[#1E1B4B]">ACCEPTED Only</option>
+              <option value="reject" className="bg-[#1E1B4B]">REJECTED Only</option>
             </select>
           </div>
 
           {/* Fraud Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Risk Level</label>
+            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Risk Level</label>
             <select 
-              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
               value={filters.fraud_risk}
               onChange={e => setFilter('fraud_risk', e.target.value)}
             >
-              <option value="">All Risk Profiles</option>
-              <option value="detected">Fraud Detected (High/Med)</option>
-              <option value="high">Fraud High</option>
-              <option value="medium">Fraud Medium</option>
-              <option value="clean">Clean Samples Only</option>
+              <option value="" className="bg-[#1E1B4B]">All Risk Profiles</option>
+              <option value="detected" className="bg-[#1E1B4B]">Fraud Detected (High/Med)</option>
+              <option value="high" className="bg-[#1E1B4B]">Fraud High</option>
+              <option value="medium" className="bg-[#1E1B4B]">Fraud Medium</option>
+              <option value="clean" className="bg-[#1E1B4B]">Clean Samples Only</option>
             </select>
           </div>
 
           {/* Session Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest ml-1">Entry Source</label>
+            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Entry Source</label>
             <select 
-              className="w-full bg-white dark:bg-white/10 border border-[#C4B5FD] px-5 py-4 rounded-2xl text-sm font-bold text-purple-900 outline-none focus:ring-4 focus:ring-purple-600/5 appearance-none"
+              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
               value={filters.session}
               onChange={e => setFilter('session', e.target.value)}
             >
-              <option value="">All Sessions</option>
-              <option value="morning">Morning Shift</option>
-              <option value="evening">Evening Shift</option>
-              <option value="manual">Manual Intelligence Entry</option>
+              <option value="" className="bg-[#1E1B4B]">All Sessions</option>
+              <option value="morning" className="bg-[#1E1B4B]">Morning Shift</option>
+              <option value="evening" className="bg-[#1E1B4B]">Evening Shift</option>
+              <option value="manual" className="bg-[#1E1B4B]">Manual Intelligence Entry</option>
             </select>
           </div>
 
@@ -243,7 +243,7 @@ export default function ReportsPage() {
             <button onClick={() => downloadReport('excel', '/export/excel')} className="flex-1 py-4 rounded-2xl bg-[#059669] text-white flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 text-xs font-bold uppercase tracking-widest">
               <FileSpreadsheet size={16} /> Excel
             </button>
-            <button onClick={() => downloadReport('pdf', '/export/pdf')} className="flex-1 py-4 rounded-2xl bg-[#7C3AED] text-white flex items-center justify-center gap-2 hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/20 text-xs font-bold uppercase tracking-widest">
+            <button onClick={() => downloadReport('pdf', '/export/pdf')} className="flex-1 py-4 rounded-2xl bg-orange-500 text-white flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 text-xs font-bold uppercase tracking-widest">
               <FileText size={16} /> PDF
             </button>
           </div>
@@ -257,7 +257,6 @@ export default function ReportsPage() {
             <thead>
               <tr className="bg-[#1E1B4B] text-white border-b border-[#C4B5FD]/20">
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest sticky left-0 bg-[#1E1B4B] z-20">Provider Entity</th>
-                <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Registry ID</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Date / Time</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.fat}</th>
                 <th className="px-6 py-6 text-[10px] font-bold text-indigo-200 uppercase tracking-widest">{PARAMETER_LABELS.snf}</th>
@@ -274,14 +273,14 @@ export default function ReportsPage() {
             <tbody className="divide-y divide-[#EDE9FE] dark:divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={13} className="py-48 text-center">
+                  <td colSpan={12} className="py-48 text-center">
                     <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
                     <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.4em] animate-pulse">Generating Report...</p>
                   </td>
                 </tr>
               ) : displayedRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="py-48 text-center">
+                  <td colSpan={12} className="py-48 text-center">
                     <Database size={64} className="text-[#7C3AED] dark:text-slate-200 mx-auto mb-6" />
                     <h3 className="text-xl font-bold text-[#1E1B4B] dark:text-white mb-2">No milk records available for selected date</h3>
                     <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-widest">Adjust your date and shift filters to view records.</p>
@@ -300,7 +299,6 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-[11px] font-bold text-slate-700 uppercase tracking-widest">{r.farmer_code || '---'}</td>
                   <td className="px-6 py-5">
                     <p className="text-xs font-bold text-[#1E1B4B] dark:text-white">{r.date}</p>
                     <p className="text-[10px] font-bold text-[#7C3AED] dark:text-[#7C3AED] uppercase tracking-widest">{r.shift}</p>

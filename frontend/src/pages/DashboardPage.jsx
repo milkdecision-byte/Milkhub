@@ -493,15 +493,15 @@ export default function DashboardPage() {
         {/* Bottom Grid: Records & AI */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Recent Records */}
-          <div className="lg:col-span-8 card-pro flex flex-col">
-            <div className="p-4 md:p-8 border-b border-indigo-50 dark:border-indigo-500/10 flex items-center justify-between">
+          <div className="lg:col-span-8 card-pro flex flex-col bg-[#1E1B4B] text-white">
+            <div className="p-4 md:p-8 border-b border-indigo-800 flex items-center justify-between">
               <div>
-                <h3 className="text-lg md:text-xl font-black tracking-tight">Recent Collection Records</h3>
-                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">Live sampling data</p>
+                <h3 className="text-lg md:text-xl font-black tracking-tight text-white">Recent Collection Records</h3>
+                <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mt-1">Live sampling data</p>
               </div>
               <button 
                 onClick={() => navigate('/records')}
-                className="px-5 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-wider hover:scale-105 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-wider hover:scale-105 transition-all"
               >
                 View Full History
               </button>
@@ -510,27 +510,27 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr>
-                    <th className="table-header-pro">ID</th>
-                    <th className="table-header-pro">Farmer</th>
-                    <th className="table-header-pro text-center">Quality</th>
-                    <th className="table-header-pro text-center">Status</th>
-                    <th className="table-header-pro text-center">DATE</th>
+                    <th className="table-header-pro text-indigo-200">ID</th>
+                    <th className="table-header-pro text-indigo-200">Farmer</th>
+                    <th className="table-header-pro text-indigo-200 text-center">Quality</th>
+                    <th className="table-header-pro text-indigo-200 text-center">Status</th>
+                    <th className="table-header-pro text-indigo-200 text-center">DATE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-indigo-50 dark:divide-indigo-500/10">
+                <tbody className="divide-y divide-indigo-800">
                   {records.slice(0, 8).map((r, i) => (
-                    <tr key={i} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                    <tr key={i} className="hover:bg-indigo-800/50 transition-colors">
                       <td className="px-6 py-5">
-                        <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
+                        <span className="text-[10px] font-black text-indigo-200 bg-indigo-800 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-sm font-black tracking-tight">{r.farmer_name}</p>
-                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                        <p className="text-sm font-black tracking-tight text-white">{r.farmer_name}</p>
+                        <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">{r.farmer_code}</p>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-bold text-[#111827]">{PARAMETER_LABELS.fat}: {r.fat}%</span>
-                          <span className="text-[10px] font-medium text-[#4B5563]">{PARAMETER_LABELS.snf}: {r.snf}%</span>
+                          <span className="text-[11px] font-bold text-white">{PARAMETER_LABELS.fat}: {r.fat}%</span>
+                          <span className="text-[10px] font-medium text-indigo-200">{PARAMETER_LABELS.snf}: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
@@ -539,7 +539,7 @@ export default function DashboardPage() {
                           {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                      <td className="px-6 py-5 text-center text-[10px] font-black text-indigo-200 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -548,11 +548,11 @@ export default function DashboardPage() {
           </div>
 
           {/* AI Insights Panel */}
-          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-gradient-to-b from-indigo-500/5 to-transparent">
+          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-[#1E1B4B] text-white">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-lg md:text-xl font-black tracking-tight">AI Insights</h3>
-                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
+                <h3 className="text-lg md:text-xl font-black tracking-tight text-white">AI Insights</h3>
+                <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white glow-indigo">
                 <Zap size={20} fill="currentColor" />
@@ -562,24 +562,24 @@ export default function DashboardPage() {
               {insights.map((insight, idx) => {
                 const Icon = insight.icon
                 const gradients = {
-                  emerald: 'from-emerald-50 to-emerald-100/50 dark:from-emerald-900/10 dark:to-emerald-800/10 border-emerald-200/50 dark:border-emerald-500/10 text-emerald-600',
-                  indigo: 'from-indigo-50 to-indigo-100/50 dark:from-indigo-900/10 dark:to-indigo-800/10 border-indigo-200/50 dark:border-indigo-500/10 text-indigo-600',
-                  rose: 'from-rose-50 to-rose-100/50 dark:from-rose-900/10 dark:to-rose-800/10 border-rose-200/50 dark:border-rose-500/10 text-rose-600',
-                  orange: 'from-orange-50 to-orange-100/50 dark:from-orange-900/10 dark:to-orange-800/10 border-orange-200/50 dark:border-orange-500/10 text-orange-600',
+                  emerald: 'from-emerald-900/50 to-emerald-800/50 border-emerald-700 text-emerald-200',
+                  indigo: 'from-indigo-900/50 to-indigo-800/50 border-indigo-700 text-indigo-200',
+                  rose: 'from-rose-900/50 to-rose-800/50 border-rose-700 text-rose-200',
+                  orange: 'from-orange-900/50 to-orange-800/50 border-orange-700 text-orange-200',
                 }
                 const g = gradients[insight.color] || gradients.indigo
                 return (
                   <div key={idx} className={`p-5 rounded-2xl bg-gradient-to-br border ${g} transition-all duration-300 hover:scale-[1.02]`}>
                     <div className="flex gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm shrink-0">
-                        <Icon size={20} strokeWidth={2.5} />
+                      <div className="w-10 h-10 rounded-xl bg-indigo-800 flex items-center justify-center shadow-sm shrink-0">
+                        <Icon size={20} strokeWidth={2.5} className="text-white" />
                       </div>
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs font-black uppercase tracking-wider">{insight.title}</p>
-                          <span className="text-[9px] font-black text-[#6B7280]">09:30 AM</span>
+                          <p className="text-xs font-black uppercase tracking-wider text-white">{insight.title}</p>
+                          <span className="text-[9px] font-black text-indigo-300">09:30 AM</span>
                         </div>
-                        <p className="text-[11px] font-bold text-[#374151] leading-relaxed">{insight.desc}</p>
+                        <p className="text-[11px] font-bold text-indigo-100 leading-relaxed">{insight.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -588,7 +588,7 @@ export default function DashboardPage() {
             </div>
             <button 
               onClick={() => navigate('/records')}
-              className="mt-8 btn-pro btn-pro-primary py-4 rounded-[20px] text-[11px] uppercase tracking-[0.2em]"
+              className="mt-8 bg-indigo-600 text-white py-4 rounded-[20px] text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-indigo-700 transition-colors"
             >
               View All Intelligence Logs
             </button>
@@ -679,22 +679,22 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
     Critical: 'from-rose-500 to-pink-500 shadow-rose-500/20 text-rose-500',
   }
   const colorMap = {
-    amber: 'text-orange-500',
-    blue: 'text-blue-500',
-    indigo: 'text-indigo-500',
-    emerald: 'text-emerald-500',
-    rose: 'text-rose-500',
-    orange: 'text-orange-500'
+    amber: 'text-orange-900',
+    blue: 'text-blue-900',
+    indigo: 'text-indigo-900',
+    emerald: 'text-emerald-900',
+    rose: 'text-rose-900',
+    orange: 'text-orange-900'
   }
   
   const gradientMap = {
-    'fat (%)': 'linear-gradient(135deg, #fff7ed, #ffedd5)',
-    'snf (%)': 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-    'ph': 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
-    'mbrt (hrs)': 'linear-gradient(135deg, #ecfeff, #cffafe)',
-    'gravity': 'linear-gradient(135deg, #f0fdfa, #ccfbf1)',
-    'acidity': 'linear-gradient(135deg, #fef2f2, #fee2e2)',
-    'temp (°c)': 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
+    'fat (%)': 'linear-gradient(135deg, #fed7aa, #fdba74)',
+    'snf (%)': 'linear-gradient(135deg, #bfdbfe, #93c5fd)',
+    'ph': 'linear-gradient(135deg, #ddd6fe, #c4b5fd)',
+    'mbrt (min)': 'linear-gradient(135deg, #a5f3fc, #67e8f9)',
+    'specific gravity': 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
+    'acidity (% la)': 'linear-gradient(135deg, #fecaca, #fca5a5)',
+    'temperature (°c)': 'linear-gradient(135deg, #fbcfe8, #f472b6)',
   }
 
   return (
@@ -706,12 +706,12 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
         <Icon size={24} strokeWidth={2.5} />
       </div>
       <div className="text-center">
-        <p className="text-[9px] font-black text-slate-600 tracking-widest mb-1">{label}</p>
+        <p className="text-[9px] font-black text-slate-900 tracking-widest mb-1">{label}</p>
         <h4 className={`text-lg font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
       </div>
       <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">
         <div className="flex flex-col items-center">
-          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Normal Range</span>
+          <span className="text-[8px] font-black text-slate-900 uppercase tracking-widest">Normal Range</span>
           <span className="text-[10px] font-black text-indigo-500">{range}</span>
         </div>
         <div className={`status-badge ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>
