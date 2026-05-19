@@ -89,7 +89,14 @@ export default function UploadHistoryPage() {
       </div>
 
       {/* ── Search & Filter Panel ── */}
-      <div className="bg-[#1E1B4B] p-6 space-y-6 rounded-[2rem] shadow-xl">
+      <div 
+        style={{ 
+          backgroundImage: 'linear-gradient(135deg, #319E8F 0%, #2B8F82 50%, #25786D 100%)',
+          boxShadow: '0 10px 35px rgba(49,158,143,0.28), inset 0 1px 0 rgba(255,255,255,0.05)',
+          border: '1px solid rgba(73,181,166,0.25)'
+        }} 
+        className="p-6 space-y-6 rounded-[2rem]"
+      >
         <div className="relative group">
           <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
           <input 

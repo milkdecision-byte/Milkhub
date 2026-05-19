@@ -132,7 +132,14 @@ export default function RecordsPage() {
       </div>
 
       {/* ── Filter Panel ── */}
-      <div className="bg-[#1E1B4B] p-8 space-y-10 rounded-[2rem] shadow-xl text-white">
+      <div 
+        style={{ 
+          backgroundImage: 'linear-gradient(135deg, #4B46E5 0%, #5A55F0 50%, #4338CA 100%)',
+          boxShadow: '0 12px 35px rgba(75,70,229,0.30), inset 0 1px 0 rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.08)'
+        }} 
+        className="p-8 space-y-10 rounded-[2rem] text-white"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           <div className="relative group">
             <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
@@ -210,15 +217,15 @@ export default function RecordsPage() {
                />
              </div>
           </div>
-          <div className="h-8 w-px bg-[#C4B5FD]/30 hidden xl:block" />
+          <div className="h-8 w-px bg-white/20 hidden xl:block" />
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-             <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">Shift</span>
-             <div className="flex flex-col sm:flex-row bg-[#F5F3FF] dark:bg-white/10 p-1.5 rounded-2xl border border-[#C4B5FD]/20 w-full sm:w-auto">
+             <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Shift</span>
+             <div className="flex flex-col sm:flex-row bg-white/10 p-1.5 rounded-2xl border border-white/20 w-full sm:w-auto">
                {['all', 'morning', 'evening'].map(s => (
                  <button 
                   key={s}
                   onClick={() => setFilter('shift', s === 'all' ? '' : s)}
-                  className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-500 w-full sm:w-auto ${((s === 'all' && !filters.shift) || filters.shift === s) ? 'bg-white dark:bg-white/10 text-orange-600 shadow-lg shadow-orange-500/10' : 'text-[#7C3AED] hover:text-purple-600'}`}
+                  className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-500 w-full sm:w-auto ${((s === 'all' && !filters.shift) || filters.shift === s) ? 'bg-white text-[#4B46E5] shadow-lg' : 'text-white/70 hover:text-white'}`}
                  >
                    {s}
                  </button>

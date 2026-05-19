@@ -256,7 +256,7 @@ export default function DashboardPage() {
             total={stats.morning_qty} 
             accepted={stats.morning_acc_qty} 
             rejected={stats.morning_rej_qty} 
-            acceptance={Math.round((stats.morning_acc_qty / (stats.morning_qty || 1)) * 100)}
+            acceptance={Math.min(100, Math.max(0, Math.round((stats.morning_acc_qty / (stats.morning_qty || 1)) * 100)))}
             icon={Sun} 
             color="orange"
             trendData={trendData.map(d => ({ value: d.collection }))}
@@ -266,7 +266,7 @@ export default function DashboardPage() {
             total={stats.evening_qty} 
             accepted={stats.evening_acc_qty} 
             rejected={stats.evening_rej_qty} 
-            acceptance={Math.round((stats.evening_acc_qty / (stats.evening_qty || 1)) * 100)}
+            acceptance={Math.min(100, Math.max(0, Math.round((stats.evening_acc_qty / (stats.evening_qty || 1)) * 100)))}
             icon={Moon} 
             color="purple"
             trendData={trendData.map(d => ({ value: d.collection }))}
@@ -276,7 +276,7 @@ export default function DashboardPage() {
             total={stats.total_qty || (stats.morning_qty + stats.evening_qty)} 
             accepted={stats.morning_acc_qty + stats.evening_acc_qty} 
             rejected={stats.morning_rej_qty + stats.evening_rej_qty} 
-            acceptance={Math.round(((stats.morning_acc_qty + stats.evening_acc_qty) / (stats.total_qty || 1)) * 100)}
+            acceptance={Math.min(100, Math.max(0, Math.round(((stats.morning_acc_qty + stats.evening_acc_qty) / (stats.total_qty || (stats.morning_qty + stats.evening_qty) || 1)) * 100)))}
             icon={Activity} 
             color="indigo"
             trendData={trendData.map(d => ({ value: d.collection }))}
@@ -319,39 +319,48 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-6 mb-8 text-[10px] font-black uppercase tracking-[0.2em]">
+            <div className="flex items-center gap-6 mb-8 text-[10px] font-bold uppercase tracking-[0.2em]">
               <div className="flex items-center gap-2.5">
-                <div className="w-3.5 h-3.5 rounded-full bg-gradient-emerald glow-emerald" />
-                <span className="text-emerald-500">Accepted (L)</span>
+                <div className="w-3.5 h-3.5 rounded-full bg-[#10B981]" />
+                <span className="text-[#10B981]">Accepted (L)</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="w-3.5 h-3.5 rounded-full bg-gradient-orange glow-orange" />
-                <span className="text-rose-500">Rejected (L)</span>
+                <div className="w-3.5 h-3.5 rounded-full bg-[#EF4444]" />
+                <span className="text-[#EF4444]">Rejected (L)</span>
               </div>
             </div>
 
             <div className="flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
-                  <defs>
-                    <linearGradient id="colorAcc" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorRej" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#1e293b' : '#f1f5f9'} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
+                  <XAxis dataKey="name" axisLine={{ stroke: '#64748B' }} tickLine={false} tick={{ fontSize: 10, fill: '#64748B', fontWeight: 600 }} dy={10} />
+                  <YAxis axisLine={{ stroke: '#64748B' }} tickLine={false} tick={{ fontSize: 10, fill: '#64748B', fontWeight: 600 }} />
                   <RechartsTooltip 
-                    contentStyle={{ backgroundColor: theme === 'dark' ? '#0f172a' : '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
-                    itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', border: 'none', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)' }}
+                    itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#fff' }}
+                    labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                   />
-                  <Area type="monotone" dataKey="collection" stroke="#22C55E" strokeWidth={3} fillOpacity={0.1} fill="url(#colorAcc)" />
-                  <Area type="monotone" dataKey="rejected" stroke="#EF4444" strokeWidth={3} fillOpacity={0.1} fill="url(#colorRej)" />
+                  <Area 
+                    type="linear" 
+                    dataKey="collection" 
+                    stroke="#EF4444" 
+                    strokeWidth={4} 
+                    fill="#0E74B8" 
+                    fillOpacity={1} 
+                    dot={{ r: 6, fill: '#EF4444', stroke: '#fff', strokeWidth: 2 }}
+                    activeDot={{ r: 8, fill: '#EF4444', stroke: '#fff', strokeWidth: 2 }}
+                    animationDuration={1500}
+                  />
+                  <Area 
+                    type="linear" 
+                    dataKey="rejected" 
+                    stroke="#EF4444" 
+                    strokeWidth={2} 
+                    strokeDasharray="5 5"
+                    fill="none" 
+                    dot={false}
+                    animationDuration={1500}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -447,44 +456,44 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <ParameterCard 
               label={PARAMETER_LABELS.fat} value={stats.avg_fat || 0} 
-              range={`${data?.standards?.fat?.min}-${data?.standards?.fat?.max}`} 
-              status={stats.avg_fat < (data?.standards?.fat?.min || 3.2) ? 'Critical' : 'Optimal'}
+              range="3.2-3.5" 
+              status={(stats.avg_fat < 3.2 || stats.avg_fat > 3.5) ? 'Critical' : 'Optimal'}
               icon={Droplets} color="amber"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.snf} value={stats.avg_snf || 0} 
-              range={`${data?.standards?.snf?.min}-${data?.standards?.snf?.max}`} 
-              status={stats.avg_snf < (data?.standards?.snf?.min || 8.0) ? 'Critical' : 'Optimal'}
+              range="8.3-8.5" 
+              status={(stats.avg_snf < 8.3 || stats.avg_snf > 8.5) ? 'Critical' : 'Optimal'}
               icon={Activity} color="blue"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.ph} value={stats.avg_ph || 0} 
-              range={`${data?.standards?.ph?.min}-${data?.standards?.ph?.max}`} 
-              status={(stats.avg_ph < (data?.standards?.ph?.min || 6.5) || stats.avg_ph > (data?.standards?.ph?.max || 6.8)) ? 'Warning' : 'Optimal'}
+              range="6.5-6.8" 
+              status={(stats.avg_ph < 6.5 || stats.avg_ph > 6.8) ? 'Warning' : 'Optimal'}
               icon={FlaskConical} color="indigo"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.mbrt} value={stats.avg_mbrt || 0} 
-              range={`> ${data?.standards?.mbrt?.min || 3.0}`} 
-              status={stats.avg_mbrt < (data?.standards?.mbrt?.min || 3.0) ? 'Critical' : 'Optimal'}
+              range="> 3 hrs" 
+              status={stats.avg_mbrt < 3.0 ? 'Critical' : 'Optimal'}
               icon={Clock} color="emerald"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.specific_gravity} value={stats.avg_gravity || 0} 
-              range={`${data?.standards?.gravity?.min}-${data?.standards?.gravity?.max}`} 
-              status={(stats.avg_gravity < (data?.standards?.gravity?.min || 1.028) || stats.avg_gravity > (data?.standards?.gravity?.max || 1.032)) ? 'Critical' : 'Optimal'}
+              range="1.028-1.032" 
+              status={(stats.avg_gravity < 1.028 || stats.avg_gravity > 1.032) ? 'Critical' : 'Optimal'}
               icon={Microscope} color="blue"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.acidity} value={stats.avg_acidity || 0} 
-              range={`< ${data?.standards?.acidity?.max || 0.16}`} 
-              status={stats.avg_acidity > (data?.standards?.acidity?.max || 0.16) ? 'Warning' : 'Optimal'}
+              range="0.10-0.15" 
+              status={(stats.avg_acidity < 0.10 || stats.avg_acidity > 0.15) ? 'Warning' : 'Optimal'}
               icon={Zap} color="rose"
             />
             <ParameterCard 
               label={PARAMETER_LABELS.temperature} value={stats.avg_temp || 0} 
-              range={`< ${data?.standards?.temp?.max || 10.0}`} 
-              status={stats.avg_temp > (data?.standards?.temp?.max || 10.0) ? 'Critical' : 'Optimal'}
+              range="≤ 15°C" 
+              status={stats.avg_temp > 15.0 ? 'Critical' : 'Optimal'}
               icon={Thermometer} color="orange"
             />
           </div>
@@ -493,15 +502,23 @@ export default function DashboardPage() {
         {/* Bottom Grid: Records & AI */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Recent Records */}
-          <div className="lg:col-span-8 card-pro flex flex-col bg-[#1E1B4B] text-white">
-            <div className="p-4 md:p-8 border-b border-indigo-800 flex items-center justify-between">
+          <div 
+            style={{ 
+              backgroundImage: 'linear-gradient(135deg, #6CB657 0%, #7BC466 50%, #5AA147 100%)',
+              boxShadow: '0 10px 35px rgba(108,182,87,0.25), inset 0 1px 0 rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.18)'
+            }} 
+            className="lg:col-span-8 card-pro flex flex-col text-white"
+          >
+            <div className="p-4 md:p-8 border-b border-white/18 flex items-center justify-between">
               <div>
-                <h3 className="text-lg md:text-xl font-black tracking-tight text-white">Recent Collection Records</h3>
-                <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mt-1">Live sampling data</p>
+                <h3 className="text-lg md:text-xl font-bold tracking-tight text-white">Recent Collection Records</h3>
+                <p className="text-[10px] font-bold text-white/82 uppercase tracking-widest mt-1">Live sampling data</p>
               </div>
               <button 
                 onClick={() => navigate('/records')}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-wider hover:scale-105 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold uppercase tracking-wider hover:scale-105 hover:bg-white/30 transition-all"
               >
                 View Full History
               </button>
@@ -510,36 +527,36 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr>
-                    <th className="table-header-pro text-indigo-200">ID</th>
-                    <th className="table-header-pro text-indigo-200">Farmer</th>
-                    <th className="table-header-pro text-indigo-200 text-center">Quality</th>
-                    <th className="table-header-pro text-indigo-200 text-center">Status</th>
-                    <th className="table-header-pro text-indigo-200 text-center">DATE</th>
+                    <th className="table-header-pro text-black font-bold tracking-[1px]">ID</th>
+                    <th className="table-header-pro text-black font-bold tracking-[1px]">Farmer</th>
+                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">Quality</th>
+                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">Status</th>
+                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">DATE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-indigo-800">
+                <tbody className="divide-y divide-white/18">
                   {records.slice(0, 8).map((r, i) => (
-                    <tr key={i} className="hover:bg-indigo-800/50 transition-colors">
+                    <tr key={i} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-5">
-                        <span className="text-[10px] font-black text-indigo-200 bg-indigo-800 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
+                        <span className="text-[10px] font-black text-white bg-white/20 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-sm font-black tracking-tight text-white">{r.farmer_name}</p>
-                        <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                        <p className="text-sm font-bold tracking-tight text-white">{r.farmer_name}</p>
+                        <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider">{r.farmer_code}</p>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-bold text-white">{PARAMETER_LABELS.fat}: {r.fat}%</span>
-                          <span className="text-[10px] font-medium text-indigo-200">{PARAMETER_LABELS.snf}: {r.snf}%</span>
+                          <span className="text-[11px] font-bold text-white/96">{PARAMETER_LABELS.fat}: {r.fat}%</span>
+                          <span className="text-[10px] font-medium text-white/78">{PARAMETER_LABELS.snf}: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <span className={`status-badge mx-auto ${r.decision === 'accept' ? 'status-badge-success' : 'status-badge-error'}`}>
+                        <span className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mx-auto max-w-fit ${r.decision === 'accept' ? 'bg-white/22 text-[#0B3D2E]' : 'bg-[rgba(255,0,0,0.18)] text-white'}`}>
                           {r.decision === 'accept' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                           {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-center text-[10px] font-black text-indigo-200 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                      <td className="px-6 py-5 text-center text-[10px] font-black text-white/92 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -548,38 +565,31 @@ export default function DashboardPage() {
           </div>
 
           {/* AI Insights Panel */}
-          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-[#1E1B4B] text-white">
+          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-[#FF3366] text-white shadow-[0_10px_30px_rgba(255,51,102,0.35)]">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg md:text-xl font-black tracking-tight text-white">AI Insights</h3>
-                <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
+                <p className="text-[10px] font-black text-white/80 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white glow-indigo">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                 <Zap size={20} fill="currentColor" />
               </div>
             </div>
             <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2">
               {insights.map((insight, idx) => {
                 const Icon = insight.icon
-                const gradients = {
-                  emerald: 'from-emerald-900/50 to-emerald-800/50 border-emerald-700 text-emerald-200',
-                  indigo: 'from-indigo-900/50 to-indigo-800/50 border-indigo-700 text-indigo-200',
-                  rose: 'from-rose-900/50 to-rose-800/50 border-rose-700 text-rose-200',
-                  orange: 'from-orange-900/50 to-orange-800/50 border-orange-700 text-orange-200',
-                }
-                const g = gradients[insight.color] || gradients.indigo
                 return (
-                  <div key={idx} className={`p-5 rounded-2xl bg-gradient-to-br border ${g} transition-all duration-300 hover:scale-[1.02]`}>
+                  <div key={idx} className="p-5 rounded-2xl bg-white/[0.08] border border-white/10 transition-all duration-300 hover:scale-[1.02]">
                     <div className="flex gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-800 flex items-center justify-center shadow-sm shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm shrink-0">
                         <Icon size={20} strokeWidth={2.5} className="text-white" />
                       </div>
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs font-black uppercase tracking-wider text-white">{insight.title}</p>
-                          <span className="text-[9px] font-black text-indigo-300">09:30 AM</span>
+                          <span className="text-[9px] font-black text-white/70">09:30 AM</span>
                         </div>
-                        <p className="text-[11px] font-bold text-indigo-100 leading-relaxed">{insight.desc}</p>
+                        <p className="text-[11px] font-bold text-white leading-relaxed">{insight.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -588,7 +598,7 @@ export default function DashboardPage() {
             </div>
             <button 
               onClick={() => navigate('/records')}
-              className="mt-8 bg-indigo-600 text-white py-4 rounded-[20px] text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-indigo-700 transition-colors"
+              className="mt-8 bg-white/20 text-white py-4 rounded-[20px] text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white/30 transition-colors"
             >
               View All Intelligence Logs
             </button>
@@ -711,7 +721,7 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
       </div>
       <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">
         <div className="flex flex-col items-center">
-          <span className="text-[8px] font-black text-slate-900 uppercase tracking-widest">Normal Range</span>
+          <span className="text-[8px] font-black text-slate-900 uppercase tracking-widest">Acceptable Range</span>
           <span className="text-[10px] font-black text-indigo-500">{range}</span>
         </div>
         <div className={`status-badge ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>

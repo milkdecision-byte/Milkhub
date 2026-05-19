@@ -58,11 +58,18 @@ export default function FarmersPage() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="bg-[#1E1B4B] p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center rounded-[2rem] shadow-xl text-white">
+      <div 
+        style={{ 
+          backgroundColor: '#8E63A9',
+          boxShadow: '0 10px 30px rgba(142, 99, 169, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.15)'
+        }} 
+        className="p-6 sm:p-8 flex flex-col lg:flex-row gap-6 sm:gap-8 items-stretch lg:items-center rounded-[2rem] text-white"
+      >
         <div className="relative flex-1 group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-white/85 group-focus-within:text-white transition-colors" />
           <input 
-            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-indigo-900/50 border border-indigo-700 text-base font-semibold text-white placeholder:text-indigo-300 focus:ring-4 focus:ring-indigo-500/30 outline-none transition-all shadow-sm" 
+            className="w-full pl-14 pr-8 py-5 rounded-2xl bg-white/10 border border-white/15 text-base font-semibold text-white placeholder:text-white/65 focus:ring-4 focus:ring-white/20 outline-none transition-all shadow-sm" 
             placeholder="Search Farmer Registry by Name or ID…"
             value={search} 
             onChange={e => { setSearch(e.target.value); setPage(1) }} 
@@ -73,7 +80,7 @@ export default function FarmersPage() {
           className={`flex items-center justify-center gap-3 px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border text-[10px] sm:text-[11px] font-bold uppercase tracking-widest transition-all duration-500 whitespace-nowrap
             ${fraudOnly
               ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30'
-              : 'bg-indigo-900/50 border-indigo-700 text-indigo-200 hover:text-white hover:border-indigo-500'}`}
+              : 'bg-white/10 border-white/15 text-white/70 hover:text-white hover:border-white/30'}`}
         >
           <ShieldAlert size={18} />
           High Quality Risk Farmers

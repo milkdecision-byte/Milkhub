@@ -167,14 +167,21 @@ export default function ReportsPage() {
       )}
 
       {/* ── Master Filter Matrix ── */}
-      <div className="bg-[#1E1B4B] p-10 rounded-[2rem] shadow-xl text-white">
-        <div className="flex items-center justify-between border-b border-indigo-800 pb-8 mb-8">
-          <h3 className="text-[11px] font-bold text-orange-500 uppercase tracking-[0.3em] flex items-center gap-4">
-            <Filter size={18} /> Filter by Date and Shift
+      <div 
+        style={{ 
+          backgroundColor: '#00A79D',
+          boxShadow: '0 10px 30px rgba(0, 167, 157, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.15)'
+        }} 
+        className="p-10 rounded-[2rem] text-white"
+      >
+        <div className="flex items-center justify-between border-b border-white/20 pb-8 mb-8">
+          <h3 className="text-[11px] font-bold text-white uppercase tracking-[0.3em] flex items-center gap-4">
+            <Filter size={18} className="text-white/85" /> Filter by Date and Shift
           </h3>
           <button 
             onClick={() => setFilters({ date_from:'', date_to:'', decision:'', fraud_risk:'', session:'' })}
-            className="text-[10px] font-bold text-rose-400 hover:text-rose-300 uppercase tracking-widest transition-all flex items-center gap-2 group"
+            className="text-[10px] font-bold text-white/70 hover:text-white uppercase tracking-widest transition-all flex items-center gap-2 group"
           >
             Clear Filters <RotateCcw size={12} className="group-hover:rotate-180 transition-transform" />
           </button>
@@ -183,59 +190,71 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Date Picker */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Date Selection</label>
-            <input 
-              type="date" 
-              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 transition-all" 
-              value={filters.date_from}
-              max={new Date().toISOString().split('T')[0]}
-              onChange={e => setFilter('date_from', e.target.value)}
-            />
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Date Selection</label>
+            <div className="relative">
+              <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <input 
+                type="date" 
+                className="w-full bg-white/10 border border-white/15 pl-12 pr-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 transition-all shadow-sm" 
+                value={filters.date_from}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={e => setFilter('date_from', e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Decision Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Quality Result</label>
-            <select 
-              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
-              value={filters.decision}
-              onChange={e => setFilter('decision', e.target.value)}
-            >
-              <option value="" className="bg-[#1E1B4B]">All Results</option>
-              <option value="accept" className="bg-[#1E1B4B]">ACCEPTED Only</option>
-              <option value="reject" className="bg-[#1E1B4B]">REJECTED Only</option>
-            </select>
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Quality Result</label>
+            <div className="relative">
+              <select 
+                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+                value={filters.decision}
+                onChange={e => setFilter('decision', e.target.value)}
+              >
+                <option value="" className="bg-[#00A79D]">All Results</option>
+                <option value="accept" className="bg-[#00A79D]">ACCEPTED Only</option>
+                <option value="reject" className="bg-[#00A79D]">REJECTED Only</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+            </div>
           </div>
 
           {/* Fraud Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Risk Level</label>
-            <select 
-              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
-              value={filters.fraud_risk}
-              onChange={e => setFilter('fraud_risk', e.target.value)}
-            >
-              <option value="" className="bg-[#1E1B4B]">All Risk Profiles</option>
-              <option value="detected" className="bg-[#1E1B4B]">Fraud Detected (High/Med)</option>
-              <option value="high" className="bg-[#1E1B4B]">Fraud High</option>
-              <option value="medium" className="bg-[#1E1B4B]">Fraud Medium</option>
-              <option value="clean" className="bg-[#1E1B4B]">Clean Samples Only</option>
-            </select>
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Risk Level</label>
+            <div className="relative">
+              <select 
+                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+                value={filters.fraud_risk}
+                onChange={e => setFilter('fraud_risk', e.target.value)}
+              >
+                <option value="" className="bg-[#00A79D]">All Risk Profiles</option>
+                <option value="detected" className="bg-[#00A79D]">Fraud Detected (High/Med)</option>
+                <option value="high" className="bg-[#00A79D]">Fraud High</option>
+                <option value="medium" className="bg-[#00A79D]">Fraud Medium</option>
+                <option value="clean" className="bg-[#00A79D]">Clean Samples Only</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+            </div>
           </div>
 
           {/* Session Filter */}
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest ml-1">Entry Source</label>
-            <select 
-              className="w-full bg-indigo-900/50 border border-indigo-700 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-indigo-500/30 appearance-none"
-              value={filters.session}
-              onChange={e => setFilter('session', e.target.value)}
-            >
-              <option value="" className="bg-[#1E1B4B]">All Sessions</option>
-              <option value="morning" className="bg-[#1E1B4B]">Morning Shift</option>
-              <option value="evening" className="bg-[#1E1B4B]">Evening Shift</option>
-              <option value="manual" className="bg-[#1E1B4B]">Manual Intelligence Entry</option>
-            </select>
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Entry Source</label>
+            <div className="relative">
+              <select 
+                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+                value={filters.session}
+                onChange={e => setFilter('session', e.target.value)}
+              >
+                <option value="" className="bg-[#00A79D]">All Sessions</option>
+                <option value="morning" className="bg-[#00A79D]">Morning Shift</option>
+                <option value="evening" className="bg-[#00A79D]">Evening Shift</option>
+                <option value="manual" className="bg-[#00A79D]">Manual Intelligence Entry</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+            </div>
           </div>
 
           {/* Download Quick Actions */}
