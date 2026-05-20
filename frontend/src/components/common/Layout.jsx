@@ -197,7 +197,7 @@ export default function Layout() {
             {/* Action Icons Removed */}
 
             {/* Admin Profile */}
-            <div className="relative">
+            <div className={`relative ${profileOpen ? 'z-[45]' : ''}`}>
               <button 
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
@@ -219,32 +219,48 @@ export default function Layout() {
               <AnimatePresence>
                 {profileOpen && (
                   <>
-                    <div className="fixed inset-0 z-10" onClick={() => setProfileOpen(false)} />
                     <motion.div
+                      key="profile-scrim"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="profile-dropdown-scrim"
+                      onClick={() => setProfileOpen(false)}
+                      aria-hidden
+                    />
+                    <motion.div
+                      key="profile-menu"
                       initial={{ opacity: 0, y: 20, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                      className="absolute right-0 mt-4 w-56 bg-white/98 backdrop-blur-xl border border-violet-200/70 rounded-3xl shadow-xl shadow-violet-200/40 z-20 overflow-hidden p-2"
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="profile-dropdown-menu"
+                      role="menu"
                     >
-                      <div className="p-4 border-b border-violet-100">
-                        <p className="text-xs font-black text-violet-600 uppercase tracking-widest mb-1">Signed in as</p>
-                        <p className="text-sm font-black truncate text-slate-900">{user?.email || 'admin@milkhub.ai'}</p>
+                      <div className="profile-dropdown-menu-header">
+                        <p className="text-xs font-black text-violet-700 dark:text-violet-300 uppercase tracking-widest mb-1">Signed in as</p>
+                        <p className="text-sm font-black truncate text-slate-900 dark:text-slate-100">{user?.email || 'admin@milkhub.ai'}</p>
                       </div>
-                      <div className="p-1 space-y-1">
+                      <div className="p-1 space-y-1 relative z-10">
                         <button 
                           type="button"
                           onClick={() => { setProfileOpen(false); navigate('/settings') }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-violet-50 rounded-2xl transition-all"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-100 hover:bg-violet-100/90 dark:hover:bg-violet-900/40 rounded-2xl transition-all"
                         >
-                          <Settings size={18} strokeWidth={2.5} className="text-violet-600" />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/50 ring-1 ring-violet-200/80 dark:ring-violet-700/50">
+                            <Settings size={18} strokeWidth={2.5} className="text-violet-700 dark:text-violet-300" />
+                          </span>
                           Settings
                         </button>
                         <button 
                           type="button"
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-2xl transition-all"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-100/90 dark:hover:bg-rose-900/30 rounded-2xl transition-all"
                         >
-                          <LogOut size={18} strokeWidth={2.5} />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/40 ring-1 ring-rose-200/80 dark:ring-rose-800/50">
+                            <LogOut size={18} strokeWidth={2.5} className="text-rose-700 dark:text-rose-300" />
+                          </span>
                           Logout
                         </button>
                       </div>
