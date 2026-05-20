@@ -88,50 +88,98 @@ export default function UploadHistoryPage() {
         </h2>
       </div>
 
-      {/* ── Search & Filter Panel ── */}
-      <div 
-        style={{ 
-          backgroundImage: 'linear-gradient(135deg, #319E8F 0%, #2B8F82 50%, #25786D 100%)',
-          boxShadow: '0 10px 35px rgba(49,158,143,0.28), inset 0 1px 0 rgba(255,255,255,0.05)',
-          border: '1px solid rgba(73,181,166,0.25)'
-        }} 
-        className="p-6 space-y-6 rounded-[2rem]"
+      {/* ── Search & Filter Panel — electric purple brand, light surfaces ── */}
+      <div
+        className="p-6 space-y-6 rounded-[2rem] border-2 shadow-[0_12px_40px_-12px_rgba(160,32,240,0.28)]"
+        style={{
+          borderColor: 'rgba(160, 32, 240, 0.45)',
+          background: 'linear-gradient(135deg, var(--electric-purple-surface) 0%, var(--electric-purple-light) 50%, #f0d4ff 100%)',
+        }}
       >
         <div className="relative group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 group-focus-within:text-white transition-colors" />
-          <input 
-            style={{ backgroundImage: 'linear-gradient(135deg, #4338ca, #3730a3)' }}
-            className="w-full border border-indigo-700 pl-16 pr-8 py-5 rounded-[1.5rem] text-sm font-bold text-white placeholder:text-indigo-300 outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-indigo-500/30 backdrop-blur-[10px]" 
+          <Search
+            size={20}
+            className="absolute left-6 top-1/2 -translate-y-1/2 transition-colors group-focus-within:opacity-100"
+            style={{ color: 'var(--electric-purple-deep)' }}
+          />
+          <input
+            className="w-full pl-16 pr-8 py-5 rounded-[1.5rem] text-sm font-bold text-slate-900 placeholder:text-slate-600 outline-none transition-all duration-300 ease-in-out shadow-sm border-2 [color-scheme:light]"
+            style={{
+              backgroundColor: 'var(--electric-purple-light)',
+              borderColor: 'rgba(160, 32, 240, 0.4)',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--electric-purple)'
+              e.target.style.boxShadow = '0 0 0 4px rgba(160, 32, 240, 0.25)'
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(160, 32, 240, 0.4)'
+              e.target.style.boxShadow = 'none'
+            }}
             placeholder="Search by Upload ID or File Name…"
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
-        
+
         <div className="flex flex-wrap gap-6">
           <div className="flex-1 min-w-[240px] relative">
-            <Calendar size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" />
-            <input 
-              type="date" 
-              style={{ backgroundImage: 'linear-gradient(135deg, #4338ca, #3730a3)' }}
-              className="w-full border border-indigo-700 pl-14 pr-6 py-4 rounded-2xl text-[11px] font-black tracking-widest text-white outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-indigo-500/30 backdrop-blur-[10px]"
-              value={dateFilter} 
-              onChange={e => setDateFilter(e.target.value)} 
+            <Calendar
+              size={18}
+              className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none z-10"
+              style={{ color: 'var(--electric-purple-deep)' }}
+            />
+            <input
+              type="date"
+              className="w-full pl-14 pr-6 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm border-2 [color-scheme:light]"
+              style={{
+                backgroundColor: 'var(--electric-purple-light)',
+                borderColor: 'rgba(160, 32, 240, 0.4)',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--electric-purple)'
+                e.target.style.boxShadow = '0 0 0 4px rgba(160, 32, 240, 0.25)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(160, 32, 240, 0.4)'
+                e.target.style.boxShadow = 'none'
+              }}
+              value={dateFilter}
+              onChange={e => setDateFilter(e.target.value)}
             />
           </div>
           <div className="flex-1 min-w-[240px] relative">
-            <Filter size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none" />
-            <select 
-              style={{ backgroundImage: 'linear-gradient(135deg, #4338ca, #3730a3)' }}
-              className="w-full border border-indigo-700 pl-14 pr-12 py-4 rounded-2xl text-[11px] font-black tracking-widest text-white outline-none transition-all duration-300 ease-in-out shadow-sm hover:shadow-md focus:ring-4 focus:ring-indigo-500/30 backdrop-blur-[10px] appearance-none cursor-pointer"
-              value={shiftFilter} 
+            <Filter
+              size={18}
+              className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none z-10"
+              style={{ color: 'var(--electric-purple-deep)' }}
+            />
+            <select
+              className="w-full pl-14 pr-12 py-4 rounded-2xl text-[11px] font-black tracking-widest text-slate-900 outline-none transition-all duration-300 ease-in-out shadow-sm border-2 appearance-none cursor-pointer [color-scheme:light]"
+              style={{
+                backgroundColor: 'var(--electric-purple-light)',
+                borderColor: 'rgba(160, 32, 240, 0.4)',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--electric-purple)'
+                e.target.style.boxShadow = '0 0 0 4px rgba(160, 32, 240, 0.25)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(160, 32, 240, 0.4)'
+                e.target.style.boxShadow = 'none'
+              }}
+              value={shiftFilter}
               onChange={e => setShiftFilter(e.target.value)}
             >
-              <option value="">All Shifts</option>
-              <option value="morning">Morning Shift</option>
-              <option value="evening">Evening Shift</option>
+              <option value="" className="text-slate-900" style={{ backgroundColor: 'var(--electric-purple-surface)' }}>All Shifts</option>
+              <option value="morning" className="text-slate-900" style={{ backgroundColor: 'var(--electric-purple-surface)' }}>Morning Shift</option>
+              <option value="evening" className="text-slate-900" style={{ backgroundColor: 'var(--electric-purple-surface)' }}>Evening Shift</option>
             </select>
-            <ChevronDown size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-[#374151] pointer-events-none" />
+            <ChevronDown
+              size={14}
+              className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: 'var(--electric-purple)' }}
+            />
           </div>
         </div>
       </div>

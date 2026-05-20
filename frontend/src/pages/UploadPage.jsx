@@ -375,16 +375,29 @@ export default function UploadPage() {
  
 
       {/* ── Protocol Architecture ── */}
-      <div className="card-premium p-4 sm:p-6 md:p-12 space-y-12 relative overflow-hidden border-[#C4B5FD]/20 shadow-xl group">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F5F3FF] to-transparent opacity-50" />
+      <div
+        className="card-premium p-4 sm:p-6 md:p-12 space-y-12 relative overflow-hidden shadow-xl group border-2"
+        style={{ borderColor: 'rgba(160, 32, 240, 0.35)' }}
+      >
+        <div
+          className="absolute inset-0 opacity-60"
+          style={{ background: 'linear-gradient(135deg, var(--electric-purple-surface), transparent)' }}
+        />
         
         <div className="flex items-center gap-6 relative z-10">
-           <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-[#7C3AED] to-[#8B5CF6] text-white flex items-center justify-center shadow-2xl shadow-purple-900/30">
+           <div
+             className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center shadow-2xl"
+             style={{
+               background: 'linear-gradient(135deg, var(--electric-purple), var(--electric-purple-bright))',
+               boxShadow: '0 12px 32px rgba(160, 32, 240, 0.45)',
+               color: '#f5e6ff',
+             }}
+           >
              <Info size={32}/>
            </div>
            <div>
-               <h4 className="text-xl font-bold text-[#111827] tracking-wide uppercase">Ingestion Protocol Architecture</h4>
-               <p className="text-[10px] font-medium text-[#4B5563] uppercase tracking-widest mt-2">Nomenclature Standards & Molecular Vectors</p>
+               <h4 className="text-xl font-bold tracking-wide uppercase" style={{ color: 'var(--electric-purple-deep)' }}>Milk Testing Parameters</h4>
+               <p className="text-[10px] font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--electric-purple)' }}>Standard Quality Parameters</p>
            </div>
         </div>
         
@@ -402,25 +415,36 @@ export default function UploadPage() {
           </div>
 
           <div className="space-y-6 flex-1">
-            <p className="text-[11px] font-bold text-[#7C3AED] uppercase tracking-[0.25em] flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.5)]"></span>
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] flex items-center gap-3" style={{ color: 'var(--electric-purple-deep)' }}>
+              <span className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(160,32,240,0.55)]" style={{ backgroundColor: 'var(--electric-purple)' }} />
               Optional Quality Fields
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
               {['Temperature', 'Specific Gravity', 'Alcohol Test', 'Organoleptic', 'Sediment Test', 'Raw Temp', 'Quantity'].map(h => (
-                <span key={h} className="h-14 w-full bg-[#7C3AED] text-white rounded-2xl flex items-center justify-center text-center text-sm font-semibold tracking-wide leading-none border border-purple-600 hover:bg-purple-700 transition-colors shadow-md shadow-purple-500/10">{h}</span>
+                <span
+                  key={h}
+                  className="h-14 w-full rounded-2xl flex items-center justify-center text-center text-sm font-semibold tracking-wide leading-none border transition-colors shadow-md"
+                  style={{
+                    backgroundColor: 'var(--electric-purple)',
+                    borderColor: 'var(--electric-purple-bright)',
+                    color: '#f5e6ff',
+                    boxShadow: '0 4px 14px rgba(160, 32, 240, 0.35)',
+                  }}
+                >
+                  {h}
+                </span>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="pt-10 border-t border-[#C4B5FD]/20 relative z-10">
+        <div className="pt-10 border-t relative z-10" style={{ borderColor: 'rgba(160, 32, 240, 0.25)' }}>
           <p className="text-[12px] text-[#374151] font-bold uppercase tracking-wide leading-relaxed">
             <b className="text-[#111827]">Automatic Data Matching:</b> The system automatically matches your column names. 
             Missing values are checked against standard dairy quality rules.
           </p>
         </div>
-        <Search size={300} className="absolute -right-24 -top-24 text-[#7C3AED] opacity-[0.03] rotate-12 group-hover:rotate-6 transition-transform duration-1000" />
+        <Search size={300} className="absolute -right-24 -top-24 opacity-[0.06] rotate-12 group-hover:rotate-6 transition-transform duration-1000" style={{ color: 'var(--electric-purple)' }} />
       </div>
     </div>
   )

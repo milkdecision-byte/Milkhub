@@ -113,6 +113,57 @@ const GROUPS = [
   },
 ]
 
+const GROUP_CARD_STYLES = {
+  'bg-blue-600': {
+    card: 'bg-blue-100/50 border-blue-200',
+    title: 'text-blue-950',
+    subtitle: 'text-blue-800',
+    label: 'text-blue-900',
+    input: 'bg-blue-50 border-blue-300 focus:ring-blue-600/20',
+    divider: 'border-blue-200/80',
+  },
+  'bg-emerald-600': {
+    card: 'bg-emerald-100/50 border-emerald-200',
+    title: 'text-emerald-950',
+    subtitle: 'text-emerald-800',
+    label: 'text-emerald-900',
+    input: 'bg-emerald-50 border-emerald-300 focus:ring-emerald-600/20',
+    divider: 'border-emerald-200/80',
+  },
+  'bg-amber-600': {
+    card: 'bg-amber-100/50 border-amber-200',
+    title: 'text-amber-950',
+    subtitle: 'text-amber-800',
+    label: 'text-amber-900',
+    input: 'bg-amber-50 border-amber-300 focus:ring-amber-600/20',
+    divider: 'border-amber-200/80',
+  },
+  'bg-indigo-600': {
+    card: 'bg-indigo-100/50 border-indigo-200',
+    title: 'text-indigo-950',
+    subtitle: 'text-indigo-800',
+    label: 'text-indigo-900',
+    input: 'bg-indigo-50 border-indigo-300 focus:ring-indigo-600/20',
+    divider: 'border-indigo-200/80',
+  },
+  'bg-slate-900': {
+    card: 'bg-slate-100/50 border-slate-200',
+    title: 'text-slate-950',
+    subtitle: 'text-slate-700',
+    label: 'text-slate-800',
+    input: 'bg-slate-50 border-slate-300 focus:ring-slate-600/20',
+    divider: 'border-slate-200/80',
+  },
+  'bg-rose-600': {
+    card: 'bg-rose-100/50 border-rose-200',
+    title: 'text-rose-950',
+    subtitle: 'text-rose-800',
+    label: 'text-rose-900',
+    input: 'bg-rose-50 border-rose-300 focus:ring-rose-600/20',
+    divider: 'border-rose-200/80',
+  },
+}
+
 const DEFAULTS = {
   fat_min: '3.2', fat_max: '3.5',
   snf_min: '8.3', snf_max: '8.5',
@@ -197,10 +248,11 @@ export default function SettingsPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Settings Panel</span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-            System <span className="text-blue-600">Configuration</span>
+          <h1 className="text-4xl font-black tracking-tight">
+            <span className="text-slate-900">System </span>
+            <span className="text-blue-700">Configuration</span>
           </h1>
-          <p className="text-[#4B5563] font-medium mt-2 flex items-center gap-2">
+          <p className="text-slate-700 font-medium mt-2 flex items-center gap-2">
             <Cog size={16} className="text-blue-500" /> 
             Set the quality standards for milk testing and analysis.
           </p>
@@ -217,7 +269,7 @@ export default function SettingsPage() {
           </button>
           <button 
             onClick={handleReset} 
-            className="px-6 py-3 rounded-xl font-bold text-sm bg-white dark:bg-white/10 border-2 border-slate-200 dark:border-white/10 text-slate-700 hover:text-red-600 flex items-center justify-center gap-3 transition-all w-full lg:w-auto"
+            className="px-6 py-3 rounded-xl font-bold text-sm bg-slate-50 border-2 border-slate-200 text-slate-800 hover:text-red-700 hover:border-red-200 flex items-center justify-center gap-3 transition-all w-full lg:w-auto"
           >
             <RotateCcw size={16} /> Reset to Default
           </button>
@@ -236,45 +288,32 @@ export default function SettingsPage() {
       <div className="grid gap-8">
         {GROUPS.map((group, gIndex) => {
           const Icon = group.icon
+          const styles = GROUP_CARD_STYLES[group.bg] || GROUP_CARD_STYLES['bg-rose-600']
           return (
             <motion.div
               key={group.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: gIndex * 0.05 }}
-              className={`p-8 space-y-8 rounded-[2rem] border transition-all ${
-                group.bg === 'bg-blue-600' ? 'bg-blue-100/50 border-blue-200' :
-                group.bg === 'bg-emerald-600' ? 'bg-emerald-100/50 border-emerald-200' :
-                group.bg === 'bg-amber-600' ? 'bg-amber-100/50 border-amber-200' :
-                group.bg === 'bg-indigo-600' ? 'bg-indigo-100/50 border-indigo-200' :
-                group.bg === 'bg-slate-900' ? 'bg-slate-100/50 border-slate-200' :
-                'bg-rose-100/50 border-rose-200'
-              }`}
+              className={`p-8 space-y-8 rounded-[2rem] border transition-all ${styles.card}`}
             >
-              <div className="flex items-center gap-5 border-b border-slate-50 dark:border-white/5 pb-6">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl ${group.bg} shadow-${group.bg.split('-')[1]}-600/20`}>
+              <div className={`flex items-center gap-5 border-b pb-6 ${styles.divider}`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-[#f5e6ff] shadow-lg ${group.bg}`}>
                   <Icon size={24} />
                 </div>
                 <div>
-                    <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-widest">{group.title}</h3>
-                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">Quality Standards Group</p>
+                    <h3 className={`text-base font-black uppercase tracking-widest ${styles.title}`}>{group.title}</h3>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${styles.subtitle}`}>Quality Standards Group</p>
                  </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {group.fields.map(field => (
                   <div key={field.key} className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-600 tracking-widest ml-1">{field.label}</label>
+                    <label className={`text-[10px] font-black tracking-widest ml-1 ${styles.label}`}>{field.label}</label>
                     {field.type === 'select' ? (
                       <select
-                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 outline-none transition-all shadow-inner font-mono appearance-none ${
-                          group.bg === 'bg-blue-600' ? 'bg-blue-50 border-blue-300 focus:ring-blue-600/5' :
-                          group.bg === 'bg-emerald-600' ? 'bg-emerald-50 border-emerald-300 focus:ring-emerald-600/5' :
-                          group.bg === 'bg-amber-600' ? 'bg-amber-50 border-amber-300 focus:ring-amber-600/5' :
-                          group.bg === 'bg-indigo-600' ? 'bg-indigo-50 border-indigo-300 focus:ring-indigo-600/5' :
-                          group.bg === 'bg-slate-900' ? 'bg-slate-50 border-slate-300 focus:ring-slate-900/5' :
-                          'bg-rose-50 border-rose-300 focus:ring-rose-600/5'
-                        }`}
+                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-slate-900 focus:ring-4 outline-none transition-all shadow-inner font-mono appearance-none ${styles.input}`}
                         value={getValue(field.key)}
                         onChange={e => updateField(field.key, e.target.value)}
                       >
@@ -284,14 +323,7 @@ export default function SettingsPage() {
                       </select>
                     ) : (
                       <input
-                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-[#1E1B4B] focus:ring-4 outline-none transition-all shadow-inner font-mono ${
-                          group.bg === 'bg-blue-600' ? 'bg-blue-50 border-blue-300 focus:ring-blue-600/5' :
-                          group.bg === 'bg-emerald-600' ? 'bg-emerald-50 border-emerald-300 focus:ring-emerald-600/5' :
-                          group.bg === 'bg-amber-600' ? 'bg-amber-50 border-amber-300 focus:ring-amber-600/5' :
-                          group.bg === 'bg-indigo-600' ? 'bg-indigo-50 border-indigo-300 focus:ring-indigo-600/5' :
-                          group.bg === 'bg-slate-900' ? 'bg-slate-50 border-slate-300 focus:ring-slate-900/5' :
-                          'bg-rose-50 border-rose-300 focus:ring-rose-600/5'
-                        }`}
+                        className={`w-full border px-5 py-4 rounded-2xl text-sm font-black text-slate-900 focus:ring-4 outline-none transition-all shadow-inner font-mono ${styles.input}`}
                         type={field.type || 'number'}
                         step={field.step || '0.01'}
                         value={getValue(field.key)}

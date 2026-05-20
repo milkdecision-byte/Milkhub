@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar,
 } from 'recharts'
 import {
   TrendingUp, TrendingDown, CheckCircle2, XCircle, 
@@ -330,38 +331,34 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex-1 w-full">
+            <div className="flex-1 w-full min-h-0">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData}>
+                <BarChart data={trendData} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" vertical={false} />
                   <XAxis dataKey="name" axisLine={{ stroke: '#64748B' }} tickLine={false} tick={{ fontSize: 10, fill: '#64748B', fontWeight: 600 }} dy={10} />
                   <YAxis axisLine={{ stroke: '#64748B' }} tickLine={false} tick={{ fontSize: 10, fill: '#64748B', fontWeight: 600 }} />
-                  <RechartsTooltip 
+                  <RechartsTooltip
                     contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', border: 'none', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)' }}
                     itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#fff' }}
                     labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                   />
-                  <Area 
-                    type="linear" 
-                    dataKey="collection" 
-                    stroke="#EF4444" 
-                    strokeWidth={4} 
-                    fill="#0E74B8" 
-                    fillOpacity={1} 
-                    dot={{ r: 6, fill: '#EF4444', stroke: '#fff', strokeWidth: 2 }}
-                    activeDot={{ r: 8, fill: '#EF4444', stroke: '#fff', strokeWidth: 2 }}
-                    animationDuration={1500}
+                  <Bar
+                    dataKey="collection"
+                    name="Accepted (L)"
+                    fill="#10B981"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={36}
+                    animationDuration={800}
                   />
-                  <Area 
-                    type="linear" 
-                    dataKey="rejected" 
-                    stroke="#EF4444" 
-                    strokeWidth={2} 
-                    strokeDasharray="5 5"
-                    fill="none" 
-                    dot={false}
-                    animationDuration={1500}
+                  <Bar
+                    dataKey="rejected"
+                    name="Rejected (L)"
+                    fill="#EF4444"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={36}
+                    animationDuration={800}
                   />
-                </AreaChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -499,26 +496,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Bottom Grid: Records & AI */}
+        {/* Bottom Grid: Records & AI — light pastel surfaces, high-contrast text */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Recent Records */}
-          <div 
-            style={{ 
-              backgroundImage: 'linear-gradient(135deg, #6CB657 0%, #7BC466 50%, #5AA147 100%)',
-              boxShadow: '0 10px 35px rgba(108,182,87,0.25), inset 0 1px 0 rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.10)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.18)'
-            }} 
-            className="lg:col-span-8 card-pro flex flex-col text-white"
-          >
-            <div className="p-4 md:p-8 border-b border-white/18 flex items-center justify-between">
+          <div className="lg:col-span-8 flex flex-col rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-100 via-teal-50 to-cyan-100 text-slate-800 shadow-[0_12px_40px_-12px_rgba(16,185,129,0.22)] overflow-hidden transition-all duration-300">
+            <div className="p-4 md:p-8 border-b border-emerald-300/50 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg md:text-xl font-bold tracking-tight text-white">Recent Collection Records</h3>
-                <p className="text-[10px] font-bold text-white/82 uppercase tracking-widest mt-1">Live sampling data</p>
+                <h3 className="text-lg md:text-xl font-bold tracking-tight text-slate-900">Recent Collection Records</h3>
+                <p className="text-[10px] font-bold text-emerald-900/70 uppercase tracking-widest mt-1">Live sampling data</p>
               </div>
               <button 
+                type="button"
                 onClick={() => navigate('/records')}
-                className="px-5 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold uppercase tracking-wider hover:scale-105 hover:bg-white/30 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-violet-200/90 text-violet-950 text-xs font-bold uppercase tracking-wider ring-1 ring-violet-300/80 hover:bg-violet-300 hover:scale-[1.02] transition-all shadow-sm"
               >
                 View Full History
               </button>
@@ -527,36 +517,36 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr>
-                    <th className="table-header-pro text-black font-bold tracking-[1px]">ID</th>
-                    <th className="table-header-pro text-black font-bold tracking-[1px]">Farmer</th>
-                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">Quality</th>
-                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">Status</th>
-                    <th className="table-header-pro text-black font-bold tracking-[1px] text-center">DATE</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-700 uppercase tracking-[0.15em] border-b border-emerald-300/60">ID</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-700 uppercase tracking-[0.15em] border-b border-emerald-300/60">Farmer</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-700 uppercase tracking-[0.15em] border-b border-emerald-300/60 text-center">Quality</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-700 uppercase tracking-[0.15em] border-b border-emerald-300/60 text-center">Status</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-700 uppercase tracking-[0.15em] border-b border-emerald-300/60 text-center">DATE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/18">
+                <tbody className="divide-y divide-emerald-200/60">
                   {records.slice(0, 8).map((r, i) => (
-                    <tr key={i} className="hover:bg-white/5 transition-colors">
+                    <tr key={i} className="hover:bg-emerald-200/35 transition-colors">
                       <td className="px-6 py-5">
-                        <span className="text-[10px] font-black text-white bg-white/20 px-2 py-1 rounded-md">#{r.id || `S-${1000 + i}`}</span>
+                        <span className="text-[10px] font-black text-emerald-950 bg-emerald-200/90 px-2 py-1 rounded-md ring-1 ring-emerald-300/70">#{r.id || `S-${1000 + i}`}</span>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-sm font-bold tracking-tight text-white">{r.farmer_name}</p>
-                        <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                        <p className="text-sm font-bold tracking-tight text-slate-900">{r.farmer_name}</p>
+                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{r.farmer_code}</p>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[11px] font-bold text-white/96">{PARAMETER_LABELS.fat}: {r.fat}%</span>
-                          <span className="text-[10px] font-medium text-white/78">{PARAMETER_LABELS.snf}: {r.snf}%</span>
+                          <span className="text-[11px] font-bold text-slate-800">{PARAMETER_LABELS.fat}: {r.fat}%</span>
+                          <span className="text-[10px] font-medium text-slate-600">{PARAMETER_LABELS.snf}: {r.snf}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <span className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mx-auto max-w-fit ${r.decision === 'accept' ? 'bg-white/22 text-[#0B3D2E]' : 'bg-[rgba(255,0,0,0.18)] text-white'}`}>
-                          {r.decision === 'accept' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                        <span className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mx-auto max-w-fit ring-1 ${r.decision === 'accept' ? 'bg-emerald-200 text-emerald-950 ring-emerald-400/50' : 'bg-rose-200 text-rose-950 ring-rose-400/50'}`}>
+                          {r.decision === 'accept' ? <CheckCircle2 size={12} className="text-emerald-800" /> : <XCircle size={12} className="text-rose-800" />}
                           {r.decision === 'accept' ? 'Accepted' : 'Rejected'}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-center text-[10px] font-black text-white/92 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
+                      <td className="px-6 py-5 text-center text-[10px] font-black text-slate-700 uppercase tracking-widest">{r.date || '08:30 AM'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -565,13 +555,13 @@ export default function DashboardPage() {
           </div>
 
           {/* AI Insights Panel */}
-          <div className="lg:col-span-4 card-pro p-4 md:p-8 flex flex-col relative overflow-hidden bg-[#FF3366] text-white shadow-[0_10px_30px_rgba(255,51,102,0.35)]">
+          <div className="lg:col-span-4 flex flex-col relative overflow-hidden rounded-2xl border border-fuchsia-200/70 bg-gradient-to-b from-fuchsia-100 via-pink-50 to-violet-100 p-4 md:p-8 text-slate-800 shadow-[0_12px_40px_-12px_rgba(217,70,239,0.2)]">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-lg md:text-xl font-black tracking-tight text-white">AI Insights</h3>
-                <p className="text-[10px] font-black text-white/80 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
+                <h3 className="text-lg md:text-xl font-black tracking-tight text-slate-900">AI Insights</h3>
+                <p className="text-[10px] font-black text-fuchsia-900/75 uppercase tracking-widest mt-1">Intelligent anomaly detection</p>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+              <div className="w-10 h-10 rounded-2xl bg-fuchsia-300/80 flex items-center justify-center text-fuchsia-950 ring-1 ring-fuchsia-400/60 shadow-md">
                 <Zap size={20} fill="currentColor" />
               </div>
             </div>
@@ -579,17 +569,17 @@ export default function DashboardPage() {
               {insights.map((insight, idx) => {
                 const Icon = insight.icon
                 return (
-                  <div key={idx} className="p-5 rounded-2xl bg-white/[0.08] border border-white/10 transition-all duration-300 hover:scale-[1.02]">
+                  <div key={idx} className="p-5 rounded-2xl bg-fuchsia-50/90 border border-fuchsia-200/70 transition-all duration-300 hover:scale-[1.01] hover:border-fuchsia-300/90 shadow-sm">
                     <div className="flex gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm shrink-0">
-                        <Icon size={20} strokeWidth={2.5} className="text-white" />
+                      <div className="w-10 h-10 rounded-xl bg-fuchsia-200/90 flex items-center justify-center shrink-0 ring-1 ring-fuchsia-300/60 text-fuchsia-900">
+                        <Icon size={20} strokeWidth={2.5} />
                       </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs font-black uppercase tracking-wider text-white">{insight.title}</p>
-                          <span className="text-[9px] font-black text-white/70">09:30 AM</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <p className="text-xs font-black uppercase tracking-wider text-slate-900">{insight.title}</p>
+                          <span className="text-[9px] font-black text-slate-600 shrink-0">09:30 AM</span>
                         </div>
-                        <p className="text-[11px] font-bold text-white leading-relaxed">{insight.desc}</p>
+                        <p className="text-[11px] font-bold text-slate-700 leading-relaxed">{insight.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -597,8 +587,9 @@ export default function DashboardPage() {
               })}
             </div>
             <button 
+              type="button"
               onClick={() => navigate('/records')}
-              className="mt-8 bg-white/20 text-white py-4 rounded-[20px] text-[11px] uppercase font-bold tracking-[0.2em] hover:bg-white/30 transition-colors"
+              className="mt-8 bg-cyan-200/90 text-cyan-950 py-4 rounded-[20px] text-[11px] uppercase font-bold tracking-[0.2em] ring-1 ring-cyan-300/80 hover:bg-cyan-300 transition-colors shadow-sm"
             >
               View All Intelligence Logs
             </button>

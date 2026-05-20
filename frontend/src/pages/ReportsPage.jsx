@@ -17,7 +17,7 @@ import {
 import html2canvas from 'html2canvas'
 import ExcelJS from 'exceljs'
 import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 
 // ── Shared Components ─────────────────────────────────────────────────────────
 
@@ -310,7 +310,7 @@ export default function ReportsPage() {
       r.fraud_risk === 'high' ? 'HIGH RISK' : r.fraud_risk === 'medium' ? 'MEDIUM RISK' : 'CLEAN'
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 20,
       head: headers,
       body: data,
@@ -347,7 +347,7 @@ export default function ReportsPage() {
       }
     });
 
-    const finalY = doc.autoTable.previous.finalY || 20;
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 20;
     if (finalY + 45 < pageHeight) {
       drawAIInsights(doc, stats, finalY + 12);
     } else {
