@@ -9,10 +9,11 @@ import {
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import { PARAMETER_LABELS } from '../utils/parameters'
+import { formatFarmerCode } from '../utils/display'
 
 import { 
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, 
-  LineChart, Line, AreaChart, Area 
+  LineChart, Line, AreaChart, Area, CartesianGrid, Tooltip, Legend, LabelList
 } from 'recharts'
 import html2canvas from 'html2canvas'
 import ExcelJS from 'exceljs'
@@ -158,9 +159,28 @@ export default function ReportsPage() {
       }));
   };
 
+  const getExportTrendData = (recordsList) => {
+    const dailyTrend = getTrendData(recordsList);
+    if (dailyTrend.length > 1 || !recordsList || recordsList.length <= 1) return dailyTrend;
+
+    return recordsList
+      .map((r, idx) => ({
+        name: r.date ? `${r.date.split('-').slice(1).join('/')} #${idx + 1}` : `Sample ${idx + 1}`,
+        date: r.date || `Sample ${idx + 1}`,
+        total: Math.round((r.quantity || 0) * 10) / 10,
+        accepted: r.decision === 'accept' ? Math.round((r.quantity || 0) * 10) / 10 : 0,
+        rejected: r.decision === 'reject' ? Math.round((r.quantity || 0) * 10) / 10 : 0,
+        avgFat: Math.round((r.fat || 0) * 100) / 100,
+        avgSnf: Math.round((r.snf || 0) * 100) / 100,
+      }))
+      .slice(0, 18);
+  };
+
+  const formatPercentLabel = ({ name, percent }) => percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : '';
+
   // ── Capturing offscreen charts using html2canvas ────────────────────────────
   const captureCharts = async () => {
-    const chartIds = ['chart-pie', 'chart-bar', 'chart-area', 'chart-donut', 'chart-line', 'chart-heatmap'];
+    const chartIds = ['chart-pie', 'chart-bar', 'chart-area', 'chart-donut', 'chart-line'];
     const base64s = {};
 
     for (const id of chartIds) {
@@ -168,12 +188,14 @@ export default function ReportsPage() {
       if (el) {
         try {
           const canvas = await html2canvas(el, { 
-            scale: 2, 
+            scale: 3, 
             useCORS: true,
             logging: false,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            windowWidth: 1500,
+            windowHeight: 1100
           });
-          base64s[id.replace('chart-', '')] = canvas.toDataURL('image/png');
+          base64s[id.replace('chart-', '')] = canvas.toDataURL('image/png', 1.0);
         } catch (err) {
           console.error(`Failed to capture chart: ${id}`, err);
         }
@@ -198,20 +220,12 @@ export default function ReportsPage() {
     doc.setTextColor(255, 255, 255);
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(18);
-    doc.text('IVRI Milk Quality Hub', 15, 16);
+    doc.text('IVRI Milk Quality Hub', 15, 15);
     
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(9);
     doc.text('OPERATIONAL QUALITY LOG & ANALYTICS REPORT', 15, 24);
-    doc.text(`Generated: ${new Date().toLocaleString()}  |  Total Records: ${stats.totalCount}`, 15, 30);
-
-    // Mini Brand Box
-    doc.setFillColor(...tealColor);
-    doc.rect(pageWidth - 32, 10, 18, 18, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('IMH', pageWidth - 29, 21);
+    doc.text(`Generated: ${new Date().toLocaleString()}  |  Total Records: ${stats.totalCount}`, 15, 32);
 
     // Filters row
     doc.setTextColor(100, 116, 139);
@@ -264,30 +278,26 @@ export default function ReportsPage() {
     doc.setLineWidth(0.4);
     doc.line(15, 85, pageWidth - 15, 85);
 
-    // Place main requested charts: Pie, Area, Bar
+    const drawChartImage = (image, x, y, w, h) => {
+      if (!image) return;
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+      doc.addImage(image, 'PNG', x + 2, y + 2, w - 4, h - 4, undefined, 'FAST');
+    };
+
+    const chartX = 12;
+    const chartGap = 6;
+    const chartW = (pageWidth - 24 - chartGap) / 2;
+    const chartH = 66;
     let currentY = 90;
-    if (chartsBase64.pie) {
-      doc.addImage(chartsBase64.pie, 'PNG', 15, currentY, 85, 52);
-    }
-    if (chartsBase64.area) {
-      doc.addImage(chartsBase64.area, 'PNG', 105, currentY, 90, 52);
-    }
 
-    currentY += 56;
-    if (chartsBase64.bar) {
-      doc.addImage(chartsBase64.bar, 'PNG', 15, currentY, 90, 52);
-    }
-    if (chartsBase64.donut) {
-      doc.addImage(chartsBase64.donut, 'PNG', 110, currentY, 85, 52);
-    }
+    drawChartImage(chartsBase64.pie, chartX, currentY, chartW, chartH);
+    drawChartImage(chartsBase64.area, chartX + chartW + chartGap, currentY, chartW, chartH);
 
-    currentY += 56;
-    if (chartsBase64.heatmap) {
-      doc.setFontSize(10);
-      doc.setFont('Helvetica', 'bold');
-      doc.text('Laboratory Quality Parameter Compliance Heatmap', 15, currentY);
-      doc.addImage(chartsBase64.heatmap, 'PNG', 15, currentY + 3, 180, 50);
-    }
+    currentY += chartH + 7;
+    drawChartImage(chartsBase64.bar, chartX, currentY, chartW, chartH);
+    drawChartImage(chartsBase64.donut, chartX + chartW + chartGap, currentY, chartW, chartH);
 
     // Page 2: Table Records
     doc.addPage();
@@ -300,7 +310,7 @@ export default function ReportsPage() {
 
     const headers = [['Farmer Code', 'Farmer Name', 'Qty (L)', 'Fat (%)', 'SNF (%)', 'pH', 'Decision', 'Risk Status']];
     const data = exportRecords.map(r => [
-      r.farmer_code || '—',
+      formatFarmerCode(r),
       r.farmer_name || '—',
       r.quantity ? r.quantity.toFixed(1) : '0.0',
       r.fat ? r.fat.toFixed(2) : '0.00',
@@ -315,15 +325,22 @@ export default function ReportsPage() {
       head: headers,
       body: data,
       theme: 'striped',
-      headStyles: { fillColor: primaryColor, fontSize: 8, fontStyle: 'bold' },
+      headStyles: { fillColor: primaryColor, fontSize: 8, fontStyle: 'bold', halign: 'center', textColor: [255, 255, 255] },
       bodyStyles: { fontSize: 8 },
       columnStyles: {
-        2: { halign: 'right' },
-        3: { halign: 'right' },
-        4: { halign: 'right' },
-        5: { halign: 'right' }
+        0: { cellWidth: 26, halign: 'center' },
+        1: { cellWidth: 38, halign: 'left' },
+        2: { halign: 'center' },
+        3: { halign: 'center' },
+        4: { halign: 'center' },
+        5: { halign: 'center' },
+        6: { halign: 'center' },
+        7: { halign: 'center' }
       },
       didParseCell: function (data) {
+        // Only apply color styling to body rows, not header
+        if (data.row.section !== 'body') return;
+
         if (data.column.index === 6) {
           if (data.cell.raw === 'ACCEPTED' || data.cell.raw === 'ACCEPT') {
             data.cell.styles.textColor = [16, 185, 129];
@@ -379,20 +396,12 @@ export default function ReportsPage() {
     doc.setTextColor(255, 255, 255);
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(20);
-    doc.text('IVRI Milk Quality Hub', 15, 17);
+    doc.text('IVRI Milk Quality Hub', 15, 15);
     
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text('EXECUTIVE EXECUTIVE VISUAL ANALYTICS REPORT', 15, 25);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 31);
-
-    // Mini Brand Box
-    doc.setFillColor(...tealColor);
-    doc.rect(pageWidth - 32, 10, 18, 18, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('IMH', pageWidth - 29, 21);
+    doc.text('EXECUTIVE VISUAL ANALYTICS REPORT', 15, 25);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 33);
 
     // Summary Metric Cards
     const cardWidth = 35;
@@ -434,43 +443,43 @@ export default function ReportsPage() {
     doc.setLineWidth(0.4);
     doc.line(15, 85, pageWidth - 15, 85);
 
-    if (chartsBase64.pie) {
-      doc.addImage(chartsBase64.pie, 'PNG', 15, 90, 85, 52);
-    }
-    if (chartsBase64.bar) {
-      doc.addImage(chartsBase64.bar, 'PNG', 105, 90, 90, 52);
-    }
+    const drawChartImage = (image, x, y, w, h) => {
+      if (!image) return;
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+      doc.addImage(image, 'PNG', x + 2, y + 2, w - 4, h - 4, undefined, 'FAST');
+    };
+
+    const chartX = 12;
+    const chartGap = 6;
+    const chartW = (pageWidth - 24 - chartGap) / 2;
+    const chartH = 66;
+
+    drawChartImage(chartsBase64.pie, chartX, 90, chartW, chartH);
+    drawChartImage(chartsBase64.bar, chartX + chartW + chartGap, 90, chartW, chartH);
 
     // Part 2 Charts
     doc.setTextColor(30, 27, 75);
     doc.setFontSize(11);
-    doc.text('Collection Trends and Risk Analysis', 15, 150);
-    doc.line(15, 152, pageWidth - 15, 152);
+    doc.text('Collection Trends and Risk Analysis', 15, 165);
+    doc.line(15, 167, pageWidth - 15, 167);
 
-    if (chartsBase64.area) {
-      doc.addImage(chartsBase64.area, 'PNG', 15, 158, 90, 52);
-    }
-    if (chartsBase64.donut) {
-      doc.addImage(chartsBase64.donut, 'PNG', 110, 158, 85, 52);
-    }
+    drawChartImage(chartsBase64.area, chartX, 172, chartW, chartH);
+    drawChartImage(chartsBase64.donut, chartX + chartW + chartGap, 172, chartW, chartH);
 
-    // Page 2: line + heatmap + AI analysis
+    // Page 2: line chart + AI analysis
     doc.addPage();
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, pageWidth, 15, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
     doc.setFont('Helvetica', 'bold');
-    doc.text('Parameter Consistency & Laboratory Compliance Map', 15, 9);
+    doc.text('Parameter Consistency & AI Quality Insights', 15, 9);
 
-    if (chartsBase64.line) {
-      doc.addImage(chartsBase64.line, 'PNG', 15, 20, 90, 52);
-    }
-    if (chartsBase64.heatmap) {
-      doc.addImage(chartsBase64.heatmap, 'PNG', 110, 20, 85, 52);
-    }
+    drawChartImage(chartsBase64.line, 12, 20, pageWidth - 24, 78);
 
-    drawAIInsights(doc, stats, 82);
+    drawAIInsights(doc, stats, 112);
 
     doc.save(`milkhub_analytics_report_${Date.now()}.pdf`);
   };
@@ -598,6 +607,12 @@ export default function ReportsPage() {
       const donutId = workbook.addImage({ base64: chartsBase64.donut, extension: 'png' });
       wsDash.addImage(donutId, `G${currentRow}:L${currentRow + 14}`);
     }
+    currentRow += 16;
+
+    if (chartsBase64.line) {
+      const lineId = workbook.addImage({ base64: chartsBase64.line, extension: 'png' });
+      wsDash.addImage(lineId, `A${currentRow}:L${currentRow + 14}`);
+    }
 
     // Sheet 2: Collection records log
     const wsLog = workbook.addWorksheet('Collection Records');
@@ -618,7 +633,7 @@ export default function ReportsPage() {
 
     exportRecords.forEach(r => {
       const row = wsLog.addRow([
-        r.farmer_code || '—',
+        formatFarmerCode(r),
         r.farmer_name || '—',
         r.date || '—',
         (r.shift || '—').toUpperCase(),
@@ -715,7 +730,7 @@ export default function ReportsPage() {
     ].join(',');
 
     const rows = exportRecords.map(r => [
-      `"${r.farmer_code || '—'}"`,
+      `"${formatFarmerCode(r)}"`,
       `"${r.farmer_name || '—'}"`,
       `"${r.date || '—'}"`,
       `"${(r.shift || '—').toUpperCase()}"`,
@@ -814,6 +829,21 @@ export default function ReportsPage() {
       setLoadingKey(null)
     }
   }
+
+  const exportTrendData = exportRecords ? getExportTrendData(exportRecords) : []
+  const acceptedRejectedData = exportStats ? [
+    { name: 'Accepted', value: exportStats.acceptedVolume },
+    { name: 'Rejected', value: exportStats.rejectedVolume }
+  ] : []
+  const shiftData = exportStats ? [
+    { name: 'Morning', value: exportStats.morningVolume },
+    { name: 'Evening', value: exportStats.eveningVolume }
+  ] : []
+  const riskData = exportStats ? [
+    { name: 'Low Risk', value: exportStats.fraudLow },
+    { name: 'Medium Risk', value: exportStats.fraudMedium },
+    { name: 'High Risk', value: exportStats.fraudHigh }
+  ] : []
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-12 pb-24">
@@ -1107,34 +1137,36 @@ export default function ReportsPage() {
             position: 'absolute', 
             left: '-9999px', 
             top: '-9999px', 
-            width: '1000px', 
+            width: '1440px', 
             background: '#ffffff', 
-            padding: '40px',
-            fontFamily: 'sans-serif'
+            padding: '48px',
+            fontFamily: 'Inter, Arial, sans-serif'
           }}
         >
-          <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: '16px', marginBottom: '24px', border: '1px solid #E2E8F0' }}>
-            <h1 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1E1B4B', margin: 0 }}>Milk Quality Decision Hub Analytics Canvas</h1>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: '4px 0 0 0' }}>Captured dynamically on {new Date().toLocaleString()}</p>
+          <div style={{ padding: '24px 28px', background: '#F8FAFC', borderRadius: '20px', marginBottom: '28px', border: '1px solid #E2E8F0' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1E1B4B', margin: 0 }}>Milk Quality Decision Hub Analytics Canvas</h1>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: '6px 0 0 0', fontWeight: 600 }}>Captured dynamically on {new Date().toLocaleString()}</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '28px', alignItems: 'start' }}>
             
             {/* 1. Accepted vs Rejected Pie Chart */}
-            <div id="chart-pie" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px' }}>Accepted vs Rejected Ratio</h4>
-              <PieChart width={420} height={240}>
+            <div id="chart-pie" style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h4 style={{ margin: '0 0 18px 0', fontSize: '15px', fontWeight: '800', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Accepted vs Rejected Ratio</h4>
+              <PieChart width={620} height={340}>
+                <Tooltip formatter={(value) => [`${Number(value).toFixed(1)} L`, 'Volume']} />
+                <Legend verticalAlign="bottom" height={30} iconType="circle" />
                 <Pie
-                  data={[
-                    { name: 'Accepted', value: exportStats.acceptedVolume },
-                    { name: 'Rejected', value: exportStats.rejectedVolume }
-                  ]}
+                  data={acceptedRejectedData}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   innerRadius={0}
-                  outerRadius={80}
+                  outerRadius={118}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  paddingAngle={2}
+                  label={formatPercentLabel}
+                  labelLine={{ stroke: '#94A3B8', strokeWidth: 1 }}
+                  isAnimationActive={false}
                 >
                   <Cell fill="#10B981" />
                   <Cell fill="#EF4444" />
@@ -1143,20 +1175,21 @@ export default function ReportsPage() {
             </div>
 
             {/* 2. Morning vs Evening Shift Comparison Bar Chart */}
-            <div id="chart-bar" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px' }}>Shift Volume Comparison (Liters)</h4>
+            <div id="chart-bar" style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h4 style={{ margin: '0 0 18px 0', fontSize: '15px', fontWeight: '800', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Shift Volume Comparison (Liters)</h4>
               <BarChart
-                width={420}
-                height={240}
-                data={[
-                  { name: 'Morning Shift', value: exportStats.morningVolume },
-                  { name: 'Evening Shift', value: exportStats.eveningVolume }
-                ]}
-                margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                width={620}
+                height={340}
+                data={shiftData}
+                margin={{ top: 20, right: 36, left: 28, bottom: 34 }}
+                barCategoryGap="34%"
               >
-                <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 'bold' }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Bar dataKey="value" fill="#6366F1" radius={[8, 8, 0, 0]}>
+                <CartesianGrid stroke="#E2E8F0" strokeDasharray="4 4" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 13, fontWeight: 700, fill: '#334155' }} axisLine={{ stroke: '#CBD5E1' }} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748B' }} axisLine={false} tickLine={false} label={{ value: 'Liters', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 12 }} />
+                <Tooltip formatter={(value) => [`${Number(value).toFixed(1)} L`, 'Volume']} cursor={{ fill: '#F8FAFC' }} />
+                <Bar dataKey="value" fill="#6366F1" radius={[12, 12, 4, 4]} maxBarSize={110} isAnimationActive={false}>
+                  <LabelList dataKey="value" position="top" formatter={(v) => `${Number(v).toFixed(1)} L`} style={{ fill: '#1E1B4B', fontSize: 12, fontWeight: 800 }} />
                   <Cell fill="#6366F1" />
                   <Cell fill="#F59E0B" />
                 </Bar>
@@ -1164,13 +1197,13 @@ export default function ReportsPage() {
             </div>
 
             {/* 3. Milk Collection Trend Area Chart */}
-            <div id="chart-area" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px' }}>Milk Collection Volume Trend (Liters)</h4>
+            <div id="chart-area" style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h4 style={{ margin: '0 0 18px 0', fontSize: '15px', fontWeight: '800', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Milk Collection Volume Trend (Liters)</h4>
               <AreaChart
-                width={420}
-                height={240}
-                data={getTrendData(exportRecords)}
-                margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                width={620}
+                height={340}
+                data={exportTrendData}
+                margin={{ top: 20, right: 34, left: 28, bottom: 36 }}
               >
                 <defs>
                   <linearGradient id="exportColorAcc" x1="0" y1="0" x2="0" y2="1">
@@ -1178,28 +1211,31 @@ export default function ReportsPage() {
                     <stop offset="95%" stopColor="#0E74B8" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Area type="monotone" dataKey="total" stroke="#0E74B8" strokeWidth={3} fillOpacity={1} fill="url(#exportColorAcc)" />
+                <CartesianGrid stroke="#E2E8F0" strokeDasharray="4 4" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={{ stroke: '#CBD5E1' }} tickLine={false} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 12, fill: '#64748B' }} axisLine={false} tickLine={false} label={{ value: 'Liters', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 12 }} />
+                <Tooltip formatter={(value) => [`${Number(value).toFixed(1)} L`, 'Total Volume']} labelStyle={{ color: '#1E1B4B', fontWeight: 700 }} />
+                <Area type="monotone" dataKey="total" name="Total Volume" stroke="#0E74B8" strokeWidth={4} fillOpacity={1} fill="url(#exportColorAcc)" dot={{ r: 4, strokeWidth: 2, fill: '#FFFFFF' }} activeDot={{ r: 6 }} isAnimationActive={false} />
               </AreaChart>
             </div>
 
             {/* 4. Fraud Risk Donut Chart */}
-            <div id="chart-donut" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px' }}>Supply Chain Risk Distribution</h4>
-              <PieChart width={420} height={240}>
+            <div id="chart-donut" style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h4 style={{ margin: '0 0 18px 0', fontSize: '15px', fontWeight: '800', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Supply Chain Risk Distribution</h4>
+              <PieChart width={620} height={340}>
+                <Tooltip formatter={(value) => [`${value} records`, 'Count']} />
+                <Legend verticalAlign="bottom" height={30} iconType="circle" />
                 <Pie
-                  data={[
-                    { name: 'Low Risk', value: exportStats.fraudLow },
-                    { name: 'Med Risk', value: exportStats.fraudMedium },
-                    { name: 'High Risk', value: exportStats.fraudHigh }
-                  ]}
+                  data={riskData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
+                  cy="45%"
+                  innerRadius={76}
+                  outerRadius={118}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  paddingAngle={3}
+                  label={formatPercentLabel}
+                  labelLine={{ stroke: '#94A3B8', strokeWidth: 1 }}
+                  isAnimationActive={false}
                 >
                   <Cell fill="#10B981" />
                   <Cell fill="#F59E0B" />
@@ -1209,60 +1245,22 @@ export default function ReportsPage() {
             </div>
 
             {/* 5. Fat & SNF Consistency Line Chart */}
-            <div id="chart-line" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px' }}>Fat & SNF Quality Consistency Trend</h4>
+            <div id="chart-line" style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h4 style={{ margin: '0 0 18px 0', fontSize: '15px', fontWeight: '800', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Fat & SNF Quality Consistency Trend</h4>
               <LineChart
-                width={420}
-                height={240}
-                data={getTrendData(exportRecords)}
-                margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                width={620}
+                height={340}
+                data={exportTrendData}
+                margin={{ top: 20, right: 38, left: 28, bottom: 36 }}
               >
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="avgFat" name="Fat (%)" stroke="#F59E0B" strokeWidth={3} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="avgSnf" name="SNF (%)" stroke="#6366F1" strokeWidth={3} dot={{ r: 3 }} />
+                <CartesianGrid stroke="#E2E8F0" strokeDasharray="4 4" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={{ stroke: '#CBD5E1' }} tickLine={false} interval="preserveStartEnd" />
+                <YAxis domain={[0, 10]} tick={{ fontSize: 12, fill: '#64748B' }} axisLine={false} tickLine={false} label={{ value: 'Percent', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 12 }} />
+                <Tooltip formatter={(value, name) => [`${Number(value).toFixed(2)}%`, name]} labelStyle={{ color: '#1E1B4B', fontWeight: 700 }} />
+                <Legend verticalAlign="bottom" height={30} iconType="line" />
+                <Line type="monotone" dataKey="avgFat" name="Fat (%)" stroke="#F59E0B" strokeWidth={4} dot={{ r: 4, strokeWidth: 2, fill: '#FFFFFF' }} activeDot={{ r: 6 }} isAnimationActive={false} />
+                <Line type="monotone" dataKey="avgSnf" name="SNF (%)" stroke="#6366F1" strokeWidth={4} dot={{ r: 4, strokeWidth: 2, fill: '#FFFFFF' }} activeDot={{ r: 6 }} isAnimationActive={false} />
               </LineChart>
-            </div>
-
-            {/* 6. Parameter Compliance Heatmap */}
-            <div id="chart-heatmap" style={{ background: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-              <h4 style={{ margin: '0 0 15px 0', fontSize: '12px', fontWeight: 'bold', color: '#1E1B4B', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Quality Compliance Matrix Heatmap</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '100px repeat(6, 1fr)', gap: '6px', fontWeight: 'bold', borderBottom: '2px solid #E2E8F0', paddingBottom: '6px', fontSize: '10px', color: '#475569' }}>
-                <div>Farmer</div>
-                <div style={{ textAlign: 'center' }}>Fat</div>
-                <div style={{ textAlign: 'center' }}>SNF</div>
-                <div style={{ textAlign: 'center' }}>pH</div>
-                <div style={{ textAlign: 'center' }}>Acid</div>
-                <div style={{ textAlign: 'center' }}>Temp</div>
-                <div style={{ textAlign: 'center' }}>Grav</div>
-              </div>
-              {exportRecords.slice(0, 7).map((r, idx) => {
-                const getCellColor = (val, min, max, isMaxOnly = false) => {
-                  if (val === undefined || val === null) return { bg: '#F1F5F9', text: '#64748B' };
-                  if (isMaxOnly) {
-                    return val <= max ? { bg: '#DEF7EC', text: '#03543F' } : { bg: '#FDE8E8', text: '#9B1C1C' };
-                  }
-                  return (val >= min && val <= max) ? { bg: '#DEF7EC', text: '#03543F' } : { bg: '#FDE8E8', text: '#9B1C1C' };
-                };
-                const fatCell = getCellColor(r.fat, 3.2, 3.5);
-                const snfCell = getCellColor(r.snf, 8.3, 8.5);
-                const phCell = getCellColor(r.ph, 6.5, 6.8);
-                const acidityCell = getCellColor(r.acidity, 0.10, 0.15);
-                const tempCell = getCellColor(r.temperature, 0, 15, true);
-                const gravityCell = getCellColor(r.specific_gravity, 1.028, 1.032);
-
-                return (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '100px repeat(6, 1fr)', gap: '6px', paddingTop: '6px', borderBottom: '1px solid #F1F5F9', fontSize: '9px', alignItems: 'center' }}>
-                    <div style={{ fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.farmer_name}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: fatCell.bg, color: fatCell.text, fontWeight: 'bold' }}>{r.fat?.toFixed(1)}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: snfCell.bg, color: snfCell.text, fontWeight: 'bold' }}>{r.snf?.toFixed(1)}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: phCell.bg, color: phCell.text, fontWeight: 'bold' }}>{r.ph?.toFixed(1)}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: acidityCell.bg, color: acidityCell.text, fontWeight: 'bold' }}>{r.acidity?.toFixed(2)}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: tempCell.bg, color: tempCell.text, fontWeight: 'bold' }}>{r.temperature?.toFixed(0)}</div>
-                    <div style={{ textAlign: 'center', padding: '3px', borderRadius: '4px', background: gravityCell.bg, color: gravityCell.text, fontWeight: 'bold' }}>{r.specific_gravity?.toFixed(3)}</div>
-                  </div>
-                );
-              })}
             </div>
 
           </div>

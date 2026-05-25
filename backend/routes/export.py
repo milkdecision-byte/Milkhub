@@ -14,6 +14,16 @@ from models.database import MilkRecord
 export_bp = Blueprint("export", __name__)
 
 
+def _farmer_code(record) -> str:
+    code = getattr(record, "farmer_code", None)
+    if (code is None or not str(code).strip()) and getattr(record, "farmer_rel", None):
+        code = getattr(record.farmer_rel, "farmer_code", None)
+    if code is None:
+        return "—"
+    code = str(code).strip()
+    return code if code else "—"
+
+
 def _build_query(args: dict):
     filters = []
     if args.get("decision"):
@@ -49,6 +59,8 @@ def _build_query(args: dict):
             pass
     if args.get("farmer_code"):
         filters.append(MilkRecord.farmer_code == args["farmer_code"])
+    if args.get("batch_id"):
+        filters.append(MilkRecord.batch_id == args["batch_id"])
     
     q = MilkRecord.query
     if filters:
@@ -97,7 +109,7 @@ def export_excel():
 
     for rec in records:
         ws.append([
-            rec.id, rec.farmer_name, rec.farmer_code or "", str(rec.date),
+            rec.id, rec.farmer_name, _farmer_code(rec), str(rec.date),
             (rec.shift or "").capitalize(),
             _f(rec.fat), _f(rec.snf), _f(rec.ph), _f(rec.acidity, "{:.3f}"),
             _f(rec.temperature, "{:.1f}"), _f(rec.specific_gravity, "{:.4f}"),
@@ -164,6 +176,16 @@ def export_pdf():
     sub_s   = ParagraphStyle("S", parent=styles["Normal"],
                               textColor=colors.HexColor("#64748B"),
                               fontSize=8, spaceAfter=0)
+
+    # Header cell style — white, bold, centered, wrapping
+    hdr_s = ParagraphStyle("H",
+                            fontName="Helvetica-Bold",
+                            fontSize=6.5,
+                            textColor=colors.white,
+                            alignment=1,        # CENTER
+                            leading=9,
+                            spaceAfter=0, spaceBefore=0)
+
     elements = []
     elements.append(Paragraph("IVRI Milk Quality Hub — Operational Quality Report", title_s))
     acc = sum(1 for r in records if r.decision=="accept")
@@ -180,10 +202,22 @@ def export_pdf():
     elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#1A3C5E")))
     elements.append(Spacer(1, 4*mm))
 
-    header = ["ID","Farmer","Code","Date","Shift","Fat (%)","SNF (%)","pH","Acidity (% LA)","Temperature (°C)",
-              "Specific Gravity","MBRT (min)","COB Test","Alcohol Test","Organoleptic","Sediment Test","Decision","Fraud"]
-    col_w = [10*mm,32*mm,18*mm,20*mm,14*mm,11*mm,11*mm,10*mm,11*mm,12*mm,
-             14*mm,11*mm,10*mm,10*mm,10*mm,10*mm,22*mm,14*mm]
+    # Use Paragraph objects for headers so long titles wrap cleanly
+    raw_headers = [
+        "ID", "Farmer", "Code", "Date", "Shift",
+        "Fat\n(%)", "SNF\n(%)", "pH",
+        "Acidity\n(% LA)", "Temp\n(°C)",
+        "Specific\nGravity", "MBRT\n(min)",
+        "COB\nTest", "Alcohol\nTest", "Organo-\nleptic", "Sediment\nTest",
+        "Decision", "Fraud\nRisk"
+    ]
+    header = [Paragraph(h, hdr_s) for h in raw_headers]
+
+    # Slightly wider columns for previously cramped headers
+    col_w = [10*mm, 28*mm, 22*mm, 20*mm, 14*mm,
+             12*mm, 12*mm, 10*mm, 13*mm, 13*mm,
+             14*mm, 12*mm, 11*mm, 11*mm, 12*mm, 12*mm,
+             22*mm, 14*mm]
 
     def _v(v, fmt="{:.2f}"):
         return fmt.format(float(v)) if v is not None else "—"
@@ -191,7 +225,7 @@ def export_pdf():
     table_data = [header]
     for rec in records:
         table_data.append([
-            str(rec.id), (rec.farmer_name or "")[:18], rec.farmer_code or "—",
+            str(rec.id), (rec.farmer_name or "")[:18], _farmer_code(rec),
             str(rec.date), (rec.shift or "").capitalize(),
             _v(rec.fat), _v(rec.snf), _v(rec.ph), _v(rec.acidity, "{:.3f}"),
             _v(rec.temperature, "{:.1f}"), _v(rec.specific_gravity, "{:.4f}"),
@@ -214,8 +248,12 @@ def export_pdf():
         ("GRID",       (0,0),(-1,-1), 0.4, colors.HexColor("#E2E8F0")),
         ("ALIGN",      (0,0),(-1,-1), "CENTER"),
         ("VALIGN",     (0,0),(-1,-1), "MIDDLE"),
-        ("TOPPADDING",    (0,0),(-1,-1), 3),
-        ("BOTTOMPADDING", (0,0),(-1,-1), 3),
+        # Extra padding for header row so two-line text breathes
+        ("TOPPADDING",    (0,0),(-1,0), 5),
+        ("BOTTOMPADDING", (0,0),(-1,0), 5),
+        # Compact padding for data rows
+        ("TOPPADDING",    (0,1),(-1,-1), 3),
+        ("BOTTOMPADDING", (0,1),(-1,-1), 3),
     ]
     for i, rec in enumerate(records, 1):
         dc = 16
@@ -267,7 +305,7 @@ def export_csv():
         
     for rec in records:
         writer.writerow([
-            rec.id, rec.farmer_name, rec.farmer_code or "", str(rec.date),
+            rec.id, rec.farmer_name, _farmer_code(rec), str(rec.date),
             (rec.shift or "").capitalize(),
             _f(rec.fat), _f(rec.snf), _f(rec.ph), _f(rec.acidity, "{:.3f}"),
             _f(rec.temperature, "{:.1f}"), _f(rec.specific_gravity, "{:.4f}"),

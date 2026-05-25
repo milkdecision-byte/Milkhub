@@ -11,6 +11,7 @@ import {
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import { PARAMETER_LABELS } from '../utils/parameters'
+import { formatFarmerCode } from '../utils/display'
 
 function StatusPill({ decision }) {
   if (decision === 'accept') {
@@ -321,7 +322,7 @@ export default function UploadPage() {
                     {result.rows?.slice(0, 15).map((row, i) => (
                       <tr key={i} className="hover:bg-[#F5F3FF]/70 dark:hover:bg-white/[0.02] transition-all duration-300 group">
                         <td className="px-8 py-6 text-sm font-bold text-[#111827] group-hover:text-[#7C3AED] max-w-[200px] truncate">{row.farmer_name}</td>
-                        <td className="px-8 py-6 text-[11px] font-bold text-[#111827] font-mono tracking-tighter">{row.farmer_code}</td>
+                        <td className="px-8 py-6 text-[11px] font-bold text-[#111827] font-mono tracking-tighter">{formatFarmerCode(row)}</td>
                         <td className="px-8 py-6 text-[10px] font-bold text-[#4B5563]">{row.date}</td>
                         <td className="px-8 py-6 text-[10px] font-bold text-[#7C3AED] uppercase tracking-widest">{row.shift}</td>
                         <td className="px-8 py-6"><StatusPill decision={row.decision}/></td>

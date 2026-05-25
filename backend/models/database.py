@@ -189,12 +189,16 @@ class MilkRecord(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        farmer_code = (self.farmer_code or "").strip()
+        if not farmer_code and self.farmer_rel and self.farmer_rel.farmer_code:
+            farmer_code = self.farmer_rel.farmer_code.strip()
+
         return {
             "id": self.id,
             "batch_id": self.batch_id,
             "farmer_id": self.farmer_id,
             "farmer_name": self.farmer_name,
-            "farmer_code": self.farmer_code,
+            "farmer_code": farmer_code or None,
             "date": self.date.isoformat() if self.date else None,
             "shift": self.shift,
             "fat": float(self.fat) if self.fat else None,

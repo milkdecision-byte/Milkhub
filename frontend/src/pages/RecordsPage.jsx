@@ -8,6 +8,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../utils/api'
 import { PARAMETER_LABELS } from '../utils/parameters'
+import { formatFarmerCode } from '../utils/display'
 
 // ── Components ────────────────────────────────────────────────────────────────
 
@@ -88,7 +89,7 @@ export default function RecordsPage() {
   const filteredData = records.filter((item) => {
     const matchesSearch =
       item.farmer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.farmer_code?.toLowerCase().includes(searchTerm.toLowerCase());
+      formatFarmerCode(item).toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesSearch;
   });
@@ -97,7 +98,7 @@ export default function RecordsPage() {
     const headers = ['Farmer', 'ID', 'Date', 'Shift', 'Status']
     const csvData = filteredData.map(r => [
       r.farmer_name || '',
-      r.farmer_code || '',
+      formatFarmerCode(r),
       r.date || '',
       r.shift || '',
       r.decision || ''
@@ -366,7 +367,7 @@ export default function RecordsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-[#1E1B4B]">Audit Details</h3>
-                    <p className="text-sm text-slate-600">Farmer: {selectedRecord.farmer_name} ({selectedRecord.farmer_code})</p>
+                    <p className="text-sm text-slate-600">Farmer: {selectedRecord.farmer_name} ({formatFarmerCode(selectedRecord)})</p>
                   </div>
                   <button onClick={() => setSelectedRecord(null)} className="text-gray-400 hover:text-gray-600">
                     <XCircle size={24} />

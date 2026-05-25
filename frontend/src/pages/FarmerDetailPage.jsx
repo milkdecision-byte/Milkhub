@@ -14,6 +14,7 @@ import {
 import api from '../utils/api'
 import { PARAMETER_LABELS } from '../utils/parameters'
 import { useTheme } from '../context/ThemeContext'
+import { formatFarmerCode } from '../utils/display'
 
 function StatusBadge({ decision }) {
   const isAccept = decision === 'accept'
@@ -104,7 +105,7 @@ export default function FarmerDetailPage() {
           </div>
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
             <p className="text-slate-700 dark:text-slate-200 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-              <Database size={14} className="text-blue-600" /> {farmer.farmer_code}
+              <Database size={14} className="text-blue-600" /> {formatFarmerCode(farmer)}
             </p>
             <p className="text-slate-700 dark:text-slate-200 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
               <MapPin size={14} className="text-blue-600" /> {farmer.village || farmer.district || 'Other Area'}

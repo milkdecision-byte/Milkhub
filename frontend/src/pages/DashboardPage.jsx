@@ -16,6 +16,7 @@ import {
 import api from '../utils/api'
 import { PARAMETER_LABELS } from '../utils/parameters'
 import { useTheme } from '../context/ThemeContext'
+import { formatFarmerCode } from '../utils/display'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 
@@ -445,7 +446,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-xl font-black tracking-tight">Milk Quality Standards</h3>
-                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-0.5">Real-time laboratory parameters</p>
+                <p className="text-[11px] font-black text-slate-600 uppercase tracking-[0.2em] mt-0.5">Real-time laboratory parameters</p>
               </div>
             </div>
           </div>
@@ -532,7 +533,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-6 py-5">
                         <p className="text-sm font-bold tracking-tight text-slate-900">{r.farmer_name}</p>
-                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{r.farmer_code}</p>
+                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{formatFarmerCode(r)}</p>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <div className="flex flex-col items-center gap-1">
@@ -707,15 +708,15 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
         <Icon size={24} strokeWidth={2.5} />
       </div>
       <div className="text-center">
-        <p className="text-[9px] font-black text-slate-900 tracking-widest mb-1">{label}</p>
-        <h4 className={`text-lg font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
+        <p className="text-[11px] font-black text-slate-900 tracking-widest mb-1">{label}</p>
+        <h4 className={`text-2xl font-black tracking-tight ${colorMap[color]}`}>{value}</h4>
       </div>
       <div className="w-full pt-4 border-t border-indigo-50 dark:border-indigo-500/10 flex flex-col items-center gap-3">
         <div className="flex flex-col items-center">
-          <span className="text-[8px] font-black text-slate-900 uppercase tracking-widest">Acceptable Range</span>
-          <span className="text-[10px] font-black text-indigo-500">{range}</span>
+          <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Acceptable Range</span>
+          <span className="text-xs font-black text-indigo-500">{range}</span>
         </div>
-        <div className={`status-badge ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>
+        <div className={`status-badge !text-[11px] !px-5 !py-2 ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>
           {status}
         </div>
       </div>

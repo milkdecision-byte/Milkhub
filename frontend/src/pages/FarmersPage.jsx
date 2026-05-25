@@ -7,6 +7,7 @@ import {
   Activity, MapPin, TrendingUp, ChevronLeft, Sparkles
 } from 'lucide-react'
 import api from '../utils/api'
+import { formatFarmerCode } from '../utils/display'
 import toast from 'react-hot-toast'
 
 export default function FarmersPage() {
@@ -131,7 +132,7 @@ export default function FarmersPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-7 text-[#4B5563] font-mono text-[11px] font-medium tracking-tighter">{f.farmer_code}</td>
+                  <td className="px-8 py-7 text-[#4B5563] font-mono text-[11px] font-medium tracking-tighter">{formatFarmerCode(f)}</td>
                   <td className="px-8 py-7 text-[#6B7280] font-medium text-[10px] uppercase tracking-widest">
                     <div className="flex items-center justify-center gap-2">
                       <MapPin size={14} className="text-orange-400" /> {f.village || f.district || 'Other Area'}
