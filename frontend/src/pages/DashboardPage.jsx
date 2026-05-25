@@ -716,9 +716,6 @@ const ParameterCard = ({ label, value, range, status, icon: Icon, color }) => {
           <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Acceptable Range</span>
           <span className="text-xs font-black text-indigo-500">{range}</span>
         </div>
-        <div className={`status-badge !text-[11px] !px-5 !py-2 ${status === 'Optimal' ? 'status-badge-success' : status === 'Warning' ? 'status-badge-warning' : 'status-badge-error'}`}>
-          {status}
-        </div>
       </div>
     </div>
   )
