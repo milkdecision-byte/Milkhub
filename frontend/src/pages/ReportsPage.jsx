@@ -86,7 +86,12 @@ export default function ReportsPage() {
   const [exportStats, setExportStats] = useState(null)
   const exportChartsRef = useRef(null)
 
-  const displayedRecords = records.filter(r => !filters.date_from || r.date === filters.date_from)
+  const displayedRecords = records.filter(r => {
+    if (!r.date) return true
+    if (filters.date_from && r.date < filters.date_from) return false
+    if (filters.date_to && r.date > filters.date_to) return false
+    return true
+  })
 
   const fetchReportsData = useCallback(async () => {
     setLoading(true)
@@ -231,7 +236,11 @@ export default function ReportsPage() {
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
     const activeFilters = [
-      filters.date_from ? `Date: ${filters.date_from}` : 'All Dates',
+      (filters.date_from && filters.date_to)
+        ? `Date Range: ${filters.date_from} → ${filters.date_to}`
+        : filters.date_from
+        ? `From: ${filters.date_from}`
+        : 'All Dates',
       filters.session ? `Shift: ${filters.session}` : 'All Shifts',
       filters.decision ? `Decision: ${filters.decision}` : 'All Decisions',
       filters.fraud_risk ? `Risk: ${filters.fraud_risk}` : 'All Risk'
@@ -893,15 +902,17 @@ export default function ReportsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Date Picker */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Date Selection</label>
+        {/* ── Row 1: Date Range + Filters ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12 gap-4 lg:gap-5 items-end">
+
+          {/* From Date */}
+          <div className="flex flex-col gap-2 sm:col-span-1 lg:col-span-2 xl:col-span-2">
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">From Date</label>
             <div className="relative">
-              <Calendar size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
-              <input 
-                type="date" 
-                className="w-full bg-white/10 border border-white/15 pl-12 pr-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 transition-all shadow-sm" 
+              <Calendar size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <input
+                type="date"
+                className="w-full h-[50px] bg-white/10 border border-white/15 pl-10 pr-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 transition-all shadow-sm"
                 value={filters.date_from}
                 max={new Date().toISOString().split('T')[0]}
                 onChange={e => setFilter('date_from', e.target.value)}
@@ -909,12 +920,27 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Decision Filter */}
-          <div className="space-y-3">
+          {/* To Date */}
+          <div className="flex flex-col gap-2 sm:col-span-1 lg:col-span-2 xl:col-span-2">
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">To Date</label>
+            <div className="relative">
+              <Calendar size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <input
+                type="date"
+                className="w-full h-[50px] bg-white/10 border border-white/15 pl-10 pr-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 transition-all shadow-sm"
+                value={filters.date_to}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={e => setFilter('date_to', e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Quality Result */}
+          <div className="flex flex-col gap-2 sm:col-span-1 lg:col-span-2 xl:col-span-2">
             <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Quality Result</label>
             <div className="relative">
-              <select 
-                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+              <select
+                className="w-full h-[50px] bg-white/10 border border-white/15 px-5 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
                 value={filters.decision}
                 onChange={e => setFilter('decision', e.target.value)}
               >
@@ -922,16 +948,16 @@ export default function ReportsPage() {
                 <option value="accept" className="bg-[#00A79D]">ACCEPTED Only</option>
                 <option value="reject" className="bg-[#00A79D]">REJECTED Only</option>
               </select>
-              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
             </div>
           </div>
 
-          {/* Fraud Filter */}
-          <div className="space-y-3">
+          {/* Risk Level */}
+          <div className="flex flex-col gap-2 sm:col-span-1 lg:col-span-2 xl:col-span-2">
             <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Risk Level</label>
             <div className="relative">
-              <select 
-                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+              <select
+                className="w-full h-[50px] bg-white/10 border border-white/15 px-5 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
                 value={filters.fraud_risk}
                 onChange={e => setFilter('fraud_risk', e.target.value)}
               >
@@ -941,16 +967,16 @@ export default function ReportsPage() {
                 <option value="medium" className="bg-[#00A79D]">Fraud Medium</option>
                 <option value="clean" className="bg-[#00A79D]">Clean Samples Only</option>
               </select>
-              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
             </div>
           </div>
 
-          {/* Session Filter */}
-          <div className="space-y-3">
+          {/* Entry Source */}
+          <div className="flex flex-col gap-2 sm:col-span-1 lg:col-span-2 xl:col-span-2">
             <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1">Entry Source</label>
             <div className="relative">
-              <select 
-                className="w-full bg-white/10 border border-white/15 px-5 py-4 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
+              <select
+                className="w-full h-[50px] bg-white/10 border border-white/15 px-5 rounded-2xl text-sm font-bold text-white outline-none focus:ring-4 focus:ring-white/20 appearance-none transition-all shadow-sm"
                 value={filters.session}
                 onChange={e => setFilter('session', e.target.value)}
               >
@@ -959,18 +985,29 @@ export default function ReportsPage() {
                 <option value="evening" className="bg-[#00A79D]">Evening Shift</option>
                 <option value="manual" className="bg-[#00A79D]">Manual Intelligence Entry</option>
               </select>
-              <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/85 pointer-events-none" />
             </div>
           </div>
 
-          {/* Download Quick Actions */}
-          <div className="flex items-end gap-3 pb-0.5">
-            <button onClick={() => handleExport('excel')} disabled={loadingKey !== null} className="flex-1 py-4 rounded-2xl bg-[#059669] text-white flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 text-xs font-bold uppercase tracking-widest">
-              {loadingKey === 'excel' ? <Loader2 size={16} className="animate-spin"/> : <FileSpreadsheet size={16} />} Excel
-            </button>
-            <button onClick={() => handleExport('pdf')} disabled={loadingKey !== null} className="flex-1 py-4 rounded-2xl bg-orange-500 text-white flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 text-xs font-bold uppercase tracking-widest">
-              {loadingKey === 'pdf' ? <Loader2 size={16} className="animate-spin"/> : <FileText size={16} />} PDF
-            </button>
+          {/* Export Buttons */}
+          <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-6 xl:col-span-2">
+            <label className="text-[10px] font-bold text-white/70 uppercase tracking-widest ml-1 opacity-0 select-none">Export</label>
+            <div className="flex items-stretch gap-3 w-full">
+              <button
+                onClick={() => handleExport('excel')}
+                disabled={loadingKey !== null}
+                className="flex-1 h-[50px] rounded-2xl bg-[#059669] text-white flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                {loadingKey === 'excel' ? <Loader2 size={16} className="animate-spin"/> : <FileSpreadsheet size={16} />} Excel
+              </button>
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={loadingKey !== null}
+                className="flex-1 h-[50px] rounded-2xl bg-orange-500 text-white flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                {loadingKey === 'pdf' ? <Loader2 size={16} className="animate-spin"/> : <FileText size={16} />} PDF
+              </button>
+            </div>
           </div>
         </div>
       </div>

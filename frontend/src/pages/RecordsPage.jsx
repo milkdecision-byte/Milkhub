@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, Filter, ChevronLeft, ChevronRight, Eye, Calendar, 
   Clock, ChevronDown, Download, FileText, Database, ShieldCheck,
-  AlertTriangle, CheckCircle2, XCircle, RefreshCcw, Moon, Sparkles
+  AlertTriangle, CheckCircle2, XCircle, RefreshCcw, Moon, Sparkles,
+  FileSpreadsheet, File
 } from 'lucide-react'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../utils/api'
 import { PARAMETER_LABELS } from '../utils/parameters'
@@ -51,7 +54,20 @@ export default function RecordsPage() {
   const [batchesList, setBatchesList] = useState([])
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showExportMenu, setShowExportMenu] = useState(false)
+  const exportMenuRef = useRef(null)
   const navigate = useNavigate()
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   useEffect(() => {
     api.get('/batches?per_page=50')
@@ -94,24 +110,162 @@ export default function RecordsPage() {
     return matchesSearch;
   });
 
-  const downloadCSV = () => {
-    const headers = ['Farmer', 'ID', 'Date', 'Shift', 'Status']
-    const csvData = filteredData.map(r => [
-      r.farmer_name || '',
-      formatFarmerCode(r),
-      r.date || '',
-      r.shift || '',
-      r.decision || ''
-    ])
-    
-    let filename = "milk_records.csv";
+  const _buildExportParams = () => {
+    const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, v]) => v)
+    )
+    // Use a high limit to fetch all matching records
+    return new URLSearchParams({ per_page: 10000, page: 1, ...activeFilters })
+  }
 
-    const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = filename
-    link.click()
+  const _dateRangeLabel = () => {
+    const from = filters.date_from || 'All'
+    const to = filters.date_to || 'Present'
+    return from === 'All' && to === 'Present' ? 'All Dates' : `${from} → ${to}`
+  }
+
+  const downloadCSV = async () => {
+    setShowExportMenu(false)
+    try {
+      const params = _buildExportParams()
+      const r = await api.get(`/records?${params}`)
+      const allRecords = r.data.records || []
+      const dateRange = _dateRangeLabel()
+      const headers = ['Farmer', 'Code', 'Date', 'Shift', 'Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'Temp (°C)', 'Decision', 'Risk', 'Reasons']
+      const rows = allRecords.map(rec => [
+        `"${rec.farmer_name || ''}"`,
+        `"${formatFarmerCode(rec)}"`,
+        `"${rec.date || ''}"`,
+        `"${(rec.shift || '').toUpperCase()}"`,
+        rec.fat?.toFixed(2) || '',
+        rec.snf?.toFixed(2) || '',
+        rec.ph?.toFixed(2) || '',
+        rec.acidity?.toFixed(3) || '',
+        rec.temperature?.toFixed(1) || '',
+        `"${(rec.decision || '').toUpperCase()}"`,
+        `"${(rec.fraud_risk || '').toUpperCase()}"`,
+        `"${(rec.reasons || []).join('; ')}"`
+      ])
+      const meta = [
+        '# IVRI Milk Quality Hub — Records Export',
+        `# Date Range: ${dateRange}`,
+        `# Total Records: ${allRecords.length}`,
+        `# Generated: ${new Date().toLocaleString()}`,
+        ''
+      ].join('\n')
+      const csvContent = meta + [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `milk_records_${Date.now()}.csv`
+      link.click()
+    } catch (e) {
+      console.error('CSV export failed:', e)
+    }
+  }
+
+  const downloadExcel = async () => {
+    setShowExportMenu(false)
+    try {
+      const params = _buildExportParams()
+      const r = await api.get(`/records?${params}`)
+      const allRecords = r.data.records || []
+      const dateRange = _dateRangeLabel()
+      const headers = ['Farmer', 'Code', 'Date', 'Shift', 'Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'Temp (°C)', 'Decision', 'Risk']
+      const rows = allRecords.map(rec => [
+        rec.farmer_name || '',
+        formatFarmerCode(rec),
+        rec.date || '',
+        (rec.shift || '').toUpperCase(),
+        rec.fat?.toFixed(2) || '',
+        rec.snf?.toFixed(2) || '',
+        rec.ph?.toFixed(2) || '',
+        rec.acidity?.toFixed(3) || '',
+        rec.temperature?.toFixed(1) || '',
+        (rec.decision || '').toUpperCase(),
+        (rec.fraud_risk || '').toUpperCase()
+      ])
+      let html = `<table border="1"><thead>`
+      html += `<tr><th colspan="${headers.length}" style="background:#1E1B4B;color:#fff;font-weight:bold;font-size:13px">IVRI Milk Quality Hub — Records Export</th></tr>`
+      html += `<tr><th colspan="${headers.length}" style="background:#374151;color:#fff;font-size:11px">Date Range: ${dateRange} | Total: ${allRecords.length} records | Generated: ${new Date().toLocaleString()}</th></tr>`
+      html += '<tr>' + headers.map(h => `<th style="background:#1E1B4B;color:#fff;font-weight:bold">${h}</th>`).join('') + '</tr></thead><tbody>'
+      rows.forEach(row => {
+        html += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
+      })
+      html += '</tbody></table>'
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `milk_records_${Date.now()}.xls`
+      link.click()
+    } catch (e) {
+      console.error('Excel export failed:', e)
+    }
+  }
+
+  const downloadPDF = async () => {
+    setShowExportMenu(false)
+    try {
+      const params = _buildExportParams()
+      const r = await api.get(`/records?${params}`)
+      const allRecords = r.data.records || []
+      const dateRange = _dateRangeLabel()
+
+      const doc = new jsPDF('l', 'mm', 'a4')
+      const primaryColor = [30, 27, 75]
+      const pageWidth = doc.internal.pageSize.getWidth()
+
+      doc.setFillColor(...primaryColor)
+      doc.rect(0, 0, pageWidth, 22, 'F')
+      doc.setTextColor(255, 255, 255)
+      doc.setFont('Helvetica', 'bold')
+      doc.setFontSize(12)
+      doc.text('IVRI Milk Quality Hub — Records Export', 12, 10)
+      doc.setFont('Helvetica', 'normal')
+      doc.setFontSize(8)
+      doc.text(`Date Range: ${dateRange}  |  Total: ${allRecords.length} records`, 12, 16)
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 12, 21)
+
+      autoTable(doc, {
+        startY: 26,
+        head: [['Farmer', 'Code', 'Date', 'Shift', 'Fat (%)', 'SNF (%)', 'pH', 'Acidity', 'Decision', 'Risk']],
+        body: allRecords.map(rec => [
+          rec.farmer_name || '—',
+          formatFarmerCode(rec),
+          rec.date || '—',
+          (rec.shift || '').toUpperCase(),
+          rec.fat?.toFixed(2) || '—',
+          rec.snf?.toFixed(2) || '—',
+          rec.ph?.toFixed(2) || '—',
+          rec.acidity?.toFixed(3) || '—',
+          (rec.decision || '').toUpperCase(),
+          (rec.fraud_risk || '').toUpperCase()
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: primaryColor, fontSize: 8, fontStyle: 'bold', halign: 'center', textColor: [255,255,255] },
+        bodyStyles: { fontSize: 8 },
+        columnStyles: {
+          0: { cellWidth: 32 }, 1: { cellWidth: 26, halign: 'center' },
+          2: { cellWidth: 24, halign: 'center' }, 3: { cellWidth: 18, halign: 'center' },
+          4: { cellWidth: 16, halign: 'center' }, 5: { cellWidth: 16, halign: 'center' },
+          6: { cellWidth: 14, halign: 'center' }, 7: { cellWidth: 18, halign: 'center' },
+          8: { cellWidth: 22, halign: 'center' }, 9: { cellWidth: 20, halign: 'center' }
+        },
+        didParseCell: (data) => {
+          if (data.row.section !== 'body') return
+          if (data.column.index === 8) {
+            data.cell.styles.textColor = (data.cell.raw === 'ACCEPT' || data.cell.raw === 'ACCEPTED') ? [16,185,129] : [239,68,68]
+            data.cell.styles.fontStyle = 'bold'
+          }
+          if (data.column.index === 9) {
+            data.cell.styles.textColor = data.cell.raw === 'HIGH' ? [239,68,68] : data.cell.raw === 'MEDIUM' ? [245,158,11] : [16,185,129]
+          }
+        }
+      })
+      doc.save(`milk_records_${Date.now()}.pdf`)
+    } catch (e) {
+      console.error('PDF export failed:', e)
+    }
   }
 
   return (
@@ -243,13 +397,68 @@ export default function RecordsPage() {
           <p className="text-xs text-slate-600 mt-1">Search, filter and export milk quality records</p>
         </div>
         <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
-          <button 
-            className="btn-commercial btn-commercial-primary flex items-center gap-2"
-            onClick={downloadCSV}
-          >
-            <Download size={18} />
-            <span>Download CSV</span>
-          </button>
+          {/* Export Dropdown */}
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              onClick={() => setShowExportMenu(v => !v)}
+              className="btn-commercial btn-commercial-primary flex items-center gap-2"
+            >
+              <Download size={18} />
+              <span>Export</span>
+              <ChevronDown size={14} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+              {showExportMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
+                >
+                  <div className="px-4 py-3 bg-[#F5F3FF] border-b border-slate-100">
+                    <p className="text-[10px] font-black text-[#7C3AED] uppercase tracking-widest">Export Records</p>
+                  </div>
+                  <button
+                    onClick={downloadPDF}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-rose-100 group-hover:bg-rose-500 flex items-center justify-center transition-colors">
+                      <FileText size={15} className="text-rose-500 group-hover:text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-xs">PDF Report</p>
+                      <p className="text-[10px] text-slate-500">.pdf file</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={downloadExcel}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 group-hover:bg-emerald-500 flex items-center justify-center transition-colors">
+                      <FileSpreadsheet size={15} className="text-emerald-500 group-hover:text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-xs">Excel Sheet</p>
+                      <p className="text-[10px] text-slate-500">.xls file</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={downloadCSV}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 group-hover:bg-blue-500 flex items-center justify-center transition-colors">
+                      <Database size={15} className="text-blue-500 group-hover:text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-xs">CSV Data</p>
+                      <p className="text-[10px] text-slate-500">.csv file</p>
+                    </div>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

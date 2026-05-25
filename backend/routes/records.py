@@ -61,12 +61,7 @@ def get_records():
 
     if batch_id:
         q = q.filter(MilkRecord.batch_id == batch_id)
-    if date_from and not date_to:
-        try:
-            q = q.filter(MilkRecord.date == datetime.strptime(date_from, "%Y-%m-%d").date())
-        except ValueError:
-            pass
-    elif date_from:
+    if date_from:
         try:
             q = q.filter(MilkRecord.date >= datetime.strptime(date_from, "%Y-%m-%d").date())
         except ValueError:
